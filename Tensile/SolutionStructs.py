@@ -1452,6 +1452,12 @@ class Solution:
     #print("PackedC0IdxChars", state["PackedC0IdxChars"])
     #print("PackedC1IdxChars", state["PackedC1IdxChars"])
 
+    # Set up staggerU for half
+    if state["ProblemType"]["DataType"].isHalf() and state["StaggerU"] != 0 \
+            and ("HighPrecisionAccumulate" not in state["ProblemType"] \
+            or not state["ProblemType"]["HighPrecisionAccumulate"]):
+      state["StaggerU"] = 0;
+
     # Set up stagger shift:
     bpeAB = int(4*state["ProblemType"]["DataType"].numRegisters())
     # (1<<staggerStrideShift) is number of loop iterations to traverse the stride

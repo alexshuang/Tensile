@@ -28,6 +28,7 @@ from .Common import print1, print2, printWarning, defaultSolution, \
     defaultBenchmarkForkParameters, defaultJoinParameters, printExit, \
     validParameters, defaultSolutionSummationSizes
 from .SolutionStructs import Solution, ProblemType, ProblemSizes
+from .DataType import DataType
 
 class BenchmarkProcess:
   """
@@ -146,6 +147,17 @@ class BenchmarkProcess:
                   printExit("Invalid parameter value: %s = %s\nValid values for %s are %s." \
                       % (paramName, paramValue, paramName, validParameters[paramName]))
 
+    ############################################################################
+    # StaggerU > 0 only valid when DataType isn't half
+    if DataType(self.initialSolutionParameters["ProblemType"]["DataType"]).isHalf():
+      for paramDictList in [configBenchmarkCommonParameters, \
+          configForkParameters, configBenchmarkForkParameters, \
+          configBenchmarkJoinParameters]:
+        if paramDictList != None:
+          for paramDict in paramDictList:
+            if "StaggerU" in paramDict and paramDict["StaggerU"] != 0:
+              printExit("Half-precision not supported for StaggerU > 0 in its yaml.");
+ 
 
 
     ############################################################################
