@@ -37,8 +37,6 @@ BenchmarkProblems:
     - # ProblemType
       OperationType: GEMM
       DataType: h
-      DestDataType: h
-      ComputeDataType: s
       HighPrecisionAccumulate: True
       TransposeA: True
       TransposeB: False
@@ -57,7 +55,7 @@ BenchmarkProblems:
         - ThreadTile:
           - [ 4, 8 ]
         - WorkGroup:
-          - [ 16, 16, 1 ]
+          - [ 16, 16, 2 ]
         - WorkGroupMapping: [8]
         - GlobalSplitU: [1]
         - DepthU: [32]
@@ -72,11 +70,11 @@ BenchmarkProblems:
       BenchmarkJoinParameters:
       BenchmarkFinalParameters:
         - ProblemSizes:
-          - Exact: [ 960, 1024, 1, 1024 , 1056,  1056,  992, 1056]
+          - Exact: [ 960, 1024, 1, 1024 , 992,  992,  1056, 1056]
 
 #  ########################################
 LibraryLogic:
-   ScheduleName: "MI100"
+   ScheduleName: "Arcturus"
    DeviceNames: ["Device 738c"]
    ArchitectureName: "gfx908"
 
