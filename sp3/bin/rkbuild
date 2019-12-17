@@ -19,4 +19,8 @@ fi
 cp $RKT_HOME_DIR/replacement_kernels/$KERNEL_FILE .
 cat $1 >> $KERNEL_FILE
 
+./asm.sh ${KERNEL_FILE%.*} -mcpu=gfx908
+
+cd ../../build && ./run.sh
+cd -
 
