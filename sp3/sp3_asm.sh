@@ -15,10 +15,15 @@ else
 	SRC=$1
 fi
 
+OUT_DIR=out
+mkdir -p $OUT_DIR
+
 for o in $SRC; do
-	HEX=${o%.*}.hex
-	OUT=${o%.*}_out.sp3
-	INC=${o%.*}.inc
+	BASENAME=${o%.*}
+	BASENAME=$OUT_DIR/${BASENAME##*/}
+	HEX=$BASENAME.hex
+	OUT=${BASENAME}_out.sp3
+	INC=$BASENAME.inc
 	$PWD/mi100_sp3 $o asic=MI9 type=cs -hex $HEX
 	$PWD/mi100_sp3 -hex $HEX asic=MI9 type=cs  $OUT
 	cat $OUT | grep "// " | grep ": " | sed "s/.*: //" | sed "s/ \([0-9a-f]*\)/, 0x\1/" |sed "s/^/.long 0x/" > $INC
