@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+
+BIN_DIR=$RKT_HOME_DIR/bin
+export LD_LIBRARY_PATH=$BIN_DIR
+
+if [ "$#" -eq "0" ]; then
+	echo "Usage: rkbuild <inc_file_path>"
+	exit -1
+fi
+
+KERNEL_FILE=`ls *.s`
+if [ ! -f $RKT_HOME_DIR/replacement_kernels/$KERNEL_FILE ]; then
+	echo "$RKT_HOME_DIR/replacement_kernels/$KERNEL_FILE not found."
+	exit -1
+fi
+
+cp $RKT_HOME_DIR/replacement_kernels/$KERNEL_FILE .
+cat $1 >> $KERNEL_FILE
+
+
