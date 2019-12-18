@@ -2,6 +2,11 @@
 
 set -e
 
+if [ ! -e "asm.sh" ]; then
+	echo "ERROR: Please enter Tensile's assembly directory first."
+	exit -1
+fi
+
 BIN_DIR=$RKT_HOME_DIR/bin
 export LD_LIBRARY_PATH=$BIN_DIR
 
@@ -11,15 +16,12 @@ if [ "$#" -eq "0" ]; then
 fi
 
 KERNEL_FILE=`ls *.s`
-if [ ! -f $RKT_HOME_DIR/replacement_kernels/$KERNEL_FILE ]; then
-	echo "$RKT_HOME_DIR/replacement_kernels/$KERNEL_FILE not found."
-	exit -1
-fi
+KERNEL_NAME=${KERNEL_FILE%.*}
 
-cp $RKT_HOME_DIR/replacement_kernels/$KERNEL_FILE .
+sed -i '/^.macro/,$d' $KERNEL_FILE
 cat $1 >> $KERNEL_FILE
 
-./asm.sh ${KERNEL_FILE%.*} -mcpu=gfx908
+./asm.sh $KERNEL_NAME -mcpu=gfx908
 
 cd ../../build && ./run.sh
 cd -
