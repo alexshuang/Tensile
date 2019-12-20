@@ -43,11 +43,19 @@ def do_perf(problem_sizes, thory_gflops):
         ret = os.system(cc_cmd)
         if ret != 0:
             exit(ret)
-        res_lines = os.popen(perf_cmd).readlines()
-        res = res_lines[-1].split(' ')
-        gflops.append(float(res[1]))
-        efficiency.append(float(res[1]) / float(thory_gflops) * 100)
-        kernel.append(res[-1].strip())
+        gflops_ = []
+        kernel_name = None
+        for _ in range(1):
+            res = os.popen(perf_cmd).readlines()[-1].split(' ')
+            gflops_.append(float(res[1]))
+            if kernel_name == None:
+                kernel_name = res[-1].strip()
+        gflops_max = max(gflops_)
+        print(gflops_)
+        print(gflops_max)
+        gflops.append(gflops_max)
+        efficiency.append(gflops_max / float(thory_gflops) * 100)
+        kernel.append(kernel_name)
     return (kernel, m, n, c, k, gflops, efficiency)
 
 
