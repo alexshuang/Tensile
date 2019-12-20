@@ -18,7 +18,8 @@ fi
 KERNEL_FILE=`ls *.s`
 KERNEL_NAME=${KERNEL_FILE%.*}
 
-sed -i '/^.macro/,$d' $KERNEL_FILE
+sed -i '/^.end_amd_amdgpu_hsa_metadata/,$d' $KERNEL_FILE
+cat '.end_amd_amdgpu_hsa_metadata' >> $KERNEL_FILE
 cat $1 >> $KERNEL_FILE
 
 ./asm.sh $KERNEL_NAME -mcpu=gfx908
