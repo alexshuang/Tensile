@@ -5,6 +5,8 @@ import argparse
 import json
 import os
 import pdb
+import numpy as np
+import pandas as pd
 
 
 def get_max_dim_size(problem_sizes):
@@ -16,23 +18,49 @@ def get_max_dim_size(problem_sizes):
     return max_size
 
 
-def do_perf(problem_sizes):
+def do_perf(problem_sizes, thory_gflops):
     max_dim_size = get_max_dim_size(problem_sizes)
-    m, n, c, k, gflops, efficiency = [], [], [], [], [], []
+    kernel, m, n, c, k, gflops, efficiency = [], [], [], [], [], [], []
     for p in problem_sizes:
-        m_, n_, c_, k_, _* = p
+        print("pef problem size: " + ', '.join(str(o) for o in p))
+        m_, n_, c_, k_ = p[:4]
         ps_cmd = "sed -i \'/.*problemSizes\[/,/}};/s/{.*}};/{" + ', '.join(str(o) for o in p) + "}};/g\' ../source/ClientParameters.h"
-        ms_cmd = "sed -i \'s/\(.*maxSize. = \).*/\\1" + str(max_dim_size**2) + "/g\' ../source/ClientParameters.h"
+        ms_cmd = "sed -i \'s/\(.*maxSize. = \).*/\\1" + str(max_dim_size**2) + ";/g\' ../source/ClientParameters.h"
+        perf_cmd = "./client --platform-idx 0 --device-idx 0 --init-alpha 1 --init-beta 0 --init-d 0 --init-c 0 --init-a 3 --init-b 3 --c-equal-d 1 --print-valids 0 --print-max 4 --num-benchmarks 20 --num-elements-to-validate 0 --num-enqueues-per-sync 1 --num-syncs-per-benchmark 1 --use-gpu-timer 1 --sleep-percent 200 --benchmark-solutions 0"
         m.append(m_)
         n.append(n_)
         c.append(c_)
         k.append(k_)
         ret = os.system(ps_cmd)
+        if ret != 0:
+            print("ERROR: Fail to set problem size: " + ps_cmd)
+            exit(ret)
+        ret = os.system(ms_cmd)
+        if ret != 0:
+            print("ERROR: Fail to set maxSize of A/B/C/D: " + ms_cmd)
+            exit(ret)
+        res_lines = os.popen(perf_cmd).readlines()
+        res = res_lines[-1].split(' ')
+        gflops.append(float(res[1]))
+        efficiency.append(float(res[1]) / float(thory_gflops) * 100)
+        kernel.append(res[-1].strip())
+    return (kernel, m, n, c, k, gflops, efficiency)
+    #return (np.array(kernel), np.array(m), np.array(n), np.array(c), np.array(k), np.array(m), np.array(m),
 
-        break
-        print(ps_cmd)
-        print(ms_cmd)
-        break
+
+def save_file(data):
+    kernel, m, n, c, k, gflops, efficiency = data
+    df = pd.DataFrame()
+    df['KernelName'] = np.array(kernel)
+    df['M'] = np.array(m)
+    df['N'] = np.array(n)
+    df['C'] = np.array(c)
+    df['K'] = np.array(k)
+    df['GFlops'] = np.array(gflops)
+    df['Efficiency'] = np.array(efficiency)
+    fname = kernel[0] + '.csv'
+    print("perf resoult save as " + fname)
+    df.to_csv(fname)
 
 
 if __name__ == "__main__":
@@ -42,14 +70,16 @@ if __name__ == "__main__":
     parser.add_argument("-g", "--generate", type=str, help='generate generic config file')
     args = parser.parse_args()
 
+    if not os.path.exists('run.sh'):
+        print("ERROR: Please enter Tensile's build directory first. e.g. /path/to/tensile's output/1_BenchmarkProblems/Cijk_Alik_Bljk_HBH_00/00_Final/build")
+        exit(-2)
+
     if args.generate:
-        fname = "config.json"
-        fpath = os.getcwd() + "/" + fname
-        #data = '{\n\t"ProblemSize": "[ [960, 1024, 1, 1024, 996, 996, 1056, 1056], [1920, 2048, 1, 2048, 1952, 1952, 2080, 2080], [3840, 4096, 1, 4096, 3872, 3872, 4128, 4128], [7680, 8192, 1, 8192, 7712, 7712, 8224, 8224] ]"\n}\n'
-        data = '{\n\t"ProblemSize": "[ [960, 1024, 1, 1024, 996, 996, 1056, 1056] ]"\n}\n'
+        fpath = os.getcwd() + "/" + args.generate
+        data = '{\n\t"TheoryGFlops": 93143.04,\n\t\n\t"ProblemSize": "[ [960, 1024, 1, 1024, 996, 996, 1056, 1056], [1920, 2048, 1, 2048, 1952, 1952, 2080, 2080], [3840, 4096, 1, 4096, 3872, 3872, 4128, 4128], [7680, 8192, 1, 8192, 7712, 7712, 8224, 8224] ]"\n}\n'
         with open(fpath, "w") as fp:
             fp.write(data)
-        print('config.json Generated in ' + os.getcwd())
+        print('%s Generated in %s' % (args.generate, os.getcwd()))
         exit(0)
 
     if not args.config:
@@ -58,5 +88,6 @@ if __name__ == "__main__":
 
     conf = json.load(open(args.config, 'r'))
     ps = eval(conf['ProblemSize'])
-    do_perf(ps)
+    res = do_perf(ps, conf['TheoryGFlops'])
+    save_file(res)
 
