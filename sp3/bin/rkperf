@@ -26,6 +26,7 @@ def do_perf(problem_sizes, thory_gflops):
         m_, n_, c_, k_ = p[:4]
         ps_cmd = "sed -i \'/.*problemSizes\[/,/}};/s/{.*}};/{" + ', '.join(str(o) for o in p) + "}};/g\' ../source/ClientParameters.h"
         ms_cmd = "sed -i \'s/\(.*maxSize. = \).*/\\1" + str(max_dim_size**2) + ";/g\' ../source/ClientParameters.h"
+        cc_cmd = "cmake --build . --config Release -- -j 8"
         perf_cmd = "./client --platform-idx 0 --device-idx 0 --init-alpha 1 --init-beta 0 --init-d 0 --init-c 0 --init-a 3 --init-b 3 --c-equal-d 1 --print-valids 0 --print-max 4 --num-benchmarks 20 --num-elements-to-validate 0 --num-enqueues-per-sync 1 --num-syncs-per-benchmark 1 --use-gpu-timer 1 --sleep-percent 200 --benchmark-solutions 0"
         m.append(m_)
         n.append(n_)
@@ -38,6 +39,9 @@ def do_perf(problem_sizes, thory_gflops):
         ret = os.system(ms_cmd)
         if ret != 0:
             print("ERROR: Fail to set maxSize of A/B/C/D: " + ms_cmd)
+            exit(ret)
+        ret = os.system(cc_cmd)
+        if ret != 0:
             exit(ret)
         res_lines = os.popen(perf_cmd).readlines()
         res = res_lines[-1].split(' ')
@@ -71,7 +75,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if not os.path.exists('run.sh'):
-        print("ERROR: Please enter Tensile's build directory first. e.g. /path/to/tensile's output/1_BenchmarkProblems/Cijk_Alik_Bljk_HBH_00/00_Final/build")
+        print("ERROR: Please make sure you are under the build directory: 1_BenchmarkProblems/*/00_Final/build")
         exit(-2)
 
     if args.generate:

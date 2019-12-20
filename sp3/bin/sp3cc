@@ -6,7 +6,7 @@ BIN_DIR=$RKT_HOME_DIR/bin
 export LD_LIBRARY_PATH=$BIN_DIR
 
 if [ "$#" -eq "0" ]; then
-	echo "Usage: sp3toinc <sp3_file_or_dir_path>"
+	echo "Usage: sp3cc <sp3_file_or_dir_path>"
 	exit -1
 fi
 
@@ -30,7 +30,7 @@ for o in $SRC; do
 	#/opt/rocm/opencl/bin/x86_64/clang -x assembler -target amdgcn-amdhsa -mcpu=gfx906 template.s -o output.co
 	echo
 	echo
-	echo "[Finish]: $o -> $INC"
+	echo "[Output]: $INC"
 	echo
 	echo
 done
