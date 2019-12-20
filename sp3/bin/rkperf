@@ -49,13 +49,12 @@ def do_perf(problem_sizes, thory_gflops):
         efficiency.append(float(res[1]) / float(thory_gflops) * 100)
         kernel.append(res[-1].strip())
     return (kernel, m, n, c, k, gflops, efficiency)
-    #return (np.array(kernel), np.array(m), np.array(n), np.array(c), np.array(k), np.array(m), np.array(m),
 
 
 def save_file(data):
     kernel, m, n, c, k, gflops, efficiency = data
     df = pd.DataFrame()
-    df['KernelName'] = np.array(kernel)
+    #df['KernelName'] = np.array(kernel)
     df['M'] = np.array(m)
     df['N'] = np.array(n)
     df['C'] = np.array(c)
