@@ -63,7 +63,7 @@ def save_file(data):
     df['Efficiency'] = np.array(efficiency)
     fname = kernel[0] + '.csv'
     print("perf resoult save as " + fname)
-    df.to_csv(fname)
+    df.to_csv(fname, index=False)
 
 
 if __name__ == "__main__":
