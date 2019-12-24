@@ -937,13 +937,15 @@ label_0002:
           v_accvgpr_read v_regs(vgprValuC, j), v_regs(j,0*16), 0
       end
 
+     s_waitcnt vmcnt(0)
+
       v_cvt_f16_f32 v[vgprValuC+0], v[vgprValuC+0]
       v_cvt_f16_f32 v[vgprValuC+1], v[vgprValuC+1]
       v_lshl_or_b32 v[vgprValuC+0], v[vgprValuC+1], 16, v[vgprValuC+0]
       v_pk_mul_f16  v[vgprValuC+0], s[sgprAlpha], v[vgprValuC+0]
 
       v_pk_mul_f16  v[vgprBetaValuC+0], s[sgprBeta], v[vgprBetaValuC+0]
-      v_pk_add_f16  v[vgprValuC+0], v[vgprBetaValuC+0], v[vgprValuC+0]
+      v_pk_add_f16 v[vgprValuC+0], v[vgprBetaValuC+0], v[vgprValuC+0]
 
       for var j = 2; j < 6; j+=2
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
