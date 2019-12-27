@@ -79,7 +79,7 @@ var sgprFetchSubGrpId=82
 var vgprValuC=0
 var vgprAcc=0
 var vgprValuA_X0_I0=16
-var vgprValuSrcC=16
+var vgprValuSrcC=64
 var vgprValuB_X0_I0=80
 var vgprLocalReadAddrA=112
 var vgprLocalReadAddrB=114
@@ -973,14 +973,10 @@ label_0002:
      ds_read_b64       v_regs(vgprValuB_X0_I0, 6+1*16),  v_regs(vgprLocalReadAddrB,1)  offset:48
      v_mfma_f32_32x32x8f16 v[vgprAcc+16], v[vgprValuA_X0_I0+16+14], v_regs(vgprValuB_X0_I0,14+0*16), v[vgprAcc+16]
 
-     buffer_load_dwordx2 v[vgprValuSrcC+0:vgprValuSrcC+1],  v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:0 offen:1
-     buffer_load_dwordx2 v[vgprValuSrcC+2:vgprValuSrcC+3],  v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:16 offen:1
-     buffer_load_dwordx2 v[vgprValuSrcC+4:vgprValuSrcC+5],  v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:32 offen:1
-     buffer_load_dwordx2 v[vgprValuSrcC+6:vgprValuSrcC+7],  v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:48 offen:1
-     buffer_load_dwordx2 v[vgprValuSrcC+8:vgprValuSrcC+9],  v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:64 offen:1
-     buffer_load_dwordx2 v[vgprValuSrcC+10:vgprValuSrcC+11],  v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:80 offen:1
-     buffer_load_dwordx2 v[vgprValuSrcC+12:vgprValuSrcC+13],  v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:96 offen:1
-     buffer_load_dwordx2 v[vgprValuSrcC+14:vgprValuSrcC+15],  v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:112 offen:1
+     buffer_load_dwordx4 v[vgprValuSrcC+0:vgprValuSrcC+3],  v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:0 offen:1
+     buffer_load_dwordx4 v[vgprValuSrcC+4:vgprValuSrcC+7],  v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:32 offen:1
+     buffer_load_dwordx4 v[vgprValuSrcC+8:vgprValuSrcC+11],  v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:64 offen:1
+     buffer_load_dwordx4 v[vgprValuSrcC+12:vgprValuSrcC+15],  v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:96 offen:1
 
      /***** second unroll Loop *****/
      s_waitcnt lgkmcnt(3)
