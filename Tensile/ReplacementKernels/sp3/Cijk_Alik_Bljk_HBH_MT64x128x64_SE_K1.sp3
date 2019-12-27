@@ -1012,7 +1012,7 @@ label_0002:
       v_or_b32		v[vgprTmp+1], s84, v[vgprTmp+1]
 
       s_cmp_eq_u32  s[sgprBeta], 0   // beta == 0
-      s_cbranch_scc1  store_c_with_beta   
+      s_cbranch_scc0  store_c_with_beta   
       
       for var j = 0; j < 8; j++
           v_accvgpr_read v_regs(vgprValuC, j), v_regs(j,0*16), 0
