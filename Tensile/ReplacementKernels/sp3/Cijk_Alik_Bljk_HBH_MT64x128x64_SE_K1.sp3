@@ -1050,13 +1050,13 @@ label_0002:
       v_cvt_f16_f32 v[vgprValuC+0], v[vgprValuC+0]
       v_cvt_f16_f32 v[vgprValuC+1], v[vgprValuC+1]
       v_lshl_or_b32 v[vgprValuC+0], v[vgprValuC+1], 16, v[vgprValuC+0]
-      v_pk_mul_f16  v[vgprValuC+0], s[sgprAlpha], v[vgprValuC+0]
+      //v_pk_mul_f16  v[vgprValuC+0], s[sgprAlpha], v[vgprValuC+0]
 
       for var j = 2; j < 6; j+=2
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
           v_lshl_or_b32 v[vgprValuC+(j/2)], v[vgprValuC+j+1], 16, v[vgprValuC+j]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
       end
       v_pk_fma_f16  v[vgprValuC+0], s[sgprBeta], v[vgprSrcValuC+0], v[vgprValuC+0]
       v_pk_fma_f16  v[vgprValuC+1], s[sgprBeta], v[vgprSrcValuC+1], v[vgprValuC+1]
@@ -1069,7 +1069,7 @@ label_0002:
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
           v_lshl_or_b32 v[vgprValuC+(j/2)], v[vgprValuC+j+1], 16, v[vgprValuC+j]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
       end
       v_pk_fma_f16  v[vgprValuC+2], s[sgprBeta], v[vgprSrcValuC+2], v[vgprValuC+2]
       v_pk_fma_f16  v[vgprValuC+3], s[sgprBeta], v[vgprSrcValuC+3], v[vgprValuC+3]
@@ -1085,7 +1085,7 @@ label_0002:
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
           v_lshl_or_b32 v[vgprValuC+(j/2)], v[vgprValuC+j+1], 16, v[vgprValuC+j]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
       end
       v_pk_fma_f16  v[vgprValuC+4], s[sgprBeta], v[vgprSrcValuC+4], v[vgprValuC+4]
       v_pk_fma_f16  v[vgprValuC+5], s[sgprBeta], v[vgprSrcValuC+5], v[vgprValuC+5]
@@ -1101,7 +1101,7 @@ label_0002:
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
           v_lshl_or_b32 v[vgprValuC+(j/2)], v[vgprValuC+j+1], 16, v[vgprValuC+j]
-          v_pk_mul_f16  v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16  v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
       end
       v_pk_fma_f16  v[vgprValuC+6], s[sgprBeta], v[vgprSrcValuC+6], v[vgprValuC+6]
       v_pk_fma_f16  v[vgprValuC+7], s[sgprBeta], v[vgprSrcValuC+7], v[vgprValuC+7]
@@ -1117,13 +1117,13 @@ store_c:
       v_cvt_f16_f32 v[vgprValuC+0], v[vgprValuC+0]
       v_cvt_f16_f32 v[vgprValuC+1], v[vgprValuC+1]
       v_lshl_or_b32 v[vgprValuC+0], v[vgprValuC+1], 16, v[vgprValuC+0]
-      v_pk_mul_f16  v[vgprValuC+0], s[sgprAlpha], v[vgprValuC+0]
+      //v_pk_mul_f16  v[vgprValuC+0], s[sgprAlpha], v[vgprValuC+0]
 
       for var j = 2; j < 6; j+=2
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
           v_lshl_or_b32 v[vgprValuC+(j/2)], v[vgprValuC+j+1], 16, v[vgprValuC+j]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
       end
 
       v_pk_fma_f16  v[vgprValuC+0], s[sgprBeta], v[vgprSrcValuC+8+0], v[vgprValuC+0]
@@ -1134,7 +1134,7 @@ store_c:
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
           v_lshl_or_b32 v[vgprValuC+(j/2)], v[vgprValuC+j+1], 16, v[vgprValuC+j]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
       end
 
       for var j = 8; j < 12; j++
@@ -1149,7 +1149,7 @@ store_c:
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
           v_lshl_or_b32 v[vgprValuC+(j/2)], v[vgprValuC+j+1], 16, v[vgprValuC+j]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
       end
 
       for var j = 12; j < 16; j++
@@ -1164,7 +1164,7 @@ store_c:
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
           v_lshl_or_b32 v[vgprValuC+(j/2)], v[vgprValuC+j+1], 16, v[vgprValuC+j]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
       end
       v_pk_fma_f16  v[vgprValuC+6], s[sgprBeta], v[vgprSrcValuC+8+6], v[vgprValuC+6]
       v_pk_fma_f16  v[vgprValuC+7], s[sgprBeta], v[vgprSrcValuC+8+7], v[vgprValuC+7]
