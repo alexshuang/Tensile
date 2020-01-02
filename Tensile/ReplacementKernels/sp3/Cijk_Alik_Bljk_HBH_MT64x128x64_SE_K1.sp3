@@ -95,7 +95,7 @@ var vgprGlobalReadOfvarB=72
 /////vreg common def////////////////
 var vgprSerial=118
 var vgprTmp=122
-var vgprTmp2=124
+var vgprTmp2=16
 
 ////constant def/////////////
 var varlds_pad            = 8
