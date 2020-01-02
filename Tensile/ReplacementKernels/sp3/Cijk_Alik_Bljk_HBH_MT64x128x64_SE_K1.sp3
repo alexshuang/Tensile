@@ -1007,7 +1007,7 @@ label_0002:
       buffer_load_dwordx4 v[vgprSrcValuC+12:vgprSrcValuC+15],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:96
       */
 
-     //s_barrier
+     s_barrier
 
      /***** second unroll Loop *****/
      s_waitcnt lgkmcnt(3)
