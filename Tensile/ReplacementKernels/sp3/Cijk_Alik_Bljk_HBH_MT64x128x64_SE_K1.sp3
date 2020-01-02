@@ -1015,6 +1015,10 @@ label_0002:
       buffer_load_dwordx2 v[vgprSrcValuC+2:vgprSrcValuC+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:16
       buffer_load_dwordx2 v[vgprSrcValuC+4:vgprSrcValuC+5],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:32
       buffer_load_dwordx2 v[vgprSrcValuC+6:vgprSrcValuC+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:48
+      buffer_load_dwordx2 v[vgprSrcValuC+8+0:vgprSrcValuC+8+1],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:64
+      buffer_load_dwordx2 v[vgprSrcValuC+8+2:vgprSrcValuC+8+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:80
+      buffer_load_dwordx2 v[vgprSrcValuC+8+4:vgprSrcValuC+8+5],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:96
+      buffer_load_dwordx2 v[vgprSrcValuC+8+6:vgprSrcValuC+8+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:112
 
       v_cvt_f16_f32 v[vgprValuC+0], v[vgprValuC+0]
       v_cvt_f16_f32 v[vgprValuC+1], v[vgprValuC+1]
@@ -1078,12 +1082,6 @@ label_0002:
 
 
 store_c:
-      /* load C */
-      buffer_load_dwordx2 v[vgprSrcValuC+0:vgprSrcValuC+1],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:64
-      buffer_load_dwordx2 v[vgprSrcValuC+2:vgprSrcValuC+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:80
-      buffer_load_dwordx2 v[vgprSrcValuC+4:vgprSrcValuC+5],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:96
-      buffer_load_dwordx2 v[vgprSrcValuC+6:vgprSrcValuC+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:112
-
  for var i = 1; i < 2; i++
       for var j = 0; j < 8; j++
           v_accvgpr_read v_regs(vgprValuC, j),v_regs(j,i*16), 0
@@ -1101,8 +1099,8 @@ store_c:
           //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
       end
 
-      v_pk_fma_f16  v[vgprValuC+0], s[sgprBeta], v[vgprSrcValuC+0], v[vgprValuC+0]
-      v_pk_fma_f16  v[vgprValuC+1], s[sgprBeta], v[vgprSrcValuC+1], v[vgprValuC+1]
+      v_pk_fma_f16  v[vgprValuC+0], s[sgprBeta], v[vgprSrcValuC+8+0], v[vgprValuC+0]
+      v_pk_fma_f16  v[vgprValuC+1], s[sgprBeta], v[vgprSrcValuC+8+1], v[vgprValuC+1]
       buffer_store_dwordx2 v[vgprValuC+0:vgprValuC+1],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0  offset:64*i+0 offen:1 // store C
 
       for var j = 6; j < 8; j+=2
@@ -1116,8 +1114,8 @@ store_c:
           v_accvgpr_read v_regs(vgprValuC, j),v_regs(j,i*16), 0
       end
 
-      v_pk_fma_f16  v[vgprValuC+2], s[sgprBeta], v[vgprSrcValuC+2], v[vgprValuC+2]
-      v_pk_fma_f16  v[vgprValuC+3], s[sgprBeta], v[vgprSrcValuC+3], v[vgprValuC+3]
+      v_pk_fma_f16  v[vgprValuC+2], s[sgprBeta], v[vgprSrcValuC+8+2], v[vgprValuC+2]
+      v_pk_fma_f16  v[vgprValuC+3], s[sgprBeta], v[vgprSrcValuC+8+3], v[vgprValuC+3]
       buffer_store_dwordx2 v[vgprValuC+2:vgprValuC+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:64*i+16 offen:1 // store C
 
       for var j = 8; j < 12; j+=2
@@ -1131,8 +1129,8 @@ store_c:
           v_accvgpr_read v_regs(vgprValuC, j),v_regs(j,i*16), 0
       end
 
-      v_pk_fma_f16  v[vgprValuC+4], s[sgprBeta], v[vgprSrcValuC+4], v[vgprValuC+4]
-      v_pk_fma_f16  v[vgprValuC+5], s[sgprBeta], v[vgprSrcValuC+5], v[vgprValuC+5]
+      v_pk_fma_f16  v[vgprValuC+4], s[sgprBeta], v[vgprSrcValuC+8+4], v[vgprValuC+4]
+      v_pk_fma_f16  v[vgprValuC+5], s[sgprBeta], v[vgprSrcValuC+8+5], v[vgprValuC+5]
       buffer_store_dwordx2 v[vgprValuC+4:vgprValuC+5],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:64*i+32 offen:1 // store C
 
       for var j = 12; j < 16; j+=2
@@ -1141,8 +1139,8 @@ store_c:
           v_lshl_or_b32 v[vgprValuC+(j/2)], v[vgprValuC+j+1], 16, v[vgprValuC+j]
           //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
       end
-      v_pk_fma_f16  v[vgprValuC+6], s[sgprBeta], v[vgprSrcValuC+6], v[vgprValuC+6]
-      v_pk_fma_f16  v[vgprValuC+7], s[sgprBeta], v[vgprSrcValuC+7], v[vgprValuC+7]
+      v_pk_fma_f16  v[vgprValuC+6], s[sgprBeta], v[vgprSrcValuC+8+6], v[vgprValuC+6]
+      v_pk_fma_f16  v[vgprValuC+7], s[sgprBeta], v[vgprSrcValuC+8+7], v[vgprValuC+7]
       buffer_store_dwordx2 v[vgprValuC+6:vgprValuC+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offset:64*i+48 offen:1 // store C
 
  end
