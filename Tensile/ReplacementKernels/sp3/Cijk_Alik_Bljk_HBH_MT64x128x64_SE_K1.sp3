@@ -79,7 +79,7 @@ var sgprFetchSubGrpId=82
 var vgprValuC=0
 var vgprAcc=0
 var vgprValuA_X0_I0=16
-var vgprSrcValuC=16
+var vgprSrcValuC=32
 var vgprValuB_X0_I0=80
 var vgprLocalReadAddrA=112
 var vgprLocalReadAddrB=114
@@ -1011,10 +1011,10 @@ label_0002:
       end
 
       /* load C */
-      buffer_load_dwordx2 v[vgprSrcValuC+0:vgprSrcValuC+1],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:0
-      buffer_load_dwordx2 v[vgprSrcValuC+2:vgprSrcValuC+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:16
-      buffer_load_dwordx2 v[vgprSrcValuC+4:vgprSrcValuC+5],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:32
-      buffer_load_dwordx2 v[vgprSrcValuC+6:vgprSrcValuC+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:48
+      buffer_load_dwordx2 v[vgprSrcValuC+0:vgprSrcValuC+1],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:0
+      buffer_load_dwordx2 v[vgprSrcValuC+2:vgprSrcValuC+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:16
+      buffer_load_dwordx2 v[vgprSrcValuC+4:vgprSrcValuC+5],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:32
+      buffer_load_dwordx2 v[vgprSrcValuC+6:vgprSrcValuC+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:48
 
       v_cvt_f16_f32 v[vgprValuC+0], v[vgprValuC+0]
       v_cvt_f16_f32 v[vgprValuC+1], v[vgprValuC+1]
@@ -1086,10 +1086,10 @@ label_0002:
 
 store_c:
       /* load C */
-      buffer_load_dwordx2 v[vgprSrcValuC+0:vgprSrcValuC+1],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:64
-      buffer_load_dwordx2 v[vgprSrcValuC+2:vgprSrcValuC+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:80
-      buffer_load_dwordx2 v[vgprSrcValuC+4:vgprSrcValuC+5],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:96
-      buffer_load_dwordx2 v[vgprSrcValuC+6:vgprSrcValuC+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:112
+      buffer_load_dwordx2 v[vgprSrcValuC+0:vgprSrcValuC+1],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:64
+      buffer_load_dwordx2 v[vgprSrcValuC+2:vgprSrcValuC+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:80
+      buffer_load_dwordx2 v[vgprSrcValuC+4:vgprSrcValuC+5],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:96
+      buffer_load_dwordx2 v[vgprSrcValuC+6:vgprSrcValuC+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:112
 
  for var i = 1; i < 2; i++
       for var j = 0; j < 8; j++
