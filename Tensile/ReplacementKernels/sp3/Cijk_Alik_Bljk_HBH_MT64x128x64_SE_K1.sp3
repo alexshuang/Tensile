@@ -79,6 +79,7 @@ var sgprFetchSubGrpId=82
 var vgprValuC=0
 var vgprAcc=0
 var vgprValuA_X0_I0=16
+var vgprSrcValuC=16
 var vgprValuB_X0_I0=80
 var vgprLocalReadAddrA=112
 var vgprLocalReadAddrB=114
@@ -971,6 +972,12 @@ label_0002:
      ds_read_b64       v_regs(vgprValuB_X0_I0, 4+1*16),  v_regs(vgprLocalReadAddrB,1)  offset:32
      ds_read_b64       v_regs(vgprValuB_X0_I0, 6+1*16),  v_regs(vgprLocalReadAddrB,1)  offset:48
      v_mfma_f32_32x32x8f16 v[vgprAcc+16], v[vgprValuA_X0_I0+16+14], v_regs(vgprValuB_X0_I0,14+0*16), v[vgprAcc+16]
+
+     /* load C */
+     buffer_load_dwordx4 v[vgprSrcValuC+0:vgprSrcValuC+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:0
+     buffer_load_dwordx4 v[vgprSrcValuC+4:vgprSrcValuC+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:32
+     buffer_load_dwordx4 v[vgprSrcValuC+8:vgprSrcValuC+11],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:64
+     buffer_load_dwordx4 v[vgprSrcValuC+12:vgprSrcValuC+15],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:96
 
      /***** second unroll Loop *****/
      s_waitcnt lgkmcnt(3)
