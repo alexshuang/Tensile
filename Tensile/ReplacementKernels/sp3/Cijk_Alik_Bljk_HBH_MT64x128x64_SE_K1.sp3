@@ -1004,10 +1004,6 @@ label_0002:
       buffer_load_dword v[vgprSrcValuC+14],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:112
       buffer_load_dword v[vgprSrcValuC+15],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 lds:0 offset:120
       */
-      buffer_load_dwordx4 v[vgprSrcValuC+0:vgprSrcValuC+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:0
-      buffer_load_dwordx4 v[vgprSrcValuC+4:vgprSrcValuC+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:32
-      buffer_load_dwordx4 v[vgprSrcValuC+8:vgprSrcValuC+11],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:64
-      buffer_load_dwordx4 v[vgprSrcValuC+12:vgprSrcValuC+15],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:96
 
      /***** second unroll Loop *****/
      s_waitcnt lgkmcnt(3)
@@ -1042,6 +1038,11 @@ label_0002:
       v_xor_b32		v[vgprTmp+1], v[vgprTmp],v[vgprTmp]
       v_or_b32		v[vgprTmp+1], s84, v[vgprTmp+1]
 
+      buffer_load_dwordx4 v[vgprSrcValuC+0:vgprSrcValuC+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:0
+      buffer_load_dwordx4 v[vgprSrcValuC+4:vgprSrcValuC+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:32
+      buffer_load_dwordx4 v[vgprSrcValuC+8:vgprSrcValuC+11],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:64
+      buffer_load_dwordx4 v[vgprSrcValuC+12:vgprSrcValuC+15],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:96
+
       v_mov_b32 v0, s[sgprAlpha]
       v_cvt_f32_f16 v0, v0
       v_readfirstlane_b32 s[sgprAlpha], v0
@@ -1049,6 +1050,8 @@ label_0002:
       v_mov_b32 v0, s[sgprBeta]
       v_cvt_f32_f16 v0, v0
       v_readfirstlane_b32 s[sgprBeta], v0
+
+      s_waitcnt vmcnt(3)
 
       for var j = 0; j < 8; j++
           v_accvgpr_read v_regs(vgprValuC, j), v_regs(j,0*16), 0
