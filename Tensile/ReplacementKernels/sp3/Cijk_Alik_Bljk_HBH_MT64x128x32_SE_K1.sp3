@@ -915,7 +915,7 @@ label_0002:
      s_waitcnt lgkmcnt(2)
      v_mfma_f32_32x32x8f16 v[vgprAcc+0],  v[vgprValuA_X0_I0+16+0+2], v_regs(vgprValuB_X0_I0, 2+1*8), v[vgprAcc+0]
      s_cmp_eq_u32     s[sgprBeta], 0
-     s_cbranch_scc1   label_not_load_C // branch if beta == 0
+     s_cbranch_scc1   not_load_C // branch if beta == 0
      buffer_load_dwordx4 v[vgprSrcValuC+0:vgprSrcValuC+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:0
      buffer_load_dwordx4 v[vgprSrcValuC+4:vgprSrcValuC+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:32
      buffer_load_dwordx4 v[vgprSrcValuC+8:vgprSrcValuC+11],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0 offen:1 offset:64
