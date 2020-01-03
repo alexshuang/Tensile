@@ -22,8 +22,8 @@ GlobalParameters:
   DataInitTypeAlpha: 1
   DataInitTypeA: 3
   DataInitTypeB: 3
-  DataInitTypeC: 0
-  DataInitTypeD: 0
+  DataInitTypeC: 1
+  DataInitTypeD: 6
   PrintTensorA: 0
   PrintTensorB: 0
   PrintTensorC: 0
