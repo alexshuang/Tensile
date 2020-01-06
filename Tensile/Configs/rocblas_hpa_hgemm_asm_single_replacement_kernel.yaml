@@ -22,12 +22,13 @@ GlobalParameters:
   DataInitTypeAlpha: 1
   DataInitTypeA: 3
   DataInitTypeB: 3
-  DataInitTypeC: 1
+  DataInitTypeC: 6
   DataInitTypeD: 6
   PrintTensorA: 0
   PrintTensorB: 0
   PrintTensorC: 0
   PrintTensorD: 0
+  HighPrecisionAccumulate: True
 
 BenchmarkProblems:
   ########################################
