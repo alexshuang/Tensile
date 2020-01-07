@@ -951,7 +951,7 @@ label_0002:
 
       v_cvt_f16_f32 v[vgprValuC+0], v[vgprValuC+0]
       v_cvt_f16_f32 v[vgprValuC+1], v[vgprValuC+1]
-      v_pk_mul_f16  v[vgprValuC+0], s[sgprAlpha], v[vgprValuC+0]
+      //v_pk_mul_f16  v[vgprValuC+0], s[sgprAlpha], v[vgprValuC+0]
       v_lshrrev_b32 v[vgprBetaValuC2+0], 16, v[vgprBetaValuC1+0]
       v_fma_f16 v[vgprValuC+0], s[sgprBeta], v[vgprBetaValuC1+0], v[vgprValuC+0]
       v_fma_f16 v[vgprValuC+1], s[sgprBeta], v[vgprBetaValuC2+0], v[vgprValuC+1]
@@ -960,7 +960,7 @@ label_0002:
       for var j = 2; j < 6; j+=2
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
           v_lshrrev_b32 v[vgprBetaValuC2+0], 16, v[vgprBetaValuC1+0]
           v_fma_f16 v[vgprValuC+0], s[sgprBeta], v[vgprBetaValuC1+0], v[vgprValuC+0]
           v_fma_f16 v[vgprValuC+1], s[sgprBeta], v[vgprBetaValuC2+0], v[vgprValuC+1]
@@ -970,7 +970,7 @@ label_0002:
       for var j = 6; j < 8; j+=2
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
           v_lshrrev_b32 v[vgprBetaValuC2+0], 16, v[vgprBetaValuC1+0]
           v_fma_f16 v[vgprValuC+0], s[sgprBeta], v[vgprBetaValuC1+0], v[vgprValuC+0]
           v_fma_f16 v[vgprValuC+1], s[sgprBeta], v[vgprBetaValuC2+0], v[vgprValuC+1]
@@ -984,7 +984,7 @@ label_0002:
       for var j = 8; j < 12; j+=2
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
           v_lshrrev_b32 v[vgprBetaValuC2+0], 16, v[vgprBetaValuC1+0]
           v_fma_f16 v[vgprValuC+0], s[sgprBeta], v[vgprBetaValuC1+0], v[vgprValuC+0]
           v_fma_f16 v[vgprValuC+1], s[sgprBeta], v[vgprBetaValuC2+0], v[vgprValuC+1]
@@ -997,7 +997,7 @@ label_0002:
       for var j = 12; j < 16; j+=2
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
           v_lshrrev_b32 v[vgprBetaValuC2+0], 16, v[vgprBetaValuC1+0]
           v_fma_f16 v[vgprValuC+0], s[sgprBeta], v[vgprBetaValuC1+0], v[vgprValuC+0]
           v_fma_f16 v[vgprValuC+1], s[sgprBeta], v[vgprBetaValuC2+0], v[vgprValuC+1]
@@ -1018,7 +1018,7 @@ store_c:
 
       v_cvt_f16_f32 v[vgprValuC+0], v[vgprValuC+0]
       v_cvt_f16_f32 v[vgprValuC+1], v[vgprValuC+1]
-      v_pk_mul_f16  v[vgprValuC+0], s[sgprAlpha], v[vgprValuC+0]
+      //v_pk_mul_f16  v[vgprValuC+0], s[sgprAlpha], v[vgprValuC+0]
       v_lshrrev_b32 v[vgprBetaValuC2+0], 16, v[vgprBetaValuC1+0]
       v_fma_f16 v[vgprValuC+0], s[sgprBeta], v[vgprBetaValuC1+0], v[vgprValuC+0]
       v_fma_f16 v[vgprValuC+1], s[sgprBeta], v[vgprBetaValuC2+0], v[vgprValuC+1]
@@ -1027,7 +1027,7 @@ store_c:
       for var j = 2; j < 6; j+=2
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
           v_lshrrev_b32 v[vgprBetaValuC2+0], 16, v[vgprBetaValuC1+0]
           v_fma_f16 v[vgprValuC+0], s[sgprBeta], v[vgprBetaValuC1+0], v[vgprValuC+0]
           v_fma_f16 v[vgprValuC+1], s[sgprBeta], v[vgprBetaValuC2+0], v[vgprValuC+1]
@@ -1039,7 +1039,7 @@ store_c:
       for var j = 6; j < 8; j+=2
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
           v_lshrrev_b32 v[vgprBetaValuC2+0], 16, v[vgprBetaValuC1+0]
           v_fma_f16 v[vgprValuC+0], s[sgprBeta], v[vgprBetaValuC1+0], v[vgprValuC+0]
           v_fma_f16 v[vgprValuC+1], s[sgprBeta], v[vgprBetaValuC2+0], v[vgprValuC+1]
@@ -1055,7 +1055,7 @@ store_c:
       for var j = 8; j < 12; j+=2
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
           v_lshrrev_b32 v[vgprBetaValuC2+0], 16, v[vgprBetaValuC1+0]
           v_fma_f16 v[vgprValuC+0], s[sgprBeta], v[vgprBetaValuC1+0], v[vgprValuC+0]
           v_fma_f16 v[vgprValuC+1], s[sgprBeta], v[vgprBetaValuC2+0], v[vgprValuC+1]
@@ -1070,7 +1070,7 @@ store_c:
       for var j = 12; j < 16; j+=2
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
-          v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
+          //v_pk_mul_f16 v[vgprValuC+(j/2)], s[sgprAlpha], v[vgprValuC+(j/2)]
           v_lshrrev_b32 v[vgprBetaValuC2+0], 16, v[vgprBetaValuC1+0]
           v_fma_f16 v[vgprValuC+0], s[sgprBeta], v[vgprBetaValuC1+0], v[vgprValuC+0]
           v_fma_f16 v[vgprValuC+1], s[sgprBeta], v[vgprBetaValuC2+0], v[vgprValuC+1]
