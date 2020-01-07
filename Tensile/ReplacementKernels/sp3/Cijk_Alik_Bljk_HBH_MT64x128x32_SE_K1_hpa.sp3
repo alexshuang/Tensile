@@ -1008,8 +1008,8 @@ label_0002:
 
 store_c:
 
-      buffer_load_dwordx4 v[vgprBetaValuC+0:vgprBetaValuC+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0  offset:64 offen:1
-      buffer_load_dwordx4 v[vgprBetaValuC+4:vgprBetaValuC+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0  offset:96 offen:1
+      buffer_load_dwordx4 v[vgprBetaValuC1+0:vgprBetaValuC1+3],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0  offset:64 offen:1
+      buffer_load_dwordx4 v[vgprBetaValuC1+4:vgprBetaValuC1+7],v[vgprGlobalWriteOfvarC],  s[sgprSrdD:sgprSrdD+3], 0  offset:96 offen:1
 
  for var i = 1; i < 2; i++
       for var j = 0; j < 8; j++
