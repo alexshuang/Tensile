@@ -206,279 +206,7 @@ Kernels:
       MaxFlatWorkGroupSize: 256
 .end_amd_amdgpu_hsa_metadata
 
-/******************************************/
-/* Asm syntax workarounds                 */
-/******************************************/
-.macro _v_add_co_u32 dst, cc, src0, src1, dpp=
-   v_add_co_u32 \dst, \cc, \src0, \src1 \dpp
-.endm
-
-.macro _v_add_u32 dst, src0, src1, dpp=
-   v_add_u32 \dst, \src0, \src1 \dpp
-.endm
-
-.macro _v_sub_co_u32 dst, cc, src0, src1, dpp=
-   v_sub_co_u32 \dst, \cc, \src0, \src1 \dpp
-.endm
-
-.macro _v_sub_u32 dst, src0, src1, dpp=
-   v_sub_u32 \dst, \src0, \src1 \dpp
-.endm
-
-.macro _v_addc_co_u32 dst, ccOut, src0, ccIn, src1, dpp=
-   v_addc_co_u32 \dst, \ccOut, \src0, \ccIn, \src1 \dpp
-.endm
-
-.macro _v_add_lshl_u32 dst, src0, src1, shiftCnt
-    v_add_lshl_u32 \dst, \src0, \src1, \shiftCnt
-.endm
-
-.macro _v_lshl_add_u32 dst, src0, src1, shiftCnt
-    v_lshl_add_u32 \dst, \src0, \src1, \shiftCnt
-.endm
-
-/******************************************/
-/* Magic div and mod functions            */
-/******************************************/
-.macro V_MAGIC_DIV dstIdx, dividend, magicNumber, magicShift
-    v_mul_hi_u32 v[\dstIdx+1], \dividend, \magicNumber
-    v_mul_lo_u32 v[\dstIdx+0], \dividend, \magicNumber
-    v_lshrrev_b64 v[\dstIdx:\dstIdx+1], \magicShift, v[\dstIdx:\dstIdx+1]
-.endm
-
-/******************************************/
-/* VGPR Assignments                       */
-/******************************************/
-.set vgprValuC, 0
-/* ValuA/B   Xn=PLR buffer idx,  In=InnerUnroll idx */
-.set vgprValuA_X0_I0, 32
-.set vgprValuA_X1_I0, 34
-.set vgprG2LA, 36
-.set vgprValuB_X0_I0, 40
-.set vgprValuB_X1_I0, 44
-.set vgprG2LB, 48
-.set vgprLocalWriteAddrA, 56
-.set vgprLocalWriteAddrB, 57
-.set vgprGlobalReadOffsetA, 58
-.set vgprGlobalReadOffsetB, 59
-.set vgprLocalReadAddrA, 60
-.set vgprLocalReadAddrB, 61
-.set vgprSerial, 62
-/* Num VGPR=63 */
-
-/******************************************/
-/* SGPR Assignments                       */
-/******************************************/
-.set sgprKernArgAddress, 0
-.set sgprWorkGroup0, 2
-.set sgprWorkGroup1, 3
-.set sgprWorkGroup2, 4
-.set sgprNumWorkGroups0, 5
-.set sgprNumWorkGroups1, 6
-.set sgprSrdA, 8
-.set sgprSrdB, 12
-.set sgprSrdD, 16
-.set sgprSrdC, 20
-.set sgprTensor2dSizeC, 24
-.set sgprTensor2dSizeA, 26
-.set sgprTensor2dSizeB, 28
-.set sgprSaveExecMask, 30
-.set sgprAddressD, 32
-.set sgprAddressC, 34
-.set sgprStridesD, 36
-.set sgprStridesC, 38
-.set sgprAlpha, 40
-.set sgprBeta, 41
-.set sgprSizesFree, 42
-.set sgprSizesSum, 45
-.set sgprLoopCounters, 46
-.set sgprOrigLoopCounter, 47
-.set sgprStridesA, 48
-.set sgprStridesB, 50
-.set sgprAddressA, 52
-.set sgprAddressB, 54
-.set sgprShadowLimitA, 56
-.set sgprShadowLimitB, 58
-.set sgprOrigStaggerUIter, 60
-.set sgprStaggerUIter, 61
-.set sgprWrapUA, 62
-.set sgprWrapUB, 64
-.set sgprNumFullBlocks, 66
-.set sgprWgmRemainder1, 67
-.set sgprMagicNumberWgmRemainder1, 68
-.set sgprGlobalReadIncsA, 69
-.set sgprGlobalReadIncsB, 70
-.set sgprScalarGlobalReadOffsetA, 71
-.set sgprScalarGlobalReadOffsetB, 72
-/* max SGPR=98 */
-
-/* Size Assignments */
-.set sgprSizeD0I, sgprSizesFree+0
-.set sgprSizeD1J, sgprSizesFree+1
-.set sgprSizeDK, sgprSizesFree+2
-.set sgprSizeC0I, sgprSizesFree+0
-.set sgprSizeC1J, sgprSizesFree+1
-.set sgprSizeCK, sgprSizesFree+2
-.set sgprSizeAL, sgprSizesSum+0
-.set sgprSizeA0I, sgprSizesFree+0
-.set sgprSizeAK, sgprSizesFree+2
-.set sgprSizeBL, sgprSizesSum+0
-.set sgprSizeB1J, sgprSizesFree+1
-.set sgprSizeBK, sgprSizesFree+2
-
-/* Stride Assignments */
-.set constStrideD0I, 1
-.set sgprStrideD1J, sgprStridesD+0
-.set sgprStrideDK, sgprStridesD+1
-.set constStrideC0I, 1
-.set sgprStrideC1J, sgprStridesC+0
-.set sgprStrideCK, sgprStridesC+1
-.set constStrideAL, 1
-.set sgprStrideA0I, sgprStridesA+0
-.set sgprStrideAK, sgprStridesA+1
-.set constStrideBL, 1
-.set sgprStrideB1J, sgprStridesB+0
-.set sgprStrideBK, sgprStridesB+1
-
-.set DepthU, 32
-/* Number of elements to shift-left SRD */
-.set SrdShiftLeftA, 4
-.set SrdShiftLeftB, 4
-/* 2GB limit - set offsets to -1 to exceed this and clamp */
-.set BufferLimit, 0x80000000
-/* Bits 127:96 of SRD.  Set DataFormat = 32 bit */
-.set Srd127_96, 0x0020000
-.set BufferOOB, 0x80000000
-
-/* Global Offset A */
-.macro GLOBAL_OFFSET_A vgprAddr vgprOffsetL vgprOffset0I vgprTmp
-v_mul_lo_u32 v[\vgprTmp+0], s[sgprStrideA0I], v[\vgprOffset0I] // mul d1 lower
-_v_add_co_u32 v[\vgprAddr+0], vcc, v[\vgprOffsetL], v[\vgprTmp+0] // accumulate d1 lower
-_v_add_u32 v[\vgprAddr+0], 0x4, v[\vgprAddr+0]     // add prepad for pointer shift
-v_lshlrev_b32 v[\vgprAddr+0], 0x1, v[\vgprAddr+0]  // offset *= bytes/element
-.endm
-
-/* Global Offset B */
-.macro GLOBAL_OFFSET_B vgprAddr vgprOffsetL vgprOffset1J vgprTmp
-v_mul_lo_u32 v[\vgprTmp+0], s[sgprStrideB1J], v[\vgprOffset1J] // mul d1 lower
-_v_add_co_u32 v[\vgprAddr+0], vcc, v[\vgprOffsetL], v[\vgprTmp+0] // accumulate d1 lower
-_v_add_u32 v[\vgprAddr+0], 0x4, v[\vgprAddr+0]     // add prepad for pointer shift
-v_lshlrev_b32 v[\vgprAddr+0], 0x1, v[\vgprAddr+0]  // offset *= bytes/element
-.endm
-
-/******************************************/
-/* Dynamic Scalar Divide: vQuotient=vDividend/vDivisor; vRemainder=vDividend%vDivisor; */
-/******************************************/
-.macro DYNAMIC_VECTOR_DIVIDE vQuotient vRemainder vDividend vDivisor vTmp0 vTmp1 sTmp
-v_cvt_f32_u32 v[\vQuotient], v[\vDivisor]          //
-v_rcp_f32 v[\vQuotient], v[\vQuotient]             //
-v_mul_f32 v[\vQuotient], 0x4f800000, v[\vQuotient] //
-v_cvt_u32_f32 v[\vQuotient], v[\vQuotient]         //
-v_mul_lo_u32 v[\vRemainder], v[\vDivisor], v[\vQuotient] //
-v_mul_hi_u32 v[\vTmp0], v[\vDivisor], v[\vQuotient] //
-_v_sub_co_u32 v[\vTmp1], vcc, 0x0, v[\vRemainder]  //
-v_cmp_ne_i32 s[\sTmp:\sTmp+1], 0x0, v[\vTmp0]      //
-v_cndmask_b32 v[\vRemainder], v[\vTmp1], v[\vRemainder], s[\sTmp:\sTmp+1] //
-v_mul_hi_u32 v[\vRemainder], v[\vRemainder], v[\vQuotient] //
-_v_sub_co_u32 v[\vTmp0], vcc, v[\vQuotient], v[\vRemainder] //
-_v_add_co_u32 v[\vQuotient], vcc, v[\vQuotient], v[\vRemainder] //
-v_cndmask_b32 v[\vQuotient], v[\vQuotient], v[\vTmp0], s[\sTmp:\sTmp+1] //
-v_mul_hi_u32 v[\vQuotient], v[\vQuotient], v[\vDividend] //
-v_mul_lo_u32 v[\vRemainder], v[\vQuotient], v[\vDivisor] //
-_v_sub_co_u32 v[\vTmp0], vcc, v[\vDividend], v[\vRemainder] //
-v_cmp_ge_u32 s[\sTmp:\sTmp+1], v[\vDividend], v[\vRemainder] //
-_v_add_co_u32 v[\vRemainder], vcc, 0x1, v[\vQuotient] //
-_v_add_co_u32 v[\vTmp1], vcc, -1, v[\vQuotient]    //
-v_cmp_le_u32 vcc, v[\vDivisor], v[\vTmp0]          //
-s_and_b64 vcc, s[\sTmp:\sTmp+1], vcc               //
-v_cndmask_b32 v[\vQuotient], v[\vQuotient], v[\vRemainder], vcc //
-v_cndmask_b32 v[\vQuotient], v[\vTmp1], v[\vQuotient], s[\sTmp:\sTmp+1] //
-v_cmp_ne_i32 vcc, 0x0, v[\vDivisor]                //
-v_cndmask_b32 v[\vQuotient], -1, v[\vQuotient], vcc // final result
-v_mul_lo_u32 v[\vRemainder], v[\vQuotient], v[\vDivisor] //
-_v_sub_co_u32 v[\vRemainder], vcc, v[\vDividend], v[\vRemainder] // final result
-.endm
-
-/******************************************/
-/* 4x8 thread-tile                        */
-/******************************************/
-.macro MAC_4x8_X0
-v_fma_mix_f32 v[vgprValuC+0*2+0*4*2+0*2+0], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+0], v[vgprValuC+0*2+0*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[0] iui=0
-s_setprio 1 // Raise priority while processing macs
-v_fma_mix_f32 v[vgprValuC+0*2+0*4*2+0*2+1], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+0], v[vgprValuC+0*2+0*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[1]
-v_fma_mix_f32 v[vgprValuC+0*2+0*4*2+2*2+0], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+0], v[vgprValuC+0*2+0*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[4]
-v_fma_mix_f32 v[vgprValuC+0*2+0*4*2+2*2+1], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+0], v[vgprValuC+0*2+0*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[5]
-v_fma_mix_f32 v[vgprValuC+1*2+0*4*2+0*2+0], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+0], v[vgprValuC+1*2+0*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[2] iui=0
-v_fma_mix_f32 v[vgprValuC+1*2+0*4*2+0*2+1], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+0], v[vgprValuC+1*2+0*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[3]
-v_fma_mix_f32 v[vgprValuC+1*2+0*4*2+2*2+0], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+0], v[vgprValuC+1*2+0*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[6]
-v_fma_mix_f32 v[vgprValuC+1*2+0*4*2+2*2+1], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+0], v[vgprValuC+1*2+0*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[7]
-v_fma_mix_f32 v[vgprValuC+0*2+1*4*2+0*2+0], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+1], v[vgprValuC+0*2+1*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[8] iui=0
-v_fma_mix_f32 v[vgprValuC+0*2+1*4*2+0*2+1], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+1], v[vgprValuC+0*2+1*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[9]
-v_fma_mix_f32 v[vgprValuC+0*2+1*4*2+2*2+0], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+1], v[vgprValuC+0*2+1*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[12]
-v_fma_mix_f32 v[vgprValuC+0*2+1*4*2+2*2+1], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+1], v[vgprValuC+0*2+1*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[13]
-v_fma_mix_f32 v[vgprValuC+1*2+1*4*2+0*2+0], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+1], v[vgprValuC+1*2+1*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[10] iui=0
-v_fma_mix_f32 v[vgprValuC+1*2+1*4*2+0*2+1], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+1], v[vgprValuC+1*2+1*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[11]
-v_fma_mix_f32 v[vgprValuC+1*2+1*4*2+2*2+0], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+1], v[vgprValuC+1*2+1*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[14]
-v_fma_mix_f32 v[vgprValuC+1*2+1*4*2+2*2+1], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+1], v[vgprValuC+1*2+1*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[15]
-v_fma_mix_f32 v[vgprValuC+0*2+2*4*2+0*2+0], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+2], v[vgprValuC+0*2+2*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[16] iui=0
-v_fma_mix_f32 v[vgprValuC+0*2+2*4*2+0*2+1], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+2], v[vgprValuC+0*2+2*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[17]
-v_fma_mix_f32 v[vgprValuC+0*2+2*4*2+2*2+0], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+2], v[vgprValuC+0*2+2*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[20]
-v_fma_mix_f32 v[vgprValuC+0*2+2*4*2+2*2+1], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+2], v[vgprValuC+0*2+2*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[21]
-v_fma_mix_f32 v[vgprValuC+1*2+2*4*2+0*2+0], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+2], v[vgprValuC+1*2+2*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[18] iui=0
-v_fma_mix_f32 v[vgprValuC+1*2+2*4*2+0*2+1], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+2], v[vgprValuC+1*2+2*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[19]
-v_fma_mix_f32 v[vgprValuC+1*2+2*4*2+2*2+0], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+2], v[vgprValuC+1*2+2*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[22]
-v_fma_mix_f32 v[vgprValuC+1*2+2*4*2+2*2+1], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+2], v[vgprValuC+1*2+2*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[23]
-v_fma_mix_f32 v[vgprValuC+0*2+3*4*2+0*2+0], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+3], v[vgprValuC+0*2+3*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[24] iui=0
-v_fma_mix_f32 v[vgprValuC+0*2+3*4*2+0*2+1], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+3], v[vgprValuC+0*2+3*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[25]
-v_fma_mix_f32 v[vgprValuC+0*2+3*4*2+2*2+0], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+3], v[vgprValuC+0*2+3*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[28]
-v_fma_mix_f32 v[vgprValuC+0*2+3*4*2+2*2+1], v[vgprValuA_X0_I0+0], v[vgprValuB_X0_I0+3], v[vgprValuC+0*2+3*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[29]
-v_fma_mix_f32 v[vgprValuC+1*2+3*4*2+0*2+0], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+3], v[vgprValuC+1*2+3*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[26] iui=0
-v_fma_mix_f32 v[vgprValuC+1*2+3*4*2+0*2+1], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+3], v[vgprValuC+1*2+3*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[27]
-v_fma_mix_f32 v[vgprValuC+1*2+3*4*2+2*2+0], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+3], v[vgprValuC+1*2+3*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[30]
-v_fma_mix_f32 v[vgprValuC+1*2+3*4*2+2*2+1], v[vgprValuA_X0_I0+1], v[vgprValuB_X0_I0+3], v[vgprValuC+1*2+3*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[31]
-s_setprio 0 // Reset priority after macs
-.endm
-.macro MAC_4x8_X1
-v_fma_mix_f32 v[vgprValuC+0*2+0*4*2+0*2+0], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+0], v[vgprValuC+0*2+0*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[0] iui=0
-s_setprio 1 // Raise priority while processing macs
-v_fma_mix_f32 v[vgprValuC+0*2+0*4*2+0*2+1], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+0], v[vgprValuC+0*2+0*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[1]
-v_fma_mix_f32 v[vgprValuC+0*2+0*4*2+2*2+0], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+0], v[vgprValuC+0*2+0*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[4]
-v_fma_mix_f32 v[vgprValuC+0*2+0*4*2+2*2+1], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+0], v[vgprValuC+0*2+0*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[5]
-v_fma_mix_f32 v[vgprValuC+1*2+0*4*2+0*2+0], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+0], v[vgprValuC+1*2+0*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[2] iui=0
-v_fma_mix_f32 v[vgprValuC+1*2+0*4*2+0*2+1], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+0], v[vgprValuC+1*2+0*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[3]
-v_fma_mix_f32 v[vgprValuC+1*2+0*4*2+2*2+0], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+0], v[vgprValuC+1*2+0*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[6]
-v_fma_mix_f32 v[vgprValuC+1*2+0*4*2+2*2+1], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+0], v[vgprValuC+1*2+0*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[7]
-v_fma_mix_f32 v[vgprValuC+0*2+1*4*2+0*2+0], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+1], v[vgprValuC+0*2+1*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[8] iui=0
-v_fma_mix_f32 v[vgprValuC+0*2+1*4*2+0*2+1], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+1], v[vgprValuC+0*2+1*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[9]
-v_fma_mix_f32 v[vgprValuC+0*2+1*4*2+2*2+0], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+1], v[vgprValuC+0*2+1*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[12]
-v_fma_mix_f32 v[vgprValuC+0*2+1*4*2+2*2+1], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+1], v[vgprValuC+0*2+1*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[13]
-v_fma_mix_f32 v[vgprValuC+1*2+1*4*2+0*2+0], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+1], v[vgprValuC+1*2+1*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[10] iui=0
-v_fma_mix_f32 v[vgprValuC+1*2+1*4*2+0*2+1], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+1], v[vgprValuC+1*2+1*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[11]
-v_fma_mix_f32 v[vgprValuC+1*2+1*4*2+2*2+0], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+1], v[vgprValuC+1*2+1*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[14]
-v_fma_mix_f32 v[vgprValuC+1*2+1*4*2+2*2+1], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+1], v[vgprValuC+1*2+1*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[15]
-v_fma_mix_f32 v[vgprValuC+0*2+2*4*2+0*2+0], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+2], v[vgprValuC+0*2+2*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[16] iui=0
-v_fma_mix_f32 v[vgprValuC+0*2+2*4*2+0*2+1], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+2], v[vgprValuC+0*2+2*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[17]
-v_fma_mix_f32 v[vgprValuC+0*2+2*4*2+2*2+0], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+2], v[vgprValuC+0*2+2*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[20]
-v_fma_mix_f32 v[vgprValuC+0*2+2*4*2+2*2+1], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+2], v[vgprValuC+0*2+2*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[21]
-v_fma_mix_f32 v[vgprValuC+1*2+2*4*2+0*2+0], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+2], v[vgprValuC+1*2+2*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[18] iui=0
-v_fma_mix_f32 v[vgprValuC+1*2+2*4*2+0*2+1], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+2], v[vgprValuC+1*2+2*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[19]
-v_fma_mix_f32 v[vgprValuC+1*2+2*4*2+2*2+0], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+2], v[vgprValuC+1*2+2*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[22]
-v_fma_mix_f32 v[vgprValuC+1*2+2*4*2+2*2+1], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+2], v[vgprValuC+1*2+2*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[23]
-v_fma_mix_f32 v[vgprValuC+0*2+3*4*2+0*2+0], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+3], v[vgprValuC+0*2+3*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[24] iui=0
-v_fma_mix_f32 v[vgprValuC+0*2+3*4*2+0*2+1], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+3], v[vgprValuC+0*2+3*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[25]
-v_fma_mix_f32 v[vgprValuC+0*2+3*4*2+2*2+0], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+3], v[vgprValuC+0*2+3*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[28]
-v_fma_mix_f32 v[vgprValuC+0*2+3*4*2+2*2+1], v[vgprValuA_X1_I0+0], v[vgprValuB_X1_I0+3], v[vgprValuC+0*2+3*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[29]
-v_fma_mix_f32 v[vgprValuC+1*2+3*4*2+0*2+0], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+3], v[vgprValuC+1*2+3*4*2+0*2+0] op_sel:[0,0,0] op_sel_hi:[1,1,0] //ValuC[26] iui=0
-v_fma_mix_f32 v[vgprValuC+1*2+3*4*2+0*2+1], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+3], v[vgprValuC+1*2+3*4*2+0*2+1] op_sel:[1,0,0] op_sel_hi:[1,1,0] //ValuC[27]
-v_fma_mix_f32 v[vgprValuC+1*2+3*4*2+2*2+0], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+3], v[vgprValuC+1*2+3*4*2+2*2+0] op_sel:[0,1,0] op_sel_hi:[1,1,0] //ValuC[30]
-v_fma_mix_f32 v[vgprValuC+1*2+3*4*2+2*2+1], v[vgprValuA_X1_I0+1], v[vgprValuB_X1_I0+3], v[vgprValuC+1*2+3*4*2+2*2+1] op_sel:[1,1,0] op_sel_hi:[1,1,0] //valuC[31]
-s_setprio 0 // Reset priority after macs
-.endm
-
-
-
-
-/***** program start from here *****/
+/* kernel start from here */
 
 .long 0xC00A0D00, 0x00000028
 .long 0xC00A0C00, 0x00000050
@@ -822,7 +550,7 @@ s_setprio 0 // Reset priority after macs
 .long 0x8F2E852D
 .long 0x80AE2E80
 .long 0xBF06802E
-.long 0xBF8501BE
+.long 0xBF85023E
 .long 0xBF8CC17F
 .long 0xD3CC0000, 0x04028920
 .long 0xD8EC0020, 0x48000060
@@ -973,6 +701,8 @@ s_setprio 0 // Reset priority after macs
 .long 0xD3CC0010, 0x04429938
 .long 0xBF8CC27F
 .long 0xD3CC0000, 0x04029D32
+.long 0xE05C1000, 0x80052068
+.long 0xE05C1020, 0x80052468
 .long 0xD3CC0010, 0x04429D3A
 .long 0xBF8CC07F
 .long 0xD3CC0000, 0x0402A134
@@ -980,6 +710,12 @@ s_setprio 0 // Reset priority after macs
 .long 0xBED400FF, 0xFFFF0000
 .long 0x2AD6D56A
 .long 0x28D6D654
+.long 0x7E000228
+.long 0x7E001700
+.long 0x7E500500
+.long 0x7E000229
+.long 0x7E001700
+.long 0x7E520500
 .long 0xD3CC0010, 0x0442A13C
 .long 0xD3D84000, 0x18000100
 .long 0xD3D84001, 0x18000101
@@ -989,51 +725,102 @@ s_setprio 0 // Reset priority after macs
 .long 0xD3D84005, 0x18000105
 .long 0xD3D84006, 0x18000106
 .long 0xD3D84007, 0x18000107
+.long 0xBF8C0F70
+.long 0x0A000028
+.long 0x0A020228
+.long 0x20504090
+.long 0x7E501728
+.long 0x7E401720
+.long 0xD1CB0000, 0x04024029
+.long 0xD1CB0001, 0x04065029
 .long 0x7E001500
 .long 0x7E021501
 .long 0xD2000000, 0x04012101
-.long 0xD3904000, 0x18020028
+.long 0x0A040428
+.long 0x0A060628
+.long 0x20524290
+.long 0x7E521729
+.long 0x7E421721
+.long 0xD1CB0002, 0x040A4229
+.long 0xD1CB0003, 0x040E5229
 .long 0x7E041502
 .long 0x7E061503
 .long 0xD2000001, 0x04092103
-.long 0xD3904001, 0x18020228
+.long 0x0A080828
+.long 0x0A0A0A28
+.long 0x20544490
+.long 0x7E54172A
+.long 0x7E441722
+.long 0xD1CB0004, 0x04124429
+.long 0xD1CB0005, 0x04165429
 .long 0x7E081504
 .long 0x7E0A1505
 .long 0xD2000002, 0x04112105
-.long 0xD3904002, 0x18020428
 .long 0xE0741000, 0x80050068
+.long 0x0A0C0C28
+.long 0x0A0E0E28
+.long 0x20564690
+.long 0x7E56172B
+.long 0x7E461723
+.long 0xD1CB0006, 0x041A4629
+.long 0xD1CB0007, 0x041E5629
 .long 0x7E0C1506
 .long 0x7E0E1507
 .long 0xD2000003, 0x04192107
-.long 0xD3904003, 0x18020628
 .long 0xD3CC0010, 0x0442A53E
 .long 0xE0741010, 0x80050268
 .long 0xD3D84008, 0x18000108
 .long 0xD3D84009, 0x18000109
 .long 0xD3D8400A, 0x1800010A
 .long 0xD3D8400B, 0x1800010B
+.long 0x0A101028
+.long 0x0A121228
+.long 0x20584890
+.long 0x7E58172C
+.long 0x7E481724
+.long 0xD1CB0008, 0x04224829
+.long 0xD1CB0009, 0x04265829
 .long 0x7E101508
 .long 0x7E121509
 .long 0xD2000004, 0x04212109
-.long 0xD3904004, 0x18020828
+.long 0x0A141428
+.long 0x0A161628
+.long 0x205A4A90
+.long 0x7E5A172D
+.long 0x7E4A1725
+.long 0xD1CB000A, 0x042A4A29
+.long 0xD1CB000B, 0x042E5A29
 .long 0x7E14150A
 .long 0x7E16150B
 .long 0xD2000005, 0x0429210B
-.long 0xD3904005, 0x18020A28
 .long 0xE0741020, 0x80050468
 .long 0xD3D8400C, 0x1800010C
 .long 0xD3D8400D, 0x1800010D
 .long 0xD3D8400E, 0x1800010E
 .long 0xD3D8400F, 0x1800010F
+.long 0x0A181828
+.long 0x0A1A1A28
+.long 0x205C4C90
+.long 0x7E5C172E
+.long 0x7E4C1726
+.long 0xD1CB000C, 0x04324C29
+.long 0xD1CB000D, 0x04365C29
 .long 0x7E18150C
 .long 0x7E1A150D
 .long 0xD2000006, 0x0431210D
-.long 0xD3904006, 0x18020C28
+.long 0x0A1C1C28
+.long 0x0A1E1E28
+.long 0x205E4E90
+.long 0x7E5E172F
+.long 0x7E4E1727
+.long 0xD1CB000E, 0x043A4E29
+.long 0xD1CB000F, 0x043E5E29
 .long 0x7E1C150E
 .long 0x7E1E150F
 .long 0xD2000007, 0x0439210F
-.long 0xD3904007, 0x18020E28
 .long 0xE0741030, 0x80050668
+.long 0xE05C1040, 0x80052068
+.long 0xE05C1060, 0x80052468
 .long 0xD3D84000, 0x18000110
 .long 0xD3D84001, 0x18000111
 .long 0xD3D84002, 0x18000112
@@ -1042,49 +829,98 @@ s_setprio 0 // Reset priority after macs
 .long 0xD3D84005, 0x18000115
 .long 0xD3D84006, 0x18000116
 .long 0xD3D84007, 0x18000117
+.long 0xBF8C0F70
+.long 0x0A000028
+.long 0x0A020228
+.long 0x20504090
+.long 0x7E501728
+.long 0x7E401720
+.long 0xD1CB0000, 0x04024029
+.long 0xD1CB0001, 0x04065029
 .long 0x7E001500
 .long 0x7E021501
 .long 0xD2000000, 0x04012101
-.long 0xD3904000, 0x18020028
+.long 0x0A040428
+.long 0x0A060628
+.long 0x20524290
+.long 0x7E521729
+.long 0x7E421721
+.long 0xD1CB0002, 0x040A4229
+.long 0xD1CB0003, 0x040E5229
 .long 0x7E041502
 .long 0x7E061503
 .long 0xD2000001, 0x04092103
-.long 0xD3904001, 0x18020228
+.long 0x0A080828
+.long 0x0A0A0A28
+.long 0x20544490
+.long 0x7E54172A
+.long 0x7E441722
+.long 0xD1CB0004, 0x04124429
+.long 0xD1CB0005, 0x04165429
 .long 0x7E081504
 .long 0x7E0A1505
 .long 0xD2000002, 0x04112105
-.long 0xD3904002, 0x18020428
 .long 0xE0741040, 0x80050068
+.long 0x0A0C0C28
+.long 0x0A0E0E28
+.long 0x20564690
+.long 0x7E56172B
+.long 0x7E461723
+.long 0xD1CB0006, 0x041A4629
+.long 0xD1CB0007, 0x041E5629
 .long 0x7E0C1506
 .long 0x7E0E1507
 .long 0xD2000003, 0x04192107
-.long 0xD3904003, 0x18020628
 .long 0xD3D84008, 0x18000118
 .long 0xD3D84009, 0x18000119
 .long 0xD3D8400A, 0x1800011A
 .long 0xD3D8400B, 0x1800011B
 .long 0xE0741050, 0x80050268
+.long 0x0A101028
+.long 0x0A121228
+.long 0x20584890
+.long 0x7E58172C
+.long 0x7E481724
+.long 0xD1CB0008, 0x04224829
+.long 0xD1CB0009, 0x04265829
 .long 0x7E101508
 .long 0x7E121509
 .long 0xD2000004, 0x04212109
-.long 0xD3904004, 0x18020828
+.long 0x0A141428
+.long 0x0A161628
+.long 0x205A4A90
+.long 0x7E5A172D
+.long 0x7E4A1725
+.long 0xD1CB000A, 0x042A4A29
+.long 0xD1CB000B, 0x042E5A29
 .long 0x7E14150A
 .long 0x7E16150B
 .long 0xD2000005, 0x0429210B
-.long 0xD3904005, 0x18020A28
 .long 0xD3D8400C, 0x1800011C
 .long 0xD3D8400D, 0x1800011D
 .long 0xD3D8400E, 0x1800011E
 .long 0xD3D8400F, 0x1800011F
 .long 0xE0741060, 0x80050468
+.long 0x0A181828
+.long 0x0A1A1A28
+.long 0x205C4C90
+.long 0x7E5C172E
+.long 0x7E4C1726
+.long 0xD1CB000C, 0x04324C29
+.long 0xD1CB000D, 0x04365C29
 .long 0x7E18150C
 .long 0x7E1A150D
 .long 0xD2000006, 0x0431210D
-.long 0xD3904006, 0x18020C28
+.long 0x0A1C1C28
+.long 0x0A1E1E28
+.long 0x205E4E90
+.long 0x7E5E172F
+.long 0x7E4E1727
+.long 0xD1CB000E, 0x043A4E29
+.long 0xD1CB000F, 0x043E5E29
 .long 0x7E1C150E
 .long 0x7E1E150F
 .long 0xD2000007, 0x0439210F
-.long 0xD3904007, 0x18020E28
 .long 0xE0741070, 0x80050668
 .long 0xBF8C0000
 .long 0xBF810000
