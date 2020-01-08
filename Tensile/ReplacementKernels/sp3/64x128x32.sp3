@@ -949,6 +949,11 @@ label_0002:
 
       //v_mov_b32 v[vgprSrcValuC], v[vgprGlobalWriteOfvarC]
 
+      v_lshrrev_b32 v[vgprSrcValuC2+0], 16, v[vgprSrcValuC+0]
+      v_and_b32 v[vgprSrcValuC+0], 0x0000FFFF, v[vgprSrcValuC+0]
+      v_mov_b32 v[vgprTmp2], 0x10
+      flat_load_dword v[vgprTmp2], v[vgprTmp2]
+
       /*
       v_lshrrev_b32 v[vgprSrcValuC+1], 16, v[vgprSrcValuC+0]
       v_lshlrev_b32 v[vgprSrcValuC+2], 16, v[vgprSrcValuC+0]
@@ -1055,7 +1060,9 @@ label_0002:
           v_mul_f32 v[vgprValuC+j], s[sgprAlpha], v[vgprValuC+j]
           v_mul_f32 v[vgprValuC+j+1], s[sgprAlpha], v[vgprValuC+j+1]
           //v_add_u32 v[vgprSrcValuC], v[vgprSrcValuC], 4
-          v_mad_mix_f32 v[vgprValuC+j], s[sgprBeta], v[vgprSrcValuC+(j/2)], v[vgprValuC+j] op_sel:[0,0,0] op_sel_hi:[0,1,0]
+          v_lshrrev_b32 v[vgprSrcValuC2+(j/2)], 16, v[vgprSrcValuC+(j/2)]
+          v_and_b32 v[vgprSrcValuC+(j/2)], 0x0000FFFF, v[vgprSrcValuC+(j/2)]
+          v_mad_mixlo_f16 v[vgprValuC+j], s[sgprBeta], v[vgprSrcValuC+(j/2)], v[vgprValuC+j] op_sel:[0,0,0] op_sel_hi:[0,1,0]
           v_mad_mix_f32 v[vgprValuC+j+1], s[sgprBeta], v[vgprSrcValuC+(j/2)], v[vgprValuC+j+1] op_sel:[0,1,0] op_sel_hi:[0,1,0]
           v_cvt_f16_f32 v[vgprValuC+j], v[vgprValuC+j]
           v_cvt_f16_f32 v[vgprValuC+j+1], v[vgprValuC+j+1]
