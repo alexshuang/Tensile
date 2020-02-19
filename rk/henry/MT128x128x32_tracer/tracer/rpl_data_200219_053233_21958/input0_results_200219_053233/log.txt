@@ -1,0 +1,29 @@
+ROCProfiler: input from "tracer/rpl_data_200219_053233_21958/input0.xml"
+  gpu_index = 
+  kernel = 
+  range = 
+  0 metrics
+  1 traces
+    SQTT (
+      MASK = 0xf09
+      SE_MASK = 0x1
+      TOKEN_MASK = 0x344b
+      TOKEN_MASK2 = 0xffffffff
+    )
+################################################################################
+# Device[0]: Device 738c (gfx908)
+# Compute:   1536 GFlop/s (120 CUs @ 100 MHz)
+# Bandwidth: 102 GB/s (4096-bit @ 100 MHz)
+################################################################################
+Tensile Client Columns: GFlops (clock-normalized), GFlops (raw), SolName, KernelMs, Valid/Total, CoreMhz, MemMhz, TempC, FanSpeed, Idx/Total, TimeStamp
+Initializing 1193 MBytes.................
+
+
+Problem[0/1]: 1920, 1024, 1, 1024, 1952, 1952, 1056, 1056
+ 18669.009,  18669.009, Cijk_Alik_Bljk_HBH_MT128x128x32_SE_*,     0.216, NO_CHECK, 300, 800, 32.000, 0, 0/1, 2020-02-19 05:32:45.106459, 
+
+Run kernels elapsed gpu_time:0.000 secs  total_time:0.202 secs 0.11% gpu utilization
+
+Fastest: 18669.01 GFlop/s 215.68 us by (0) Cijk_Alik_Bljk_HBH_MT128x128x32_SE_
+
+ROCPRofiler: 1 contexts collected, output directory tracer/rpl_data_200219_053233_21958/input0_results_200219_053233

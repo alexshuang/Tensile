@@ -1,0 +1,4 @@
+dispatch[0], gpu-id(0), queue-id(0), queue-index(0), tid(22084), grd(61440), wgr(512), lds(0), scr(0), vgpr(108), sgpr(112), fbar(0), sig(0x7efe78bda600), kernel-name("Cijk_Alik_Bljk_HBH_MT128x128x32_SE_K1")
+  SQTT (
+    SE(0) size(122016)
+  )
