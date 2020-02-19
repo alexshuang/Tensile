@@ -1,0 +1,8 @@
+#pmc: FetchSize WriteSize MemWrites32B VFetchInsts VWriteInsts MemUnitStalled FlatVMemInsts LDSInsts ALUStalledByLDS GPUBusy VALUInsts FlatLDSInsts Wavefronts
+#pmc: WriteUnitStalled L2CacheHit MemUnitBusy SALUInsts SFetchInsts GDSInsts VALUUtilization VALUBusy SALUBusy LDSBankConflict
+
+# SQ thread trace
+sqtt : SE_MASK=0x1 MASK = 0x0F09 TOKEN_MASK = 0x344B TOKEN_MASK2 = 0xFFFFFFFF
+
+
+#range : 1
