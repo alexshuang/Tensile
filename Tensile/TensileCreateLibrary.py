@@ -342,7 +342,7 @@ def writeSolutionsAndKernels(outputPath, CxxCompiler, problemTypes, solutions, k
   #results = Common.ParallelMap(processKernelSource, kIter, "Generating kernels", method=lambda x: x.starmap)
   results = []
   for it in kIter:
-        results.append(processKernelSource(kIter, "Generating kernels", method=lambda x: x.starmap))
+        results.append(processKernelSource(*it))
 
   #do we need this?
   #print(len(results))

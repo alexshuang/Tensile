@@ -39,7 +39,7 @@ BenchmarkProblems:
       ForkParameters:
         - PrefetchGlobalRead: [0]
         - PackBatchDims: [1]
-        - KernelLanguage: ["Source","Assembly"]
+        - KernelLanguage: ["Assembly"]
         - ThreadTile:
             #- [ 2, 2 ]
           - [ 2, 4 ]
