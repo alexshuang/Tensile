@@ -18,6 +18,8 @@ GlobalParameters:
   DataInitTypeAB: 1
   DataInitTypeC: 1
   DataInitTypeD: 0
+  PrintSolutionRejectionReason: True
+  PrintLevel: 2
 BenchmarkProblems:
   -
     -
@@ -39,13 +41,15 @@ BenchmarkProblems:
         - PackBatchDims: [1]
         - KernelLanguage: ["Source","Assembly"]
         - ThreadTile:
-          - [ 2, 2 ]
+            #- [ 2, 2 ]
+          - [ 2, 4 ]
         - WorkGroup:
           - [  8, 8, 1 ]
             #- [  16, 8, 1 ]
-        - DepthU: [8]
+        - DepthU: [16]
         - GlobalReadVectorWidth: [1]
         - VectorWidth: [1]
+        - MatrixInstruction: [[16, 16, 4, 1]]
 
         - FractionalLoad: [0]
       BenchmarkForkParameters:

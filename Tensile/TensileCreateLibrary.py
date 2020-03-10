@@ -83,6 +83,7 @@ def getAssemblyCodeObjectFiles(kernels, kernelWriterAssembly, outputPath):
                           if k['KernelLanguage'] == 'Assembly'])
       if len(objectFiles) == 0:
         continue
+      #import pdb; pdb.set_trace()
       if globalParameters["MergeFiles"]:
       #  archName = 'gfx'+''.join(map(str,arch))
         coFile = os.path.join(destDir, 'TensileLibrary_{}.co'.format(archName))
@@ -303,6 +304,7 @@ def writeSolutionsAndKernels(outputPath, CxxCompiler, problemTypes, solutions, k
 
   
   print1("# Writing Kernels...")
+#  import pdb; pdb.set_trace()
   kernelFiles = []
   kernelSourceFile = None
   kernelHeaderFile = None
@@ -335,8 +337,13 @@ def writeSolutionsAndKernels(outputPath, CxxCompiler, problemTypes, solutions, k
 
   prepAsm()
 
+  import pdb; pdb.set_trace()
   kIter = zip(kernels, itertools.repeat(kernelWriterSource), itertools.repeat(kernelWriterAssembly))
-  results = Common.ParallelMap(processKernelSource, kIter, "Generating kernels", method=lambda x: x.starmap)
+  #results = Common.ParallelMap(processKernelSource, kIter, "Generating kernels", method=lambda x: x.starmap)
+  results = []
+  for it in kIter:
+        results.append(processKernelSource(kIter, "Generating kernels", method=lambda x: x.starmap))
+
   #do we need this?
   #print(len(results))
 
@@ -1139,6 +1146,7 @@ def TensileCreateLibrary():
   kernelWriterAssembly = KernelWriterAssembly( \
       kernelMinNaming, kernelSerialNaming)
 
+  import pdb; pdb.set_trace()
 
   if globalParameters["LegacyComponents"]:
     libraryStaticFiles = [

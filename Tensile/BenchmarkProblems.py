@@ -19,6 +19,7 @@
 # CTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################
 
+import pdb
 import csv
 import filecmp
 import itertools
@@ -77,6 +78,7 @@ def benchmarkProblemType( problemTypeConfig, problemSizeGroupConfig, \
   ##############################################################################
   # For Each Benchmark Step
   ##############################################################################
+#  import pdb; pdb.set_trace()
   for benchmarkStepIdx in range(0, totalBenchmarkSteps):
 
     benchmarkStep = benchmarkProcess[benchmarkStepIdx]
@@ -187,6 +189,7 @@ def benchmarkProblemType( problemTypeConfig, problemSizeGroupConfig, \
     for i in range(0, totalBenchmarkPermutations):
       permutation = {}
       pIdx = i
+#      import pdb; pdb.set_trace()
       for benchmarkParamName in benchmarkStep.benchmarkParameters:
         benchmarkParamValues = deepcopy( \
             benchmarkStep.benchmarkParameters[benchmarkParamName])
@@ -505,6 +508,7 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
   kernelSerialNaming = Solution.getSerialNaming(kernels)
   solutionMinNaming = Solution.getMinNaming(solutions)
   kernelMinNaming = Solution.getMinNaming(kernels)
+  #import pdb; pdb.set_trace()
   solutionWriter = SolutionWriter( \
       solutionMinNaming, solutionSerialNaming, \
       kernelMinNaming, kernelSerialNaming)
@@ -515,6 +519,7 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
 
   # write solution, kernels and CMake
   problemType = solutions[0]["ProblemType"]
+  #import pdb; pdb.set_trace()
   codeObjectFiles = writeSolutionsAndKernels( \
       globalParameters["WorkingPath"], globalParameters["CxxCompiler"], [problemType], solutions, kernels, kernelsBetaOnly, \
       solutionWriter, kernelWriterSource, kernelWriterAssembly, errorTolerant=True )
@@ -767,6 +772,7 @@ def main( config ):
   pushWorkingPath(globalParameters["BenchmarkProblemsPath"])
   ensurePath(dataPath)
   totalTestFails = 0
+#  import pdb; pdb.set_trace()
   for benchmarkProblemTypeConfig in config:
     problemTypeConfig = benchmarkProblemTypeConfig[0]
     if len(benchmarkProblemTypeConfig) < 2:

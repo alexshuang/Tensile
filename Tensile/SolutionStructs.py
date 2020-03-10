@@ -1740,6 +1740,7 @@ class Solution:
       # Try to reduce size of vector so every thread has a load to do
       pv = state["NumThreads"]//totalVectors
       if not state["FractionalLoad"]:
+        #import pdb; pdb.set_trace()
         if state["NumThreads"] % totalVectors != 0:
           reject(None, "NumThreads %u %% totalVectors %u != 0" \
               % (state["NumThreads"], totalVectors))

@@ -4864,6 +4864,7 @@ class KernelWriterAssembly(KernelWriter):
     divisor = kernel["SubGroup1"]
     if kernel["MatrixInstruction"]:
       divisor = kernel["MatrixInstN"] if ((kernel["MacroTile1"] // 4) < kernel["MatrixInstN"]) else kernel["MacroTile1"] // 4  # ABlocks
+      import pdb; pdb.set_trace()
       divisor //= kernel["ThreadTile1"] // kernel["MatrixInstN"]
     qReg = self.vgprPool.checkOut(1,"qReg") # quotient
     rReg = self.vgprPool.checkOut(1,"rReg") # remainder

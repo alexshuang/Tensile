@@ -265,6 +265,7 @@ class BenchmarkProcess:
 
     ############################################################################
     # (I-6) benchmark final sizes
+    #import pdb; pdb.set_trace()
     self.benchmarkFinalParameters = configBenchmarkFinalParameters
     # no other parameters besides problem sizes
 
