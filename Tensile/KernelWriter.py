@@ -25,6 +25,7 @@ from .Common import globalParameters, CHeader, roundUp
 from .ReplacementKernels import ReplacementKernels
 from .SolutionStructs import Solution
 
+import pdb
 import abc
 import os
 import shutil
@@ -2490,6 +2491,7 @@ class KernelWriter(metaclass=abc.ABCMeta):
     Returns the source of the kernel, either C++ or assembly.
     """
     
+    pdb.set_trace()
     
     fileString = ""
     self.tPA = tensorParametersA = {}

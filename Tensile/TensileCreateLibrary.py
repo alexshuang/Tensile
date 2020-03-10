@@ -337,7 +337,7 @@ def writeSolutionsAndKernels(outputPath, CxxCompiler, problemTypes, solutions, k
 
   prepAsm()
 
-  import pdb; pdb.set_trace()
+  #import pdb; pdb.set_trace()
   kIter = zip(kernels, itertools.repeat(kernelWriterSource), itertools.repeat(kernelWriterAssembly))
   #results = Common.ParallelMap(processKernelSource, kIter, "Generating kernels", method=lambda x: x.starmap)
   results = []
@@ -1146,7 +1146,7 @@ def TensileCreateLibrary():
   kernelWriterAssembly = KernelWriterAssembly( \
       kernelMinNaming, kernelSerialNaming)
 
-  import pdb; pdb.set_trace()
+  #import pdb; pdb.set_trace()
 
   if globalParameters["LegacyComponents"]:
     libraryStaticFiles = [
