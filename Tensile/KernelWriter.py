@@ -248,6 +248,7 @@ class KernelWriter(metaclass=abc.ABCMeta):
         itemsToSched = itemsToSched[itemPerIter:]
 
       # should never run out of items to schedule
+#      import pdb; pdb.set_trace()
       assert not itemsToSched # should have scheduled everthing already
 
 
@@ -619,6 +620,7 @@ class KernelWriter(metaclass=abc.ABCMeta):
     kl.append(self.functionBegin(kernel))
 
     kl.append(self.comment3("Allocate Resources"))
+    #pdb.set_trace()
     kl.append(self.allocateResources(kernel))
 
     if self.enable["PreLoop"]:
@@ -628,6 +630,7 @@ class KernelWriter(metaclass=abc.ABCMeta):
       kl.append(self.comment3("Local Read Addresses"))
 
       # tile assignments
+      #pdb.set_trace()
       kl.append(self.comment("local read addresses: tile assignments a"))
       kl.append(self.lraTileAssignmentA(kernel, tensorParametersA))
       kl.append(self.comment("local read addresses: tile assignments b"))
@@ -1467,6 +1470,7 @@ class KernelWriter(metaclass=abc.ABCMeta):
         kernel["PrefetchAcrossPersistent"]
 
 
+    #pdb.set_trace()
     self.actualSummationLoops = 1 if kernel["PackSummationDims"] else kernel["ProblemType"]["NumIndicesSummation"]
     self.otherSummationLoops  = self.actualSummationLoops-1
     self.otherSummations      = kernel["ProblemType"]["NumIndicesSummation"]-1 # not loops but summations vars
@@ -2491,8 +2495,6 @@ class KernelWriter(metaclass=abc.ABCMeta):
     Returns the source of the kernel, either C++ or assembly.
     """
     
-    pdb.set_trace()
-    
     fileString = ""
     self.tPA = tensorParametersA = {}
     self.tPB = tensorParametersB = {}
@@ -2500,6 +2502,7 @@ class KernelWriter(metaclass=abc.ABCMeta):
     fileString += self.kernelBodyPrefix( kernel, tensorParametersA, \
         tensorParametersB )
     self.stringIdx = 0
+    #pdb.set_trace()
     (error, kb) = self.kernelBody( kernel, tensorParametersA, tensorParametersB)
 
     fileString += kb

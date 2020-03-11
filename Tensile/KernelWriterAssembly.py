@@ -19,6 +19,7 @@
 # CTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################
 
+import pdb
 from . import Code
 from .Common import globalParameters, printExit, printWarning, roundUp
 from .KernelWriter import KernelWriter
@@ -271,7 +272,7 @@ class RegisterPool:
     else:
       if 0:
         traceback.print_stack(None)
-        import pdb; pdb.set_trace()
+#        import pdb; pdb.set_trace()
       printWarning("RegisterPool::checkIn('%s',%s) but it was never checked out"%(self.pool[start].tag, start))
     #traceback.print_stack(None)
 
@@ -746,7 +747,7 @@ class KernelWriterAssembly(KernelWriter):
       if 0:
         print("startSgprTmpPool=", self.startSgprTmpPool,
               "warning: growing SGPR pool to ", self.totalSgprs)
-        import pdb ; pdb.set_trace()
+        #import pdb ; pdb.set_trace()
 
     return self.startSgprTmpPool + pad
 
@@ -3424,6 +3425,8 @@ class KernelWriterAssembly(KernelWriter):
         kStr += self.getKernArg("MagicNumberSize%s"%idxChar)
         kStr += self.getKernArg("MagicShiftSize%s"%idxChar)
 
+      #pdb.set_trace()
+
       for idx in problemType["IndicesSummation"]:
         for tc in ('A','B'):
           for zp in problemType["ZeroPad%s"%tc]:
@@ -4864,7 +4867,7 @@ class KernelWriterAssembly(KernelWriter):
     divisor = kernel["SubGroup1"]
     if kernel["MatrixInstruction"]:
       divisor = kernel["MatrixInstN"] if ((kernel["MacroTile1"] // 4) < kernel["MatrixInstN"]) else kernel["MacroTile1"] // 4  # ABlocks
-      import pdb; pdb.set_trace()
+      #import pdb; pdb.set_trace()
       divisor //= kernel["ThreadTile1"] // kernel["MatrixInstN"]
     qReg = self.vgprPool.checkOut(1,"qReg") # quotient
     rReg = self.vgprPool.checkOut(1,"rReg") # remainder

@@ -19,6 +19,7 @@
 # CTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################
 
+import pdb
 import sys
 import operator
 from collections import namedtuple,OrderedDict
@@ -1669,6 +1670,8 @@ class Solution:
       if state["ThreadTile"][0] > 16 or state["ThreadTile"][1] > 16:
         reject(state, "Invalid value for ThreadTile")
 
+    #pdb.set_trace()
+
     if state["MatrixInstruction"]:
       if (globalParameters["WavefrontWidth"] % (state["MatrixInstM"] * state["MatrixInstB"]) != 0):
         reject(state, "Error calcualting InstSplit")
@@ -2517,6 +2520,7 @@ class Solution:
       assert(state["LdsPadB"] >= 0)
 
     ldsAlign = int(64 / state["ProblemType"]["DataType"].numRegisters())
+    #pdb.set_trace()
     ldsNumElementsA = state["DepthU"]*(state["MacroTile0"]+state["LdsPadA"])
     ldsNumElementsAlignedA = roundUpToNearestMultiple(ldsNumElementsA,ldsAlign)
     ldsNumElementsB = state["DepthU"]*(state["MacroTile1"]+state["LdsPadB"])
