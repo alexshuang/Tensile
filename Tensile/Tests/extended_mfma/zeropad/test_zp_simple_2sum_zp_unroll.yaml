@@ -38,6 +38,7 @@ BenchmarkProblems:
         - KernelLanguage: [Assembly]
         - PrefetchLocalRead: [True]
         - PrefetchGlobalRead: [False,True]
+        - MatrixInstruction:
           - [32, 32, 1, 2]
         - ThreadTile:
           - [ 1, 32 ]
