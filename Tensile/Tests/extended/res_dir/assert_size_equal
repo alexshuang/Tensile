@@ -1,0 +1,455 @@
+
+################################################################################
+#
+#  Tensile v4.17.0
+# Restoring default globalParameters
+#  Config: /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/assert_size_equal.yaml
+#
+################################################################################
+
+# Restoring default globalParameters
+# Detected local GPU with ISA: gfx908
+# Asm caps for gfx803:SupportedISA=1 HasExplicitCO=0 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=0 HasSMulHi=0 HasCodeObjectV3=1 MaxVmcnt=15 SupportedSource=1
+# Arch caps for gfx803:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx900:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx900:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx906:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx906:HasEccHalf=1 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx908:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx908:HasEccHalf=1 Waitcnt0Disabled=1 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx1010:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=1 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=0
+# Arch caps for gfx1010:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=1 CMPXWritesSGPR=0 HasWave32=1
+# Asm caps for gfx000:SupportedISA=0 HasExplicitCO=0 HasExplicitNC=0 HasDirectToLds=0 HasAddLshl=0 HasSMulHi=0 HasCodeObjectV3=0 MaxVmcnt=0 SupportedSource=1
+# Arch caps for gfx000:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+
+-- Boost version: 1.65.1
+-- Found the following Boost libraries:
+--   program_options
+--   filesystem
+--   system
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/alex/Tensile/Tensile/Tests/extended/out/0_Build
+[ 50%] Built target TensileHost
+[ 93%] Built target TensileClient
+[100%] Built target tensile_client
+
+################################################################################
+# Converting Config to BenchmarkProcess Object
+################################################################################
+
+# Filling in Parameters With Defaults
+# Convert Parameters to Steps
+# Benchmark Common Parameters
+# Fork Parameters
+# Benchmark Fork Parameters
+# Join Parameters
+# Benchmark Join Parameters
+# Benchmark Final
+# NumBenchmarkSteps: 1
+
+################################################################################
+# Done Creating BenchmarkProcess Object
+################################################################################
+# Empty winners - use fast initialization of hardcodedParameters
+
+
+################################################################################
+# BenchmarkStep: Cijkl_Aonijml_Bonmkl_S_00 - 00_Final 1.935s
+# NumProblems: 28
+# BenchmarkParameters:
+# MaxPossibleSolutions: 3 = 3 (hardcoded) * 1 (benchmark)
+# Enumerating Solutions
+[||||||||||||||||||||||||                                                 ]  33%[||||||||||||||||||||||||||||||||||||||||||||||||                         ]  66%[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||] 100% (0.0 secs elapsed)
+# Populating initial winners (3 solutions)
+
+# Actual Solutions: 3 / 3
+
+# Writing Kernels...
+Compiling source kernels: Launching 28 threads...
+Compiling source kernels: Done.
+# Kernel Building elapsed time = 5.9 secs
+# Writing Solutions
+# Writing Custom CMake
+# Copying files that differ from sourceTmp -> source
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijkl_Aonijml_Bonmkl_S_00/00_Final/source/library/Kernels.so-000-gfx803.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijkl_Aonijml_Bonmkl_S_00/00_Final/source/library/Kernels.so-000-gfx900.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijkl_Aonijml_Bonmkl_S_00/00_Final/source/library/Kernels.so-000-gfx906.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijkl_Aonijml_Bonmkl_S_00/00_Final/source/library/Kernels.so-000-gfx908.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijkl_Aonijml_Bonmkl_S_00/00_Final/source/library/TensileLibrary_gfx908.co
+Index:  Device | Reference
+[0]  elem=32 idx=32: 62856!=75350
+[1]  elem=34 idx=34: -97550!=21716
+[2]  elem=36 idx=36: 32816!=-75378
+[3]  elem=38 idx=38: -10176!=127068
+run, problem-progress, solution-progress, operation, problem-sizes, solution, validation, time-us, gflops, temp-edge, clock-sys, clock-soc, clock-mem, fan-rpm, hardware-samples, enqueue-time
+0, 0/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,6,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 139.84, 8, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.237723
+Index:  Device | Reference
+[0]  elem=32 idx=32: 62856!=75350
+[1]  elem=34 idx=34: -97550!=21716
+[2]  elem=36 idx=36: 32816!=-75378
+[3]  elem=38 idx=38: -10176!=127068
+0, 0/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,6,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 139.20, 8, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.242376
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 0/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,6,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=35 idx=35: -4614!=22742
+[1]  elem=40 idx=40: -100810!=111812
+[2]  elem=45 idx=45: 97750!=-142186
+[3]  elem=50 idx=50: 185348!=134998
+0, 1/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,6,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 140.32, 17, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.248596
+Index:  Device | Reference
+[0]  elem=40 idx=40: 36712!=111812
+[1]  elem=45 idx=45: 109254!=-142186
+[2]  elem=50 idx=50: -2406!=134998
+[3]  elem=55 idx=55: 25416!=92306
+0, 1/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,6,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 144.00, 16, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.252291
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 1/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,6,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=38 idx=38: -20470!=127068
+[1]  elem=57 idx=57: -82350!=38088
+[2]  elem=76 idx=76: 10552!=-70824
+[3]  elem=95 idx=95: 83458!=-154308
+0, 2/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,6,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 134.88, 70, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.258330
+Index:  Device | Reference
+[0]  elem=38 idx=38: -20470!=127068
+[1]  elem=57 idx=57: -82350!=38088
+[2]  elem=76 idx=76: 10552!=-70824
+[3]  elem=95 idx=95: 83458!=-154308
+0, 2/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,6,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 135.36, 70, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.262328
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 2/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,6,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=35 idx=35: -50312!=-215518
+[1]  elem=40 idx=40: -184092!=-64078
+[2]  elem=45 idx=45: 29400!=-102966
+[3]  elem=50 idx=50: -61846!=17752
+0, 3/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,13,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 145.76, 18, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.268339
+Index:  Device | Reference
+[0]  elem=80 idx=80: -119314!=-87478
+[1]  elem=85 idx=85: 158964!=-213880
+[2]  elem=90 idx=90: 59810!=-1472
+[3]  elem=95 idx=95: -14316!=125434
+0, 3/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,13,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 146.24, 17, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.272154
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 3/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,13,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=88 idx=88: -160440!=136386
+[1]  elem=99 idx=99: 126274!=-186518
+[2]  elem=110 idx=110: -153980!=-18436
+[3]  elem=121 idx=121: 45354!=83378
+0, 4/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,13,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 145.92, 35, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.277884
+Index:  Device | Reference
+[0]  elem=66 idx=66: 174568!=-157172
+[1]  elem=77 idx=77: 65700!=128764
+[2]  elem=88 idx=88: 77624!=136386
+[3]  elem=99 idx=99: 21700!=-186518
+0, 4/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,13,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 145.44, 35, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.281589
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 4/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,13,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=41 idx=41: -111608!=-6042
+[1]  elem=82 idx=82: -167672!=106426
+[2]  elem=123 idx=123: -127680!=-155242
+[3]  elem=164 idx=164: 134884!=-50670
+0, 5/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,13,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 140.00, 146, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.287503
+Index:  Device | Reference
+[0]  elem=41 idx=41: -111608!=-6042
+[1]  elem=82 idx=82: -167672!=106426
+[2]  elem=123 idx=123: -127680!=-155242
+[3]  elem=164 idx=164: 134884!=-50670
+0, 5/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,13,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 140.16, 146, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.291312
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 5/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,13,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=69 idx=69: 144388!=69504
+[1]  elem=92 idx=92: -35706!=23020
+[2]  elem=115 idx=115: 46582!=337358
+[3]  elem=138 idx=138: 171350!=-95228
+0, 6/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,55,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 132.16, 82, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.297342
+Index:  Device | Reference
+[0]  elem=69 idx=69: 144388!=69504
+[1]  elem=92 idx=92: -35706!=23020
+[2]  elem=115 idx=115: 46582!=337358
+[3]  elem=138 idx=138: 171350!=-95228
+0, 6/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,55,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 137.12, 79, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.301344
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 6/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,55,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=43 idx=43: 2942!=61512
+[1]  elem=172 idx=172: 171614!=143004
+[2]  elem=215 idx=215: 47902!=70100
+[3]  elem=258 idx=258: -32552!=-60746
+0, 7/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,55,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 132.00, 164, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.307345
+Index:  Device | Reference
+[0]  elem=86 idx=86: 69740!=30416
+[1]  elem=172 idx=172: 171614!=143004
+[2]  elem=215 idx=215: 47902!=70100
+[3]  elem=258 idx=258: -32552!=-60746
+0, 7/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,55,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 134.40, 161, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.310895
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 7/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,55,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=173 idx=173: 110422!=-89190
+[1]  elem=346 idx=346: -71450!=125462
+[2]  elem=519 idx=519: 59!=28326
+[3]  elem=692 idx=692: -48!=12618
+0, 8/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,55,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 152.00, 569, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.316495
+Index:  Device | Reference
+[0]  elem=173 idx=173: 22906!=-89190
+[1]  elem=346 idx=346: -132528!=125462
+[2]  elem=519 idx=519: 59!=28326
+[3]  elem=692 idx=692: -48!=12618
+0, 8/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,55,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 148.00, 585, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.320022
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 8/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(6,55,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=35 idx=35: 115798!=-215518
+[1]  elem=40 idx=40: 162766!=-64078
+[2]  elem=45 idx=45: -132110!=-102966
+[3]  elem=50 idx=50: -111522!=17752
+0, 9/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,6,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 140.48, 18, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.325427
+Index:  Device | Reference
+[0]  elem=35 idx=35: 115798!=-215518
+[1]  elem=40 idx=40: 162766!=-64078
+[2]  elem=45 idx=45: -132110!=-102966
+[3]  elem=50 idx=50: -111522!=17752
+0, 9/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,6,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 133.76, 19, 46.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.328835
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 9/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,6,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=66 idx=66: 85954!=-157172
+[1]  elem=77 idx=77: 211496!=128764
+[2]  elem=88 idx=88: -163118!=136386
+[3]  elem=99 idx=99: 13438!=-186518
+0, 10/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,6,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 141.76, 36, 46.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.333861
+Index:  Device | Reference
+[0]  elem=66 idx=66: 85954!=-157172
+[1]  elem=77 idx=77: 211496!=128764
+[2]  elem=88 idx=88: -163118!=136386
+[3]  elem=99 idx=99: 13438!=-186518
+0, 10/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,6,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 144.16, 35, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.337279
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 10/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,6,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=82 idx=82: 96172!=106426
+[1]  elem=123 idx=123: 77624!=-155242
+[2]  elem=164 idx=164: -58424!=-50670
+[3]  elem=205 idx=205: 50616!=154664
+0, 11/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,6,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 137.76, 148, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.342492
+Index:  Device | Reference
+[0]  elem=41 idx=41: -109950!=-6042
+[1]  elem=82 idx=82: 156722!=106426
+[2]  elem=123 idx=123: 151372!=-155242
+[3]  elem=164 idx=164: -85000!=-50670
+0, 11/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,6,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 132.00, 155, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.345885
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 11/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,6,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=46 idx=46: 113124!=115434
+[1]  elem=69 idx=69: 65414!=54424
+[2]  elem=92 idx=92: -2646!=57032
+[3]  elem=115 idx=115: 35650!=45542
+0, 12/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,13,16,8,32,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 69.28, 80, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.350528
+Index:  Device | Reference
+[0]  elem=46 idx=46: 113124!=115434
+[1]  elem=69 idx=69: 65414!=54424
+[2]  elem=115 idx=115: 35650!=45542
+[3]  elem=138 idx=138: 14112!=32852
+0, 12/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,13,16,8,32,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 71.04, 78, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.353589
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 12/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,13,16,8,32,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=66 idx=66: -728!=-113818
+[1]  elem=77 idx=77: 85326!=59734
+[2]  elem=88 idx=88: -60710!=-131624
+[3]  elem=99 idx=99: 84096!=-183890
+0, 13/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,13,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 132.64, 42, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.358614
+Index:  Device | Reference
+[0]  elem=66 idx=66: -728!=-113818
+[1]  elem=77 idx=77: 85326!=59734
+[2]  elem=88 idx=88: -60710!=-131624
+[3]  elem=165 idx=165: 3612!=-79280
+0, 13/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,13,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 131.52, 42, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.361977
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 13/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,13,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=69 idx=69: -115322!=139016
+[1]  elem=92 idx=92: 39914!=65320
+[2]  elem=115 idx=115: 194678!=48220
+[3]  elem=138 idx=138: -98758!=63606
+0, 14/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,13,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 139.84, 79, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.367311
+Index:  Device | Reference
+[0]  elem=46 idx=46: 50720!=134788
+[1]  elem=69 idx=69: -39856!=139016
+[2]  elem=92 idx=92: -101010!=65320
+[3]  elem=115 idx=115: 41586!=48220
+0, 14/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,13,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 133.28, 83, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.370726
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 14/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,13,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=89 idx=89: 93294!=-12816
+[1]  elem=178 idx=178: -144722!=16874
+[2]  elem=267 idx=267: 32418!=7608
+[3]  elem=356 idx=356: 71128!=-262928
+0, 15/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,13,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 135.20, 328, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.375959
+Index:  Device | Reference
+[0]  elem=89 idx=89: -236842!=-12816
+[1]  elem=178 idx=178: -19704!=16874
+[2]  elem=267 idx=267: 158120!=7608
+[3]  elem=356 idx=356: -183536!=-262928
+0, 15/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,13,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 135.20, 328, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.379369
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 15/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,13,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=47 idx=47: 50788!=-38434
+[1]  elem=141 idx=141: 28240!=-153078
+[2]  elem=282 idx=282: -134610!=109468
+[3]  elem=329 idx=329: 78024!=216310
+0, 16/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,55,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 132.00, 177, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.384621
+Index:  Device | Reference
+[0]  elem=47 idx=47: 50788!=-38434
+[1]  elem=141 idx=141: 28240!=-153078
+[2]  elem=235 idx=235: 95518!=-126164
+[3]  elem=282 idx=282: -60560!=109468
+0, 16/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,55,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 133.60, 175, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.387955
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 16/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,55,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=97 idx=97: -122304!=-79326
+[1]  elem=194 idx=194: -8822!=-42368
+[2]  elem=291 idx=291: 72842!=-142490
+[3]  elem=485 idx=485: 41672!=-32506
+0, 17/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,55,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 136.00, 345, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.393312
+Index:  Device | Reference
+[0]  elem=97 idx=97: -122304!=-79326
+[1]  elem=194 idx=194: 31726!=-42368
+[2]  elem=291 idx=291: 39826!=-142490
+[3]  elem=388 idx=388: -89426!=90980
+0, 17/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,55,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 136.48, 343, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.396735
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 17/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,55,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=367 idx=367: -32204!=-1098
+[1]  elem=734 idx=734: -73500!=2552
+[2]  elem=1101 idx=1101: -44640!=-100958
+[3]  elem=1468 idx=1468: -4!=26910
+0, 18/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,55,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 225.12, 833, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.402531
+Index:  Device | Reference
+[0]  elem=367 idx=367: -66424!=-1098
+[1]  elem=734 idx=734: 13720!=2552
+[2]  elem=1101 idx=1101: -44640!=-100958
+[3]  elem=1468 idx=1468: -4!=26910
+0, 18/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,55,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 223.84, 837, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.406619
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 18/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(13,55,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=115 idx=115: -89876!=337358
+[1]  elem=161 idx=161: 314!=-52664
+[2]  elem=184 idx=184: 61022!=-87300
+[3]  elem=207 idx=207: -195054!=85592
+0, 19/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,6,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 131.36, 82, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.412296
+Index:  Device | Reference
+[0]  elem=92 idx=92: 79082!=23020
+[1]  elem=115 idx=115: 45828!=337358
+[2]  elem=138 idx=138: -3804!=-95228
+[3]  elem=161 idx=161: 314!=-52664
+0, 19/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,6,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 132.16, 82, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.415574
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 19/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,6,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=86 idx=86: -82018!=30416
+[1]  elem=129 idx=129: -168622!=-107460
+[2]  elem=172 idx=172: 29354!=143004
+[3]  elem=215 idx=215: 19164!=70100
+0, 20/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,6,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 134.40, 161, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.420839
+Index:  Device | Reference
+[0]  elem=86 idx=86: -82018!=30416
+[1]  elem=129 idx=129: -168622!=-107460
+[2]  elem=172 idx=172: 29354!=143004
+[3]  elem=215 idx=215: 19164!=70100
+0, 20/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,6,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 132.48, 163, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.424251
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 20/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,6,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=173 idx=173: -58924!=-89190
+[1]  elem=346 idx=346: -69424!=125462
+[2]  elem=519 idx=519: 70620!=28326
+[3]  elem=692 idx=692: 204986!=12618
+0, 21/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,6,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 148.00, 585, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.429607
+Index:  Device | Reference
+[0]  elem=173 idx=173: 31886!=-89190
+[1]  elem=346 idx=346: -108162!=125462
+[2]  elem=519 idx=519: 37742!=28326
+[3]  elem=692 idx=692: 204986!=12618
+0, 21/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,6,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 147.52, 586, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.433308
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 21/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,6,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=94 idx=94: -81142!=-73770
+[1]  elem=141 idx=141: -43706!=-153078
+[2]  elem=282 idx=282: -72706!=109468
+[3]  elem=329 idx=329: 184742!=216310
+0, 22/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,13,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 132.32, 177, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.438548
+Index:  Device | Reference
+[0]  elem=94 idx=94: -81142!=-73770
+[1]  elem=141 idx=141: -43348!=-153078
+[2]  elem=188 idx=188: 6412!=-108342
+[3]  elem=235 idx=235: 8926!=-126164
+0, 22/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,13,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 133.92, 175, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.441932
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 22/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,13,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=194 idx=194: -62896!=-42368
+[1]  elem=388 idx=388: -240!=90980
+[2]  elem=485 idx=485: -137146!=-32506
+[3]  elem=582 idx=582: -56116!=284872
+0, 23/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,13,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 135.84, 345, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.447456
+Index:  Device | Reference
+[0]  elem=97 idx=97: 92818!=-79326
+[1]  elem=291 idx=291: -89622!=-142490
+[2]  elem=388 idx=388: 93496!=90980
+[3]  elem=582 idx=582: 178130!=284872
+0, 23/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,13,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 137.76, 340, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.451313
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 23/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,13,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=367 idx=367: 191798!=-1098
+[1]  elem=734 idx=734: 98976!=2552
+[2]  elem=1101 idx=1101: -29944!=-100958
+[3]  elem=1468 idx=1468: -47956!=26910
+0, 24/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,13,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 223.04, 840, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.457418
+Index:  Device | Reference
+[0]  elem=367 idx=367: -90260!=-1098
+[1]  elem=734 idx=734: 4920!=2552
+[2]  elem=1101 idx=1101: 22490!=-100958
+[3]  elem=1468 idx=1468: 202688!=26910
+0, 24/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,13,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 222.72, 842, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.461828
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 24/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,13,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=193 idx=193: 38768!=-182194
+[1]  elem=579 idx=579: -72768!=-80036
+[2]  elem=772 idx=772: 119588!=31732
+[3]  elem=965 idx=965: -94870!=74622
+0, 25/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,55,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 156.96, 632, 46.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.467885
+Index:  Device | Reference
+[0]  elem=193 idx=193: 172234!=-182194
+[1]  elem=386 idx=386: 20436!=-4764
+[2]  elem=579 idx=579: -56010!=-80036
+[3]  elem=772 idx=772: 37136!=31732
+0, 25/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,55,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 154.88, 640, 46.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.471716
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 25/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,55,64,1,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=389 idx=389: 117156!=27840
+[1]  elem=778 idx=778: 14568!=-126892
+[2]  elem=1167 idx=1167: 8602!=49426
+[3]  elem=1556 idx=1556: -101680!=-131726
+0, 26/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,55,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 233.28, 850, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.477877
+Index:  Device | Reference
+[0]  elem=389 idx=389: -152524!=27840
+[1]  elem=1167 idx=1167: 22932!=49426
+[2]  elem=1556 idx=1556: 20080!=-131726
+[3]  elem=1945 idx=1945: -86718!=-28634
+0, 26/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,55,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 237.12, 836, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.482271
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 26/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,55,64,2,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+Index:  Device | Reference
+[0]  elem=1549 idx=1549: -147694!=-139632
+[1]  elem=3098 idx=3098: -168026!=135728
+[2]  elem=4647 idx=4647: 49064!=-51248
+[3]  elem=6196 idx=6196: 49!=-95342
+0, 27/28, 0/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,55,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_62_K1, FAILED, 808.48, 981, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.491327
+Index:  Device | Reference
+[0]  elem=1549 idx=1549: -147694!=-139632
+[1]  elem=3098 idx=3098: 58360!=135728
+[2]  elem=4647 idx=4647: 156158!=-51248
+[3]  elem=6196 idx=6196: 49!=-95342
+0, 27/28, 1/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,55,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE52_K1, FAILED, 803.04, 987, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:41.499515
+And(StrideAEqual(index=0, value=1): (1 == 1) == 1, And(StrideBEqual(index=0, value=1): (1 == 1) == 1, StrideBEqual(index=4, value=0): (0 == 0) == 1): 1, SizeEqual(index=5, value=13): (2 == 13) == 0, OperationIdentifierEqual(Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 27/28, 2/2, Contraction_mno_Aonijml_Bonmkl_Cijkl_Dijkl, "(55,55,64,8,64,2,2)", Cijkl_Aonijml_Bonmkl_S_MT32x64x8_MI32x32x1x2_SE_ASE513_K1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+two
+Tensile::WARNING: ClientWriter Benchmark Process exited with code 56
+Tensile::WARNING: BenchmarkProblems: Benchmark Process exited with code 56
+# Adding Results to Solution Database
+[||||||||||||||||||||||||                                                 ]  33%[||||||||||||||||||||||||||||||||||||||||||||||||                         ]  66%[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||] 100% (0.0 secs elapsed)
+################################################################################
+# Cijkl_Aonijml_Bonmkl_S_00
+# 00_Final: End - 9.020s
+################################################################################
+
+clientExit=1 (ERROR) for /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/assert_size_equal.yaml

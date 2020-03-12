@@ -1,0 +1,95 @@
+
+################################################################################
+#
+#  Tensile v4.17.0
+# Restoring default globalParameters
+#  Config: /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/swizzle3.yaml
+#
+################################################################################
+
+# Restoring default globalParameters
+# Detected local GPU with ISA: gfx908
+# Asm caps for gfx803:SupportedISA=1 HasExplicitCO=0 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=0 HasSMulHi=0 HasCodeObjectV3=1 MaxVmcnt=15 SupportedSource=1
+# Arch caps for gfx803:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx900:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx900:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx906:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx906:HasEccHalf=1 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx908:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx908:HasEccHalf=1 Waitcnt0Disabled=1 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx1010:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=1 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=0
+# Arch caps for gfx1010:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=1 CMPXWritesSGPR=0 HasWave32=1
+# Asm caps for gfx000:SupportedISA=0 HasExplicitCO=0 HasExplicitNC=0 HasDirectToLds=0 HasAddLshl=0 HasSMulHi=0 HasCodeObjectV3=0 MaxVmcnt=0 SupportedSource=1
+# Arch caps for gfx000:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+
+-- Boost version: 1.65.1
+-- Found the following Boost libraries:
+--   program_options
+--   filesystem
+--   system
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/alex/Tensile/Tensile/Tests/extended/out/0_Build
+[ 50%] Built target TensileHost
+[ 93%] Built target TensileClient
+[100%] Built target tensile_client
+
+################################################################################
+# Converting Config to BenchmarkProcess Object
+################################################################################
+
+# Filling in Parameters With Defaults
+# Convert Parameters to Steps
+# Benchmark Common Parameters
+# Fork Parameters
+# Benchmark Fork Parameters
+# Join Parameters
+# Benchmark Join Parameters
+# Benchmark Final
+# NumBenchmarkSteps: 1
+
+################################################################################
+# Done Creating BenchmarkProcess Object
+################################################################################
+# Empty winners - use fast initialization of hardcodedParameters
+
+
+################################################################################
+# BenchmarkStep: Cijk_Aijl_Blkj_S_00 - 00_Final 1.963s
+# NumProblems: 1
+# BenchmarkParameters:
+# MaxPossibleSolutions: 1 = 1 (hardcoded) * 1 (benchmark)
+# Enumerating Solutions
+[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||] 100% (0.0 secs elapsed)
+# Populating initial winners (1 solutions)
+
+# Actual Solutions: 1 / 1
+
+# Writing Kernels...
+# Kernel Building elapsed time = 5.6 secs
+# Writing Solutions
+# Writing Custom CMake
+# Copying files that differ from sourceTmp -> source
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijk_Aijl_Blkj_S_00/00_Final/source/library/Kernels.so-000-gfx803.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijk_Aijl_Blkj_S_00/00_Final/source/library/Kernels.so-000-gfx900.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijk_Aijl_Blkj_S_00/00_Final/source/library/Kernels.so-000-gfx906.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijk_Aijl_Blkj_S_00/00_Final/source/library/Kernels.so-000-gfx908.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijk_Aijl_Blkj_S_00/00_Final/source/library/TensileLibrary_gfx908.co
+Index:  Device | Reference
+[0]  elem=203 idx=203: 28072!=48424
+[1]  elem=319 idx=319: 19328!=60630
+[2]  elem=348 idx=348: 47950!=1496
+[3]  elem=406 idx=406: 12856!=-32962
+run, problem-progress, solution-progress, operation, problem-sizes, solution, validation, time-us, gflops, temp-edge, clock-sys, clock-soc, clock-mem, fan-rpm, hardware-samples, enqueue-time
+0, 0/1, 0/0, Contraction_l_Aijl_Blkj_Cijk_Dijk, "(196,8,16,32)", Cijk_Aijl_Blkj_S_MT32x64x8_MI32x32x1x2_SE_K1, FAILED, 15.52, 103, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:58.503482
+two
+Tensile::WARNING: ClientWriter Benchmark Process exited with code 1
+Tensile::WARNING: BenchmarkProblems: Benchmark Process exited with code 1
+# Adding Results to Solution Database
+[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||] 100% (0.0 secs elapsed)
+################################################################################
+# Cijk_Aijl_Blkj_S_00
+# 00_Final: End - 8.243s
+################################################################################
+
+clientExit=1 (ERROR) for /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/swizzle3.yaml

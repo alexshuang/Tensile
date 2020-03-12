@@ -1,0 +1,223 @@
+
+################################################################################
+#
+#  Tensile v4.17.0
+# Restoring default globalParameters
+#  Config: /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/allownofree.yaml
+#
+################################################################################
+
+# Restoring default globalParameters
+# Detected local GPU with ISA: gfx908
+# Asm caps for gfx803:SupportedISA=1 HasExplicitCO=0 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=0 HasSMulHi=0 HasCodeObjectV3=1 MaxVmcnt=15 SupportedSource=1
+# Arch caps for gfx803:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx900:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx900:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx906:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx906:HasEccHalf=1 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx908:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx908:HasEccHalf=1 Waitcnt0Disabled=1 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx1010:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=1 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=0
+# Arch caps for gfx1010:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=1 CMPXWritesSGPR=0 HasWave32=1
+# Asm caps for gfx000:SupportedISA=0 HasExplicitCO=0 HasExplicitNC=0 HasDirectToLds=0 HasAddLshl=0 HasSMulHi=0 HasCodeObjectV3=0 MaxVmcnt=0 SupportedSource=1
+# Arch caps for gfx000:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+
+-- Boost version: 1.65.1
+-- Found the following Boost libraries:
+--   program_options
+--   filesystem
+--   system
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/alex/Tensile/Tensile/Tests/extended/out/0_Build
+[  3%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/EmbeddedLibrary.cpp.o
+[  6%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/llvm/Loading.cpp.o
+[  9%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/hip/HipSolutionAdapter.cpp.o
+[ 12%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/Utils.cpp.o
+[ 15%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/hip/HipHardware.cpp.o
+[ 18%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/AMDGPU.cpp.o
+[ 21%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/ContractionProblem.cpp.o
+[ 25%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/DataTypes.cpp.o
+[ 28%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/KernelArguments.cpp.o
+[ 31%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/Debug.cpp.o
+[ 34%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/Tensile.cpp.o
+[ 37%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/ContractionSolution.cpp.o
+[ 40%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/TensorOps.cpp.o
+[ 43%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/TensorDescriptor.cpp.o
+[ 46%] Building CXX object lib/CMakeFiles/TensileHost.dir/source/llvm/YAML.cpp.o
+[ 50%] Linking CXX static library libTensileHost.a
+[ 50%] Built target TensileHost
+[ 53%] Building CXX object client/CMakeFiles/TensileClient.dir/source/CSVStackFile.cpp.o
+[ 56%] Building CXX object client/CMakeFiles/TensileClient.dir/source/HardwareMonitorListener.cpp.o
+[ 59%] Building CXX object client/CMakeFiles/TensileClient.dir/source/TimingEvents.cpp.o
+[ 62%] Building CXX object client/CMakeFiles/TensileClient.dir/source/ProgressListener.cpp.o
+[ 65%] Building CXX object client/CMakeFiles/TensileClient.dir/source/ResultFileReporter.cpp.o
+[ 68%] Building CXX object client/CMakeFiles/TensileClient.dir/source/BenchmarkTimer.cpp.o
+[ 71%] Building CXX object client/CMakeFiles/TensileClient.dir/source/ClientProblemFactory.cpp.o
+[ 75%] Building CXX object client/CMakeFiles/TensileClient.dir/source/MetaRunListener.cpp.o
+[ 78%] Building CXX object client/CMakeFiles/TensileClient.dir/source/DataInitialization.cpp.o
+[ 81%] Building CXX object client/CMakeFiles/TensileClient.dir/source/HardwareMonitor.cpp.o
+[ 87%] Building CXX object client/CMakeFiles/TensileClient.dir/source/ReferenceValidator.cpp.o
+[ 87%] Building CXX object client/CMakeFiles/TensileClient.dir/source/ConvolutionProblem.cpp.o
+[ 90%] Building CXX object client/CMakeFiles/TensileClient.dir/source/Reference.cpp.o
+[ 93%] Linking CXX static library libTensileClient.a
+[ 93%] Built target TensileClient
+[ 96%] Building CXX object client/CMakeFiles/tensile_client.dir/main.cpp.o
+[100%] Linking CXX executable tensile_client
+[100%] Built target tensile_client
+
+################################################################################
+# Converting Config to BenchmarkProcess Object
+################################################################################
+
+# Filling in Parameters With Defaults
+# Convert Parameters to Steps
+# Benchmark Common Parameters
+# Fork Parameters
+# Benchmark Fork Parameters
+# Join Parameters
+# Benchmark Join Parameters
+# Benchmark Final
+# NumBenchmarkSteps: 1
+
+################################################################################
+# Done Creating BenchmarkProcess Object
+################################################################################
+# Empty winners - use fast initialization of hardcodedParameters
+
+
+################################################################################
+# BenchmarkStep: Cij_Alik_Bljki_SI_00 - 00_Final 114.387s
+# NumProblems: 17
+# BenchmarkParameters:
+# MaxPossibleSolutions: 48 = 48 (hardcoded) * 1 (benchmark)
+# Enumerating Solutions
+[|                                                                        ]   2%[|||                                                                      ]   4%[||||                                                                     ]   6%[||||||                                                                   ]   8%[|||||||                                                                  ]  10%[|||||||||                                                                ]  12%[||||||||||                                                               ]  14%[||||||||||||                                                             ]  16%[|||||||||||||                                                            ]  18%[|||||||||||||||                                                          ]  20%[||||||||||||||||                                                         ]  22%[||||||||||||||||||                                                       ]  25%[|||||||||||||||||||                                                      ]  27%[|||||||||||||||||||||                                                    ]  29%[||||||||||||||||||||||                                                   ]  31%[||||||||||||||||||||||||                                                 ]  33%[|||||||||||||||||||||||||                                                ]  35%[|||||||||||||||||||||||||||                                              ]  37%[||||||||||||||||||||||||||||                                             ]  39%[||||||||||||||||||||||||||||||                                           ]  41%[|||||||||||||||||||||||||||||||                                          ]  43%[|||||||||||||||||||||||||||||||||                                        ]  45%[||||||||||||||||||||||||||||||||||                                       ]  47%[||||||||||||||||||||||||||||||||||||                                     ]  50%[||||||||||||||||||||||||||||||||||||||                                   ]  52%[|||||||||||||||||||||||||||||||||||||||                                  ]  54%[|||||||||||||||||||||||||||||||||||||||||                                ]  56%[||||||||||||||||||||||||||||||||||||||||||                               ]  58%[||||||||||||||||||||||||||||||||||||||||||||                             ]  60%[|||||||||||||||||||||||||||||||||||||||||||||                            ]  62%[|||||||||||||||||||||||||||||||||||||||||||||||                          ]  64%[||||||||||||||||||||||||||||||||||||||||||||||||                         ]  66%[||||||||||||||||||||||||||||||||||||||||||||||||||                       ]  68%[|||||||||||||||||||||||||||||||||||||||||||||||||||                      ]  70%[|||||||||||||||||||||||||||||||||||||||||||||||||||||                    ]  72%[||||||||||||||||||||||||||||||||||||||||||||||||||||||                   ]  75%[||||||||||||||||||||||||||||||||||||||||||||||||||||||||                 ]  77%[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||                ]  79%[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||              ]  81%[||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||             ]  83%[||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||           ]  85%[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||          ]  87%[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||        ]  89%[||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||       ]  91%[||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||     ]  93%[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||    ]  95%[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||  ]  97%[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||] 100% (0.1 secs elapsed)
+# Updating winners since enumeration removed unused hardcoded solutions.  removeHardcoded=42 winners=0
+
+# Actual Solutions: 6 / 48
+
+# Writing Kernels...
+Compiling source kernels: Launching 28 threads...
+Compiling source kernels: Done.
+# Kernel Building elapsed time = 6.4 secs
+# Writing Solutions
+# Writing Custom CMake
+# Copying files that differ from sourceTmp -> source
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cij_Alik_Bljki_SI_00/00_Final/source/library/Kernels.so-000-gfx803.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cij_Alik_Bljki_SI_00/00_Final/source/library/Kernels.so-000-gfx900.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cij_Alik_Bljki_SI_00/00_Final/source/library/Kernels.so-000-gfx906.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cij_Alik_Bljki_SI_00/00_Final/source/library/Kernels.so-000-gfx908.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cij_Alik_Bljki_SI_00/00_Final/source/library/TensileLibrary_gfx908.co
+run, problem-progress, solution-progress, operation, problem-sizes, solution, validation, time-us, gflops, temp-edge, clock-sys, clock-soc, clock-mem, fan-rpm, hardware-samples, enqueue-time
+0, 0/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(32,16,8,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 320.64, 5, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.260055
+0, 0/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(32,16,8,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, PASSED, 328.96, 5, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.262183
+0, 0/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(32,16,8,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 199.52, 8, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.264123
+0, 0/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(32,16,8,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, PASSED, 199.36, 8, 45.00, 1289.00, 750.00, 1200.00, 0, 2, 2020-03-11 21:59:20.265604
+0, 0/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(32,16,8,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 142.72, 11, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.266914
+0, 0/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(32,16,8,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, PASSED, 129.28, 12, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.268008
+0, 1/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,49)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 23.52, 17, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.269359
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 1/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,49)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 1/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,49)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 57.44, 7, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.270138
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 1/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,49)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 1/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,49)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 57.28, 7, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.270948
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 1/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,49)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 2/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 32.64, 25, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.272312
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 2/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 2/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 76.64, 10, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.273141
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 2/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 2/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 62.72, 13, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.274026
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 2/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 3/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 32.16, 25, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.275412
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 3/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 3/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 65.44, 12, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.276179
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 3/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 3/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 59.52, 13, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.277161
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 3/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 4/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 51.36, 31, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.279051
+0, 4/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, PASSED, 51.20, 31, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.279732
+0, 4/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 74.08, 22, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.280454
+0, 4/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, PASSED, 77.92, 21, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.281347
+0, 4/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 65.44, 25, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.282157
+0, 4/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, PASSED, 66.08, 24, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.282932
+0, 5/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 78.88, 41, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.285815
+0, 5/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, PASSED, 80.32, 40, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.286641
+0, 5/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 94.72, 34, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.287495
+0, 5/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, PASSED, 93.28, 34, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.288437
+0, 5/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 77.44, 41, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.289316
+0, 5/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, PASSED, 76.16, 42, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.290148
+0, 6/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 77.92, 41, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.295725
+0, 6/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, PASSED, 80.48, 40, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.296542
+0, 6/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 91.68, 35, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.297404
+0, 6/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, PASSED, 97.12, 33, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.298315
+0, 6/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 75.36, 43, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.299206
+0, 6/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, PASSED, 76.64, 42, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.300029
+0, 7/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 144.32, 45, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.305060
+0, 7/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, PASSED, 143.68, 45, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.306214
+0, 7/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 127.20, 50, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.307355
+0, 7/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, PASSED, 130.56, 49, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.308451
+0, 7/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 102.24, 63, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.309505
+0, 7/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, PASSED, 103.84, 62, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.310460
+0, 8/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 142.88, 45, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.315596
+0, 8/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, PASSED, 147.52, 44, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.316745
+0, 8/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 128.32, 50, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.317902
+0, 8/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, PASSED, 129.12, 50, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.319003
+0, 8/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 98.56, 65, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.320050
+0, 8/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, PASSED, 102.56, 63, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.320997
+0, 9/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,3136)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 657.44, 39, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.338944
+0, 9/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,3136)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, PASSED, 663.68, 39, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.343626
+0, 9/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,3136)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 376.48, 68, 45.00, 1289.00, 750.00, 1200.00, 0, 2, 2020-03-11 21:59:20.346879
+0, 9/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,3136)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, PASSED, 433.44, 59, 45.00, 1289.00, 750.00, 1200.00, 0, 3, 2020-03-11 21:59:20.349441
+0, 9/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,3136)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 239.68, 107, 45.00, 1289.00, 750.00, 1200.00, 0, 2, 2020-03-11 21:59:20.351814
+0, 9/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,1,3136)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, PASSED, 274.72, 94, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.353609
+0, 10/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,49)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 34.08, 24, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.355487
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 10/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,49)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 10/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,49)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 68.48, 12, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.356623
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 10/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,49)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 10/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,49)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 57.92, 14, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.357640
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 10/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,49)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 11/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 51.68, 31, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.359262
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 11/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 11/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 75.52, 21, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.360292
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 11/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 11/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 65.44, 25, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.361333
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 11/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 12/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 52.00, 31, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.362962
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 12/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 12/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 73.12, 22, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.363936
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 12/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 12/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 66.88, 24, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.365005
+And(BoundSizeMultiple(index=-1, value=4): 0, StrideBEqual(index=3, value=0): (0 == 0) == 1, OperationIdentifierEqual(Contraction_kl_Alik_Bljki_Cij_Dij): 1, BetaZero: 1, TypesEqual(a:Float == Float&& b:Float == Float&& c:Float == Float&& d:Float == Float): 1, HighPrecisionAccumulate(0): 1, CDStridesEqual: 1): 00, 12/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,98)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, DID_NOT_SATISFY_ASSERTS, -nan, 9223372036854775808, , , , , , , 
+0, 13/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 96.00, 33, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.367261
+0, 13/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, PASSED, 93.76, 34, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.368626
+0, 13/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 93.28, 34, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.369647
+0, 13/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, PASSED, 93.76, 34, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.370686
+0, 13/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 76.64, 42, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.371691
+0, 13/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,196)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, PASSED, 74.40, 43, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.372709
+0, 14/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 149.60, 43, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.375753
+0, 14/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, PASSED, 151.68, 42, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.377168
+0, 14/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 135.36, 47, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.378403
+0, 14/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, PASSED, 137.28, 47, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.379612
+0, 14/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 99.36, 65, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.380801
+0, 14/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, PASSED, 99.68, 64, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.381865
+0, 15/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 147.68, 43, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.385148
+0, 15/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, PASSED, 151.84, 42, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.386590
+0, 15/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 138.88, 46, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.387894
+0, 15/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, PASSED, 149.12, 43, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.389221
+0, 15/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 101.28, 63, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.390486
+0, 15/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,392)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, PASSED, 99.36, 65, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.391623
+0, 16/17, 0/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU1_K1_PSD0, PASSED, 283.20, 45, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.396947
+0, 16/17, 1/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU1_K1_PSD1, PASSED, 285.76, 45, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.398997
+0, 16/17, 2/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU2_K1_PSD0, PASSED, 206.40, 62, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.400761
+0, 16/17, 3/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU2_K1_PSD1, PASSED, 206.88, 62, 45.00, 1289.00, 750.00, 1200.00, 0, 2, 2020-03-11 21:59:20.402403
+0, 16/17, 4/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM1_GSU4_K1_PSD0, PASSED, 147.52, 87, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.403804
+0, 16/17, 5/5, Contraction_kl_Alik_Bljki_Cij_Dij, "(64,64,2,784)", Cij_Alik_Bljki_SI_MT32x128x4_MI32x32x1x2_SE_ASEM4_GSU4_K1_PSD1, PASSED, 147.36, 87, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 21:59:20.405085
+# Adding Results to Solution Database
+[||||||||||||                                                             ]  16%[||||||||||||||||||||||||                                                 ]  33%[||||||||||||||||||||||||||||||||||||                                     ]  50%[||||||||||||||||||||||||||||||||||||||||||||||||                         ]  66%[||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||             ]  83%[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||] 100% (0.0 secs elapsed)
+################################################################################
+# Cij_Alik_Bljki_SI_00
+# 00_Final: End - 121.870s
+################################################################################
+
+clientExit=0 (PASS) for /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/allownofree.yaml
+

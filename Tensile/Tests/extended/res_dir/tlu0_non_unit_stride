@@ -1,0 +1,130 @@
+
+################################################################################
+#
+#  Tensile v4.17.0
+# Restoring default globalParameters
+#  Config: /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/tlu0_non_unit_stride.yaml
+#
+################################################################################
+
+# Restoring default globalParameters
+# Detected local GPU with ISA: gfx908
+# Asm caps for gfx803:SupportedISA=1 HasExplicitCO=0 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=0 HasSMulHi=0 HasCodeObjectV3=1 MaxVmcnt=15 SupportedSource=1
+# Arch caps for gfx803:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx900:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx900:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx906:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx906:HasEccHalf=1 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx908:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx908:HasEccHalf=1 Waitcnt0Disabled=1 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx1010:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=1 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=0
+# Arch caps for gfx1010:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=1 CMPXWritesSGPR=0 HasWave32=1
+# Asm caps for gfx000:SupportedISA=0 HasExplicitCO=0 HasExplicitNC=0 HasDirectToLds=0 HasAddLshl=0 HasSMulHi=0 HasCodeObjectV3=0 MaxVmcnt=0 SupportedSource=1
+# Arch caps for gfx000:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+
+-- Boost version: 1.65.1
+-- Found the following Boost libraries:
+--   program_options
+--   filesystem
+--   system
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/alex/Tensile/Tensile/Tests/extended/out/0_Build
+[ 50%] Built target TensileHost
+[ 93%] Built target TensileClient
+[100%] Built target tensile_client
+IndicesFree:  [0, 1]
+IndicesBatch: [2]
+IndicesSum:   [3, 4, 5]
+IndexAssignmentsA:   [4, 3, 0, 5, 2]
+IndexAssignmentsB:   [4, 3, 5, 1, 2]
+NumIndicesC:  3
+TLUA:  True (stridePosA(2) <? unrollIdxA(3)
+TLUB:  False (stridePosB(3) <? unrollIdxB(2)
+Index01A:  0
+Index01B:  1
+
+################################################################################
+# Converting Config to BenchmarkProcess Object
+################################################################################
+
+IndicesFree:  [0, 1]
+IndicesBatch: [2]
+IndicesSum:   [3, 4, 5]
+IndexAssignmentsA:   [4, 3, 0, 5, 2]
+IndexAssignmentsB:   [4, 3, 5, 1, 2]
+NumIndicesC:  3
+TLUA:  True (stridePosA(2) <? unrollIdxA(3)
+TLUB:  False (stridePosB(3) <? unrollIdxB(2)
+Index01A:  0
+Index01B:  1
+# Filling in Parameters With Defaults
+# Convert Parameters to Steps
+# Benchmark Common Parameters
+# Fork Parameters
+# Benchmark Fork Parameters
+# Join Parameters
+# Benchmark Join Parameters
+# Benchmark Final
+# NumBenchmarkSteps: 1
+
+################################################################################
+# Done Creating BenchmarkProcess Object
+################################################################################
+# Empty winners - use fast initialization of hardcodedParameters
+
+
+################################################################################
+# BenchmarkStep: Cijk_Amlink_Bmlnjk_S_00 - 00_Final 1.969s
+# NumProblems: 1
+# BenchmarkParameters:
+# MaxPossibleSolutions: 1 = 1 (hardcoded) * 1 (benchmark)
+# Enumerating Solutions
+IndicesFree:  [0, 1]
+IndicesBatch: [2]
+IndicesSum:   [3, 4, 5]
+IndexAssignmentsA:   [4, 3, 0, 5, 2]
+IndexAssignmentsB:   [4, 3, 5, 1, 2]
+NumIndicesC:  3
+TLUA:  True (stridePosA(2) <? unrollIdxA(3)
+TLUB:  False (stridePosB(3) <? unrollIdxB(2)
+Index01A:  0
+Index01B:  1
+[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||] 100% (0.0 secs elapsed)
+# Populating initial winners (1 solutions)
+
+# Actual Solutions: 1 / 1
+
+# Writing Kernels...
+Compiling source kernels: Launching 28 threads...
+Compiling source kernels: Done.
+# Kernel Building elapsed time = 5.7 secs
+# Writing Solutions
+IndicesFree:  [0, 1]
+IndicesBatch: [2]
+IndicesSum:   [3, 4, 5]
+IndexAssignmentsA:   [4, 3, 0, 5, 2]
+IndexAssignmentsB:   [4, 3, 5, 1, 2]
+NumIndicesC:  3
+TLUA:  True (stridePosA(2) <? unrollIdxA(3)
+TLUB:  False (stridePosB(3) <? unrollIdxB(2)
+Index01A:  0
+Index01B:  1
+# Writing Custom CMake
+# Copying files that differ from sourceTmp -> source
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijk_Amlink_Bmlnjk_S_00/00_Final/source/library/Kernels.so-000-gfx803.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijk_Amlink_Bmlnjk_S_00/00_Final/source/library/Kernels.so-000-gfx900.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijk_Amlink_Bmlnjk_S_00/00_Final/source/library/Kernels.so-000-gfx906.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijk_Amlink_Bmlnjk_S_00/00_Final/source/library/Kernels.so-000-gfx908.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijk_Amlink_Bmlnjk_S_00/00_Final/source/library/TensileLibrary_gfx908.co
+run, problem-progress, solution-progress, operation, problem-sizes, solution, validation, time-us, gflops, temp-edge, clock-sys, clock-soc, clock-mem, fan-rpm, hardware-samples, enqueue-time
+0, 0/1, 0/0, Contraction_lmn_Amlink_Bmlnjk_Cijk_Dijk, "(16,16,1,1,2,4)", Cijk_Amlink_Bmlnjk_S_MT32x64x4_MI32x32x1x2_SE_K1, PASSED, 15.84, 0.25858586606851924, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:04:09.901808
+# Adding Results to Solution Database
+[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||] 100% (0.0 secs elapsed)
+################################################################################
+# Cijk_Amlink_Bmlnjk_S_00
+# 00_Final: End - 8.342s
+################################################################################
+
+clientExit=0 (PASS) for /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/tlu0_non_unit_stride.yaml
+

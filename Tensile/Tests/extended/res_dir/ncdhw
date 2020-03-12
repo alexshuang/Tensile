@@ -1,0 +1,228 @@
+
+################################################################################
+#
+#  Tensile v4.17.0
+# Restoring default globalParameters
+#  Config: /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/ncdhw.yaml
+#
+################################################################################
+
+# Restoring default globalParameters
+# Detected local GPU with ISA: gfx908
+# Asm caps for gfx803:SupportedISA=1 HasExplicitCO=0 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=0 HasSMulHi=0 HasCodeObjectV3=1 MaxVmcnt=15 SupportedSource=1
+# Arch caps for gfx803:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx900:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx900:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx906:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx906:HasEccHalf=1 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx908:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=0 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=1
+# Arch caps for gfx908:HasEccHalf=1 Waitcnt0Disabled=1 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+# Asm caps for gfx1010:SupportedISA=1 HasExplicitCO=1 HasExplicitNC=1 HasDirectToLds=1 HasAddLshl=1 HasSMulHi=1 HasCodeObjectV3=1 MaxVmcnt=63 SupportedSource=0
+# Arch caps for gfx1010:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=1 CMPXWritesSGPR=0 HasWave32=1
+# Asm caps for gfx000:SupportedISA=0 HasExplicitCO=0 HasExplicitNC=0 HasDirectToLds=0 HasAddLshl=0 HasSMulHi=0 HasCodeObjectV3=0 MaxVmcnt=0 SupportedSource=1
+# Arch caps for gfx000:HasEccHalf=0 Waitcnt0Disabled=0 SeparateVscnt=0 CMPXWritesSGPR=1 HasWave32=0
+
+cmake -D CMAKE_BUILD_TYPE=Debug -D TENSILE_NEW_CLIENT=ON -D CMAKE_CXX_COMPILER=/opt/rocm/bin/hcc /home/alex/Tensile/Tensile/Source
+-- Boost version: 1.65.1
+-- Found the following Boost libraries:
+--   program_options
+--   filesystem
+--   system
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/alex/Tensile/Tensile/Tests/extended/out/0_Build
+make -j
+[ 50%] Built target TensileHost
+[ 93%] Built target TensileClient
+[100%] Built target tensile_client
+ProblemTypeConfig: {'OperationType': 'TensorContraction', 'DataType': 's', 'IndexAssignmentsA': [0, 1, 4, 3], 'IndexAssignmentsB': [4, 2, 3], 'NumIndicesC': 4, 'SetConstStrideA': [], 'SetConstStrideB': [[4, 0]], 'UseBeta': False, 'UseInitialStridesAB': True}
+
+################################################################################
+# Converting Config to BenchmarkProcess Object
+################################################################################
+
+# BenchmarkProcess beginning Cijkl_Aijml_Bmkl_SI
+# InitialSolutionParameters: {'ProblemType': {'OperationType': 'TensorContraction', 'DataType': 's', 'IndexAssignmentsA': [0, 1, 4, 3], 'IndexAssignmentsB': [4, 2, 3], 'NumIndicesC': 4, 'SetConstStrideA': [], 'SetConstStrideB': [[4, 0]], 'UseBeta': False, 'UseInitialStridesAB': True}, 'LoopDoWhile': False, 'LoopTail': True, 'EdgeType': 'Branch', 'InnerUnroll': 1, 'LocalDotLayout': 1, 'AggressivePerfMode': 1, 'KernelLanguage': 'Source', 'LdsPadA': 0, 'LdsPadB': 0, 'MaxOccupancy': 40, 'VectorWidth': -1, 'VectorStore': True, 'StoreVectorWidth': -1, 'GlobalReadVectorWidth': -1, 'GlobalReadCoalesceVectorA': True, 'GlobalReadCoalesceVectorB': True, 'GlobalReadCoalesceGroupA': True, 'GlobalReadCoalesceGroupB': True, 'PrefetchGlobalRead': True, 'PrefetchLocalRead': 1, 'UnrollMemFence': False, 'GlobalRead2A': True, 'GlobalRead2B': True, 'LocalWrite2A': True, 'LocalWrite2B': True, 'LocalRead2A': True, 'LocalRead2B': True, 'SuppressNoLoadLoop': False, 'ExpandPointerSwap': True, 'ScheduleGlobalRead': 1, 'ScheduleLocalWrite': 1, 'ScheduleIterAlg': 1, 'LdcEqualsLdd': True, 'InterleaveAlpha': 0, 'OptNoLoadLoop': 1, 'PrefetchAcrossPersistent': 0, 'BufferLoad': True, 'BufferStore': True, 'DirectToLds': False, 'UseSgprForGRO': -1, 'AssertSummationElementMultiple': 1, 'AssertFree0ElementMultiple': 1, 'AssertFree1ElementMultiple': 1, 'AssertMinApproxSize': -1, 'AssertStrideAEqual': {}, 'AssertStrideBEqual': {}, 'AssertSizeEqual': {}, 'CheckTensorDimAsserts': False, 'CheckDimOverflow': 0, 'StaggerU': 32, 'StaggerUStride': 256, 'StaggerUMapping': 0, 'MagicDivAlg': 2, 'GlobalSplitU': 1, 'GlobalSplitUSummationAssignmentRoundRobin': True, 'GlobalSplitUWorkGroupMappingRoundRobin': False, 'MacroTileShapeMin': 1, 'MacroTileShapeMax': 64, 'PersistentKernel': 0, 'PackBatchDims': 0, 'PackFreeDims': 1, 'PackSummationDims': 0, 'UnrollIncIsDepthU': 0, 'PackGranularity': 2, 'FractionalLoad': 0, 'Use64bShadowLimit': 1, 'VectorAtomicWidth': -1, 'NumLoadsCoalescedA': 1, 'NumLoadsCoalescedB': 1, 'WorkGroup': [16, 16, 1], 'WorkGroupMappingType': 'B', 'WorkGroupMapping': 8, 'ThreadTile': [4, 4], 'MatrixInstruction': [], 'DisableAtomicFail': 0, 'DisableKernelPieces': 0, 'DepthU': -1, 'PerformanceSyncLocation': -1, 'PerformanceWaitLocation': -1, 'PerformanceWaitCount': -1, 'NonTemporalC': 0, 'NonTemporalA': 0, 'NonTemporalB': 0, 'ReplacementKernel': False, 'MinVgprNumber': 0, 'MaxVgprNumber': 256}
+
+####################################################################
+# Filling in Parameters With Defaults
+####################################################################
+
+HardcodedParameters:
+    LoopDoWhile: False
+    LoopTail: True
+    InnerUnroll: 1
+    LocalDotLayout: 1
+    AggressivePerfMode: 1
+    LdsPadA: 0
+    LdsPadB: 0
+    MaxOccupancy: 40
+    VectorStore: True
+    StoreVectorWidth: -1
+    GlobalReadCoalesceVectorA: True
+    GlobalReadCoalesceVectorB: True
+    GlobalReadCoalesceGroupA: True
+    GlobalReadCoalesceGroupB: True
+    PrefetchLocalRead: 1
+    UnrollMemFence: False
+    GlobalRead2A: True
+    GlobalRead2B: True
+    LocalWrite2A: True
+    LocalWrite2B: True
+    LocalRead2A: True
+    LocalRead2B: True
+    SuppressNoLoadLoop: False
+    ExpandPointerSwap: True
+    ScheduleGlobalRead: 1
+    ScheduleLocalWrite: 1
+    ScheduleIterAlg: 1
+    LdcEqualsLdd: True
+    InterleaveAlpha: 0
+    OptNoLoadLoop: 1
+    PrefetchAcrossPersistent: 0
+    BufferLoad: True
+    BufferStore: True
+    DirectToLds: False
+    UseSgprForGRO: -1
+    AssertSummationElementMultiple: 1
+    AssertFree0ElementMultiple: 1
+    AssertFree1ElementMultiple: 1
+    AssertMinApproxSize: -1
+    AssertStrideAEqual: {}
+    AssertStrideBEqual: {}
+    AssertSizeEqual: {}
+    CheckTensorDimAsserts: False
+    CheckDimOverflow: 0
+    StaggerU: 32
+    StaggerUStride: 256
+    StaggerUMapping: 0
+    MagicDivAlg: 2
+    GlobalSplitU: 1
+    GlobalSplitUSummationAssignmentRoundRobin: True
+    GlobalSplitUWorkGroupMappingRoundRobin: False
+    MacroTileShapeMin: 1
+    MacroTileShapeMax: 64
+    PersistentKernel: 0
+    PackFreeDims: 1
+    PackSummationDims: 0
+    UnrollIncIsDepthU: 0
+    PackGranularity: 2
+    Use64bShadowLimit: 1
+    VectorAtomicWidth: -1
+    NumLoadsCoalescedA: 1
+    NumLoadsCoalescedB: 1
+    WorkGroupMappingType: B
+    WorkGroupMapping: 8
+    DisableAtomicFail: 0
+    DisableKernelPieces: 0
+    PerformanceSyncLocation: -1
+    PerformanceWaitLocation: -1
+    PerformanceWaitCount: -1
+    NonTemporalC: 0
+    NonTemporalA: 0
+    NonTemporalB: 0
+    ReplacementKernel: False
+    MinVgprNumber: 0
+    MaxVgprNumber: 256
+    EdgeType: ShiftPtr
+    MatrixInstruction: [32, 32, 1, 2]
+    KernelLanguage: Assembly
+    PrefetchGlobalRead: 0
+    PackBatchDims: 1
+    ThreadTile: [1, 32]
+    WorkGroup: [8, 8, 1]
+    DepthU: 16
+    GlobalReadVectorWidth: 1
+    VectorWidth: 1
+    FractionalLoad: 0
+BenchmarkCommonParameters:
+    {'ProblemSizes': [{'Range': [[2880], 0, 0]}]}
+ForkParameters:
+BenchmarkForkParameters:
+    {'ProblemSizes': [{'Range': [[2880], 0, 0]}]}
+JoinParameters:
+BenchmarkJoinParameters:
+    {'ProblemSizes': [{'Range': [[2880], 0, 0]}]}
+BenchmarkFinalParameters:
+    {'ProblemSizes': [{'Exact': [14, 14, 16, 8, 8]}]}
+
+####################################################################
+# Convert Parameters to Steps
+####################################################################
+
+
+####################################################################
+# Benchmark Common Parameters
+# AddStepsForParameters: [{'ProblemSizes': [{'Range': [[2880], 0, 0]}]}]
+
+####################################################################
+# Fork Parameters
+[]
+
+####################################################################
+# Benchmark Fork Parameters
+# AddStepsForParameters: [{'ProblemSizes': [{'Range': [[2880], 0, 0, 0, 0]}]}]
+
+####################################################################
+# Join Parameters
+
+####################################################################
+# Benchmark Join Parameters
+# AddStepsForParameters: [{'ProblemSizes': [{'Range': [[2880], 0, 0, 0, 0]}]}]
+
+####################################################################
+# Benchmark Final
+# Creating BenchmarkStep [BP]=0 [HCP]=1 [P]=1
+# NumBenchmarkSteps: 1
+
+################################################################################
+# Done Creating BenchmarkProcess Object
+################################################################################
+# Empty winners - use fast initialization of hardcodedParameters
+
+
+################################################################################
+# BenchmarkStep: Cijkl_Aijml_Bmkl_SI_00 - 00_Final 1.937s
+# NumProblems: 1
+# BenchmarkParameters:
+# MaxPossibleSolutions: 1 = 1 (hardcoded) * 1 (benchmark)
+# Enumerating Solutions
+[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||] 100% (0.0 secs elapsed)
+# Populating initial winners (1 solutions)
+
+# Actual Solutions: 1 / 1
+
+#    (0:0) Cijkl_Aijml_Bmkl_SI_MT32x64x16_MI32x32x1x2_SE_APM1_AF0EM1_AF1EM1_AMAS0_ASE_ASAE_ASBE20_ASEM1_BL1_BS1_CDO0_CTDA0_DU16_DTL0_DAF0_DKP0_ETSP_EPS0_FL0_GR2A1_GR2B1_GRCGA1_GRCGB1_GRCVA1_GRCVB1_GRVW1_GSU1_GSUSARR1_GSUWGMRR0_ISA908_IU1_IA0_KLA_LEL1_LPA0_LPB0_LDL1_LR2A1_LR2B1_LW2A1_LW2B1_LDW0_LT1_MTSM64_MTSM1_MDA2_MI32_32_1_2_MO40_MVN256_MVN0_NTA0_NTB0_NTC0_NLCA1_NLCB1_ONLL1_PBD1_PFD1_PG2_PSD0_PSLn1_PWCn1_PWLn1_PK0_PAP0_PGR0_PLR1_RK0_SGR1_SIA1_SLW1_SU32_SUM0_SUS256_SVW4_SNLL0_TT1_32_UIIDU0_UMF0_U64SL1_USFGROn1_VAW1_VS1_VW1_WG8_8_1_WGM8_WGMTB
+################################################################################
+# Writing Kernels...
+write_assemblyFilename /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijkl_Aijml_Bmkl_SI_00/00_Final/sourceTmp/assembly/Cijkl_Aijml_Bmkl_SI_MT32x64x16_MI32x32x1x2_SE_K1.s
+Compiling source kernels: Launching 28 threads...
+Compiling source kernels: Done.
+# Kernel Building elapsed time = 5.8 secs
+# Writing Solutions
+# Writing Custom CMake
+# Copying files that differ from sourceTmp -> source
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijkl_Aijml_Bmkl_SI_00/00_Final/source/library/Kernels.so-000-gfx803.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijkl_Aijml_Bmkl_SI_00/00_Final/source/library/Kernels.so-000-gfx900.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijkl_Aijml_Bmkl_SI_00/00_Final/source/library/Kernels.so-000-gfx906.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijkl_Aijml_Bmkl_SI_00/00_Final/source/library/Kernels.so-000-gfx908.hsaco
+Loading /home/alex/Tensile/Tensile/Tests/extended/out/1_BenchmarkProblems/Cijkl_Aijml_Bmkl_SI_00/00_Final/source/library/TensileLibrary_gfx908.co
+Index:  Device | Reference
+[0]  elem=406 idx=406: 1!=16
+[1]  elem=435 idx=435: 1!=16
+[2]  elem=464 idx=464: 1!=16
+[3]  elem=493 idx=493: 1!=16
+run, problem-progress, solution-progress, operation, problem-sizes, solution, validation, time-us, gflops, temp-edge, clock-sys, clock-soc, clock-mem, fan-rpm, hardware-samples, enqueue-time
+0, 0/1, 0/0, Contraction_m_Aijml_Bmkl_Cijkl_Dijkl, "(14,14,16,8,8)", Cijkl_Aijml_Bmkl_SI_MT32x64x16_MI32x32x1x2_SE_K1, FAILED, 23.04, 17, 45.00, 1289.00, 750.00, 1200.00, 0, 1, 2020-03-11 22:01:50.084674
+two
+Tensile::WARNING: ClientWriter Benchmark Process exited with code 1
+Tensile::WARNING: BenchmarkProblems: Benchmark Process exited with code 1
+CSV Results: [[[14.0]]]
+# Adding Results to Solution Database
+[|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||] 100% (0.0 secs elapsed)
+################################################################################
+# Cijkl_Aijml_Bmkl_SI_00
+# 00_Final: End - 8.360s
+################################################################################
+
+clientExit=1 (ERROR) for /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/ncdhw.yaml

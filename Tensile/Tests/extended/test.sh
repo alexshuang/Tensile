@@ -13,7 +13,7 @@ SUMMARY=$res_dir/summary
 
 rm -rf $res_dir
 mkdir -p $res_dir
-
+cnt=0
 for o in $TEST_DIR; do
     YAMLS=`find $o -name \*.yaml`
     for y in $YAMLS; do
@@ -38,7 +38,9 @@ for o in $TEST_DIR; do
             fi
             $bin $y $out | tee $res_dir/$BASENAME
         fi
-        echo $BASENAME >> $SUMMARY
-        tail -3 $res_dir/$BASENAME >> $SUMMARY
+        echo "[$cnt] $BASENAME:" >> $SUMMARY
+        tail -1 $res_dir/$BASENAME >> $SUMMARY
+        echo "" >> $SUMMARY
+        cnt=$(($cnt+1))
     done
 done

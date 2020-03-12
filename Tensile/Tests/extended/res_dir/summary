@@ -1,0 +1,42 @@
+[0] filter:
+
+
+[1] test_nchw_filter_contraction:
+# Writing Solutions
+
+[2] sweep_packed_dims:
+
+
+[3] swizzle0:
+
+
+[4] allownofree:
+
+
+[5] test_ncdhw_packed_strides3d_defaults.contraction:
+clientExit=1 (ERROR) for /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/test_ncdhw_packed_strides3d_defaults.contraction.yaml
+
+[6] assert_size_equal:
+clientExit=1 (ERROR) for /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/assert_size_equal.yaml
+
+[7] ncdhw:
+clientExit=1 (ERROR) for /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/ncdhw.yaml
+
+[8] swizzle3:
+clientExit=1 (ERROR) for /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/swizzle3.yaml
+
+[9] swizzle2:
+clientExit=1 (ERROR) for /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/swizzle2.yaml
+
+[10] exact_conv:
+Examine reject and backtrace messages above to see why and where solutions were rejected.
+
+[11] tlu0_non_unit_stride:
+
+
+[12] swizzle1:
+
+
+[13] test_ncdhw_packed_strides_filter3d.contraction:
+clientExit=1 (ERROR) for /home/alex/Tensile/Tensile/Tests/extended/tensor_contraction/test_ncdhw_packed_strides_filter3d.contraction.yaml
+
