@@ -35,16 +35,20 @@ BenchmarkProblems:
         - EdgeType: ["ShiftPtr"]
       ForkParameters:
         - PackSummationDims: [1]
-        - KernelLanguage: [Assembly,Source]
+        - KernelLanguage: [Assembly]
         - PrefetchLocalRead: [True]
         - PrefetchGlobalRead: [False,True]
+        - KernelLanguage: ["Assembly"]
+        - MatrixInstruction:
+          - [32, 32, 1, 2]
         - ThreadTile:
-          - [ 4, 4 ]
+          - [ 1, 32 ]
         - WorkGroup:
-          - [ 8, 8, 1 ]
+          - [  16, 16, 1 ]
+          - [  64, 4, 1 ]
         - StaggerU: [0]
         - StaggerUMapping: [0]
-        - DepthU: [ 4]
+        - DepthU: [ 8]
         - VectorWidth: [1]
         - GlobalReadVectorWidth: [1]
       BenchmarkForkParameters:

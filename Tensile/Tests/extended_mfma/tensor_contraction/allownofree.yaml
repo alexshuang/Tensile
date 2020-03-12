@@ -35,12 +35,15 @@ BenchmarkProblems:
     BenchmarkJoinParameters: null
     ForkParameters:
     - PrefetchGlobalRead: [0]
-    - KernelLanguage: [Source]
+    - KernelLanguage: [Assembly]
+    - MatrixInstruction:
+      - [32, 32, 1, 2]
     - ThreadTile:
-      - [8, 8]
+      - [ 1, 32 ]
     - WorkGroup:
-      - [8, 16, 1]
-    - DepthU: [4]
+      - [  16, 16, 1 ]
+      - [  64, 4, 1 ]
+    - DepthU: [8]
     - PackSummationDims: [0, 1]
     - GlobalSplitU: [1, 2, 4]
     - GlobalReadVectorWidth: [1, -1]

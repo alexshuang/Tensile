@@ -40,14 +40,14 @@ BenchmarkProblems:
         - LoopTail: [True]
         - EdgeType: ["ShiftPtr"]
       ForkParameters:
+        - KernelLanguage: ["Assembly"]
+        - MatrixInstruction:
+          - [32, 32, 1, 2]
         - ThreadTile:
-          - [ 4, 4 ]
-          - [ 6, 8 ]
-          - [ 8, 8 ]
+          - [ 1, 32 ]
         - WorkGroup:
-          - [  8, 8, 1 ]
-          - [  8, 8, 4 ]
-          - [  16, 8, 1 ]
+          - [  16, 16, 1 ]
+          - [  64, 4, 1 ]
         - DepthU: [8]
         - GlobalReadVectorWidth: [1,4]
         - VectorWidth: [1,4]

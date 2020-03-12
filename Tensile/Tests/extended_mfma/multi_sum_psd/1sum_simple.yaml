@@ -38,14 +38,18 @@ BenchmarkProblems:
       ForkParameters:
         - PackSummationDims: [0,1]
         - GlobalSplitU: [1,2]
-        - KernelLanguage: [Assembly,Source]
+        - KernelLanguage: [Assembly]
         - PrefetchLocalRead: [False]
         - PrefetchGlobalRead: [True]
+        - KernelLanguage: ["Assembly"]
+        - MatrixInstruction:
+          - [32, 32, 1, 2]
         - ThreadTile:
-          - [ 8, 8 ]
+          - [ 1, 32 ]
         - WorkGroup:
-          - [ 8, 8, 1 ]
-        - DepthU: [ 4]
+          - [  16, 16, 1 ]
+          - [  64, 4, 1 ]
+        - DepthU: [ 8]
         - FractionalLoad: [1]
         - StaggerU: [0]
         - StaggerUMapping: [0]

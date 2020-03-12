@@ -34,10 +34,13 @@ BenchmarkProblems:
       ForkParameters:
         - PrefetchLocalRead: [True]
         - PrefetchGlobalRead: [True]
+        - MatrixInstruction:
+          - [32, 32, 1, 2]
         - ThreadTile:
-          - [ 8, 8 ]
+          - [ 1, 32 ]
         - WorkGroup:
-          - [ 16, 32, 1 ]
+          - [  16, 16, 1 ]
+          - [  64, 4, 1 ]
         - WorkGroupMapping: [8]
         - DepthU: [ 4,8 ]
         - VectorWidth: [4]
