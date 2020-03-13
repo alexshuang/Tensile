@@ -25,7 +25,7 @@ def save_file(data, out):
     df.to_csv(out, index=False)
 
 
-def run(path, tensile_out, inst, threadtile):
+def run(path, tensile_out, inst, threadtile, workgroup):
     gen_pass, run_pass, yamls, logs = [], [], [], []
     pat = re.compile(r'^# 00_Final: End - ')
 
@@ -45,7 +45,8 @@ def run(path, tensile_out, inst, threadtile):
 
     m, n, k, b = inst.split('x')
     tt0, tt1 = threadtile.split('x')
-    m, n, k, b, tt0, tt1 = map(eval, [m, n, k, b, tt0, tt1])
+    wg0, wg1, wg2 = workgroup.split('x')
+
     for f in path.glob("*.yaml"):
         yamls.append(f.name)
         res_f = res_path.joinpath(f.stem)
@@ -54,6 +55,11 @@ def run(path, tensile_out, inst, threadtile):
         ret = os.system(cmd)
         if ret != 0:
             print("ERROR: Fail to set ThreadTile by '%s'." % cmd)
+            exit(ret)
+        cmd = "sed -i \'/.*- WorkGroup/,/.*- DepthU/s/\(.*- \)\[.*\]/\\1[%s, %s, %s]/g\' %s" % (wg0, wg1, wg2, f)
+        ret = os.system(cmd)
+        if ret != 0:
+            print("ERROR: Fail to set WorkGroup by '%s'." % cmd)
             exit(ret)
         ret = os.system("sed -i \'/- KernelLanguage/d\' %s" % f)
         ret = os.system("sed -i \'/- MatrixInstruction/d\' %s" % f)
@@ -93,10 +99,11 @@ if __name__ == "__main__":
 
     inst = '32x32x1x2'
     threadtile = '1x32'
+    workgroup = '16x16x1'
     path = Path(sys.argv[1])
     out_path = path.name + '.csv'
     tensile_out = Path(sys.argv[2]) if len(sys.argv) > 2 else Path('output')
 
-    res = run(path, tensile_out, inst, threadtile)
+    res = run(path, tensile_out, inst, threadtile, workgroup)
     save_file(res, out_path)
 
