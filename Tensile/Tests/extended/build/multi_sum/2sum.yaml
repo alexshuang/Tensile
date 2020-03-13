@@ -10,7 +10,7 @@ GlobalParameters:
   DataInitTypeC: 4
   DataInitTypeAlpha: 2
   DataInitTypeBeta: 0
-  PrintSolutionRejectionReason: True
+  PrintSolutionRejectionReason: 0
   PrintWinnersOnly: 0
   PrintTensorA: 0
   PrintTensorB: 0
@@ -43,17 +43,22 @@ BenchmarkProblems:
       BenchmarkCommonParameters:
         - EdgeType: ["ShiftPtr"]
       ForkParameters:
-        - KernelLanguage: ["Assembly"]
         - PrefetchLocalRead: [False, True]
         - PrefetchGlobalRead: [False, True]
         - ThreadTile:
           - [ 2, 2 ]
+          - [1, 32]
           - [ 8, 8 ]
+          - [1, 32]
         - WorkGroup:
           - [ 8, 8, 1 ]
+          - [16, 16, 1]
           - [ 16, 16, 1 ]
+          - [16, 16, 1]
         - StaggerU: [0,32]
         - DepthU: [ 4,8]
+        - KernelLanguage: ["Assembly"]
+        - MatrixInstruction: [[32, 32, 1, 2]]
         - VectorWidth: [1,-1]
         - FractionalLoad: [0,1]
       BenchmarkForkParameters:

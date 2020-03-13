@@ -28,13 +28,12 @@ BenchmarkProblems:
     ForkParameters:
     - PrefetchGlobalRead: [1]
       #- CheckDimOverflow: [2]
+    - KernelLanguage: [Source,Assembly]
     - ThreadTile:
-      - [1, 32]
+      - [2, 2]
     - WorkGroup:
       - [8, 8, 1]
     - DepthU: [8]
-    - KernelLanguage: ["Assembly"]
-    - MatrixInstruction: [[32, 32, 1, 2]]
     - GlobalReadVectorWidth: [-1]
     - VectorWidth: [1]
     - FractionalLoad: [0]

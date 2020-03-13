@@ -34,11 +34,11 @@ BenchmarkProblems:
     BenchmarkForkParameters: null
     BenchmarkJoinParameters: null
     ForkParameters:
-    - MatrixInstruction: [[32, 32, 1, 2]]
-    - KernelLanguage: ["Assembly"]
     - PrefetchGlobalRead: [0]
+    - KernelLanguage: [Source]
     - ThreadTile:
-      - [1, 32]
+      - [8, 8]
+      - [8, 17]
     - WorkGroup:
       - [8, 16, 1]
     - DepthU: [4]

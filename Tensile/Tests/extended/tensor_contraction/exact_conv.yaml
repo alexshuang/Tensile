@@ -29,14 +29,13 @@ BenchmarkProblems:
     - # BenchmarkProblemSizeGroup - Standard
       InitialSolutionParameters:
       BenchmarkCommonParameters:
+        - KernelLanguage: ["Assembly"]
         - EdgeType: ["ShiftPtr"]
       ForkParameters:
-        - MatrixInstruction: [[32, 32, 1, 2]]
-        - KernelLanguage: ["Assembly"]
         - PrefetchLocalRead: [True]
         - PrefetchGlobalRead: [True]
         - ThreadTile:
-          - [1, 32]
+          - [ 8, 8 ]
         - WorkGroup:
           - [ 16, 32, 1 ]
         - WorkGroupMapping: [8]

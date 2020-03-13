@@ -51,12 +51,14 @@ def run(path, tensile_out, inst, threadtile, workgroup):
         yamls.append(f.name)
         res_f = res_path.joinpath(f.stem)
 
-        cmd = "sed -i \'/.*ThreadTile/,/.*WorkGroup/s/\(.*- \[\).*\]/\\1%s, %s]/g\' %s" % (tt0, tt1, f)
+#        cmd = "sed -i \'/.*ThreadTile/,/.*WorkGroup/s/\(.*- \[\).*\]/\\1%s, %s]/g\' %s" % (tt0, tt1, f)
+        cmd = "sed -i \'/.*ThreadTile/,/.*WorkGroup/s/\(^\s*\)- \(\[.*\]\)/\\1- \\2\\n\\1- [%s, %s]\\n\\1- [2, 32]/\' %s" % (tt0, tt1, f)
         ret = os.system(cmd)
         if ret != 0:
             print("ERROR: Fail to set ThreadTile by '%s'." % cmd)
             exit(ret)
-        cmd = "sed -i \'/.*- WorkGroup/,/.*- DepthU/s/\(.*- \)\[.*\]/\\1[%s, %s, %s]/g\' %s" % (wg0, wg1, wg2, f)
+#        cmd = "sed -i \'/.*ThreadTile/,/.*WorkGroup/s/\(\s*\)- \(\[.*\]\)/\\1- \\2\\n\\1- [%s, %s]/\' %s" % (tt0, tt1, f)
+        cmd = "sed -i \'/.*- WorkGroup/,/.*- DepthU/s/\(^\s*\)- \(\[.*\]\)/\\1- \\2\\n\\1- [%s, %s, %s]/\' %s" % (wg0, wg1, wg2, f)
         ret = os.system(cmd)
         if ret != 0:
             print("ERROR: Fail to set WorkGroup by '%s'." % cmd)

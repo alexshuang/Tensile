@@ -33,12 +33,11 @@ BenchmarkProblems:
       BenchmarkCommonParameters:
         - EdgeType: ["ShiftPtr"]
       ForkParameters:
-        - MatrixInstruction: [[32, 32, 1, 2]]
-        - KernelLanguage: ["Assembly"]
         - PrefetchGlobalRead: [0]
           #- PackBatchDims: [1]
+        - KernelLanguage: ["Source","Assembly"]
         - ThreadTile:
-          - [1, 32]
+          - [ 2, 2 ]
         - WorkGroup:
           - [  8, 8, 1 ]
             #- [  16, 8, 1 ]
