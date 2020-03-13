@@ -18,8 +18,8 @@ def save_file(data, out):
     df = pd.DataFrame()
     #df['KernelName'] = np.array(kernel)
     df['Yaml'] = np.array(yamls)
-    df['GenerationPass'] = np.array(gen_pass)
     df['Pass'] = np.array(run_pass)
+    df['GenPass'] = np.array(gen_pass)
     df['Error'] = np.array(logs)
     print("resoult save as " + out)
     df.to_csv(out, index=False)
@@ -27,7 +27,7 @@ def save_file(data, out):
 
 def run(path, tensile_out, inst, threadtile, workgroup):
     gen_pass, run_pass, yamls, logs = [], [], [], []
-    pat = re.compile(r'^# 00_Final: End - ')
+    pat = re.compile(r'# 00_Final: End - ')
 
     tensile = "../../bin/Tensile"
     build_path = Path('build')
@@ -74,7 +74,7 @@ def run(path, tensile_out, inst, threadtile, workgroup):
         ret = os.system("%s %s %s > %s" % (tensile, f, tensile_out, res_f))
 
         # resoult
-        if not ret:
+        if ret:
             run_pass.append(False)
             res = res_f.open('r').readlines()
             tail_log = '\n'.join(res[-5:])
