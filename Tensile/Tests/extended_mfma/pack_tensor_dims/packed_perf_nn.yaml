@@ -49,7 +49,7 @@ BenchmarkProblems:
           - [  16, 16, 1 ]
           - [  64, 4, 1 ]
         - DepthU: [8]
-        - GlobalReadVectorWidth: [1]
+        - GlobalReadVectorWidth: [2]
           #- GlobalReadVectorWidth: [1,4]
         - VectorWidth: [4]
         - WorkGroupMapping: [8]
