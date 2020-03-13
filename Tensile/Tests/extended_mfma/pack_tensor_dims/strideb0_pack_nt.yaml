@@ -49,8 +49,8 @@ BenchmarkProblems:
           - [  16, 16, 1 ]
           - [  64, 4, 1 ]
         - DepthU: [8]
-        - GlobalReadVectorWidth: [1,4]
-        - VectorWidth: [1,4]
+        - GlobalReadVectorWidth: [2]
+        - VectorWidth: [2]
         - WorkGroupMapping: [1,8]
 
         - FractionalLoad: [1]
