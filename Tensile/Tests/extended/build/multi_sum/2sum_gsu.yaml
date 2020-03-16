@@ -52,13 +52,12 @@ BenchmarkProblems:
         - PrefetchGlobalRead: [False,True]
         - GlobalSplitU: [2,3,4,5]
         - ThreadTile:
-          #- [ 2, 2 ]
-          #- [ 8, 8 ]
+          - [ 2, 2 ]
+          - [ 8, 8 ]
           - [2, 32]
         - WorkGroup:
           - [ 8, 8, 1 ]
-          - [16, 16, 1]
-          - [64, 4, 1]
+          #- [16, 16, 1]
         - StaggerU: [0,32]
         - DepthU: [ 4,8,16]
         - KernelLanguage: ["Assembly"]
