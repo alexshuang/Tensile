@@ -53,7 +53,7 @@ BenchmarkProblems:
           - [  64, 4, 1 ]
         - StaggerU: [0]
         - StaggerUMapping: [0]
-        - DepthU: [ 8]
+        - DepthU: [ 4]
         - VectorWidth: [1]
         - FractionalLoad: [0]
         - WorkGroupMapping: [4]
