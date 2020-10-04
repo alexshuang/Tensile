@@ -1,0 +1,162 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from pathlib import Path
+import re
+import sys
+import pdb
+import yaml
+import os
+import math
+import random
+import pickle
+import time
+from collections import defaultdict, OrderedDict
+from multiprocessing import cpu_count
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+
+
+def strify(o):
+    if isinstance(o, list):
+        return '_'.join([str(p) for p in o])
+    elif isinstance(o, dict):
+        return '_'.join(['{}:{}'.format(k, v) for k, v in o.items()])
+    else:
+        return o
+
+
+def split_idxs(n, pct):
+    n_test = max(int(n * pct), 1)
+    n_train = n - n_test
+    idxs = np.arange(n)
+    np.random.shuffle(idxs)
+    return idxs[:n_train].copy(), idxs[n_train:].copy()
+
+
+def df_create(features):
+    df = pd.DataFrame()
+    for k, v in features.items():
+        df[k.strip()] = v
+    return df
+
+
+def get_parameter_names(solutions:dict):
+    res = []
+    for s in solutions:
+        p = s.keys()
+        if len(res) < len(p):
+            res = p
+    return list(res)
+
+
+def solution_parse(snames):
+    res = []
+    pat = re.compile('\d*$')
+    
+    for i, name in enumerate(snames):
+        sol = OrderedDict()
+        s = name.split('_')
+        sol['Layout'] = '_'.join(s[:3])
+        sol['Precision'] = s[3]
+        j, n = 4, len(s)
+        while j < n:
+            v = s[j]
+            if v.startswith('MT'):
+                mt = v[2:].split('x')
+                sol['MT0'] = eval(mt[0])
+                sol['MT1'] = eval(mt[1])
+                sol['MT2'] = eval(mt[2])
+            elif v.startswith('MI'):
+                mi = v[2:].split('x')
+                sol['MI0'] = eval(mi[0])
+                sol['MI1'] = eval(mi[1])
+                sol['MI2'] = eval(mi[2])
+                sol['MI3'] = eval(mi[3])
+            else:
+                r = re.search(pat, v)
+                if r.group(0) != '':
+                    val = r.group(0)
+                    key = v[:-len(val)]
+                    if key == 'TT':
+                        sol[key + '0'] = eval(val)
+                        sol[key + '1'] = eval(s[j+1])
+                        j += 1
+                    elif key == 'WG':
+                        sol[key + '0'] = eval(val)
+                        sol[key + '1'] = eval(s[j+1])
+                        sol[key + '2'] = eval(s[j+1])
+                        j += 2
+                    else:
+                        sol[key] = eval(val)
+                else:
+                    sol[v] = True
+            j += 1
+        res.append(sol)
+    return np.array(res)
+
+
+def dataset_create(basename:Path, test_pct=0.2, save_results=True):
+    df = pd.read_csv(basename.with_suffix('.csv'))
+    sol_start_idx = 10
+    solution_names = df.columns[sol_start_idx:]
+    problem_size_names = df.columns[1:sol_start_idx]
+
+    solutions = solution_parse(solution_names)
+    num_solutions = len(solutions)
+    problem_sizes = df[problem_size_names].values
+    gflops = df.iloc[:, sol_start_idx:].values
+    rankings = gflops.argsort()
+
+    train_features, test_features = defaultdict(lambda: []), defaultdict(lambda: [])
+    train_idxs, test_idxs = split_idxs(len(problem_sizes), test_pct)
+
+    for i, (rnk, ps) in enumerate(zip(rankings, problem_sizes)):
+        sol_sorted = solutions[rnk]
+        features = train_features if i in train_idxs else test_features
+        n = list(range(0, num_solutions, 3)) + [num_solutions - 2, num_solutions - 1]
+        for j in n:
+            for k, v in zip(problem_size_names, ps):
+                features[k.strip()].append(v)
+            for k, v in sol_sorted[j].items():
+                features[k].append(v)
+            features['GFlops'].append(gflops[i, j])
+
+    train_df = df_create(train_features)
+    test_df = df_create(test_features)
+
+    train_df.drop_duplicates(inplace=True)
+    train_df = train_df[~(train_df.GFlops < 0)]
+    test_df.drop_duplicates(inplace=True)
+    test_df = test_df[~(test_df.GFlops < 0)]
+    
+    if save_results:
+        train_df.to_csv(str(basename) + '_train_raw.csv', index=False)
+        test_df.to_csv(str(basename) + '_test_raw.csv', index=False)
+
+    return (train_df, test_df)
+
+
+if __name__ == '__main__':
+    start = time.time()
+    path = Path(sys.argv[1])
+    out = Path(sys.argv[2]) if len(sys.argv) > 2 else Path('data')
+    train_dfs, test_dfs = [], []
+
+    # create train/test dataframe
+    #with ThreadPoolExecutor(os.cpu_count()) as e:
+    #    e.map(dataset_create, src)
+    for o in path.glob("**/*_inc1_*.csv"):
+        print("{} ...".format(o))
+        train_df, test_df = dataset_create(o, 0.2, False)
+        train_dfs.append(train_df)
+        test_dfs.append(test_df)
+        print("done")
+
+    df = pd.concat(train_dfs, ignore_index=True)
+    
+    df.to_csv(out/'train_simp.csv', index=False)
+    df = pd.concat(test_dfs, ignore_index=True)
+    df.to_csv(out/'test_simp.csv', index=False)
+
+    end = time.time()
+    print("Prepare data done in {} seconds.".format(end - start))
