@@ -104,7 +104,7 @@ def get_oob(x, y):
 
 
 if __name__ == '__main__':
-    path = Path('data')
+    path = Path('data/nn_tiny')
     img_path = path/'imgs'
     img_path.mkdir(exist_ok=True)
 

@@ -39,8 +39,7 @@ def df_create(features):
 
     df.drop_duplicates(inplace=True)
     df = df[~(df.GFlops < 0)].reset_index(drop=True)
-    df['TotalGFlop'] = df['TotalFlops'] / 1e9
-    df.drop('TotalFlops', axis=1, inplace=True)
+    df['TotalFlops'] = df['TotalFlops'] / 1e9
 
     return df
 
@@ -59,22 +58,35 @@ def dataset_create(basename:Path, test_pct=0.2, save_results=True):
     sol_start_idx = 10
     solution_names = df.columns[sol_start_idx:]
     problem_size_names = df.columns[1:sol_start_idx]
-    gflops = df.iloc[:, sol_start_idx:].values
-    rankings = gflops.argsort()
     num_solutions = len(solution_names)
 
     train_features, test_features = defaultdict(lambda: []), defaultdict(lambda: [])
     _solutions = yaml.safe_load(basename.with_suffix('.yaml').open())
-    problem_sizes, solutions = df[problem_size_names].values, _solutions[2:]
+    problem_sizes, solutions = df[problem_size_names].values, np.array(_solutions[2:])
     assert len(solution_names) == len(solutions)
     col_set = set(get_parameter_names(solutions))
+    gflops = df.iloc[:, sol_start_idx:].values
+    rankings = gflops.argsort()
 
-    train_idxs, test_idxs = split_idxs(len(problem_sizes), test_pct)
+    num_problems = len(problem_sizes)
+    num_keep = int(num_problems * test_pct)
+    pb_idxs = np.arange(num_problems)
+    np.random.shuffle(pb_idxs)
+    pb_idxs = pb_idxs[:num_keep]
+    train_idxs, test_idxs = pb_idxs[:num_keep//2].copy(), pb_idxs[num_keep//2:num_keep].copy()
 
-	# raw
-    for row, ps in enumerate(problem_sizes):
-        features = train_features if row in train_idxs else test_features
-        for col, (n, s) in enumerate(zip(solution_names, solutions)):
+    for row, (rnk, ps) in enumerate(zip(rankings[pb_idxs], problem_sizes[pb_idxs])):
+        if row in train_idxs:
+            features = train_features
+        elif row in test_idxs:
+            features = test_features
+        else:
+            continue
+
+        sol_sorted = solutions[rnk]
+        n = list(range(0, num_solutions, 7)) + [num_solutions - 2, num_solutions - 1]
+        for col in n:
+            s = sol_sorted[col]
             for k, v in zip(problem_size_names, ps):
                 features[k.strip()].append(v)
             for k, v in s.items():
@@ -86,18 +98,17 @@ def dataset_create(basename:Path, test_pct=0.2, save_results=True):
             miss_cols = list(col_set - set(s.keys()))
             for o in miss_cols:
                 features[o].append(np.nan)
-            features['SolutionName'].append(n)
+            features['SolutionName'].append(solution_names[col])
             features['GFlops'].append(gflops[row, col])
             features['Ranking'].append((rankings[row, col] + 1) / num_solutions)
 
     train_df = df_create(train_features)
     test_df = df_create(test_features)
+    print(f"train_df.shape: {train_df.shape}, test_df.shape: {test_df.shape}")
     
     if save_results:
-        train_df.to_csv(str(basename) + '_train_raw.csv', index=False)
-        test_df.to_csv(str(basename) + '_test_raw.csv', index=False)
-        with open(str(basename) + '_solution_name.pkl', 'wb') as fp:
-            pickle.dump(solution_names, fp)
+        train_df.to_csv(str(basename) + '_train_raw_simple.csv', index=False)
+        test_df.to_csv(str(basename) + '_test_raw_simple.csv', index=False)
 
     return (train_df, test_df)
 
@@ -120,18 +131,20 @@ if __name__ == '__main__':
     dfs, dfs2 = [], []
     for o in src:
         print("{} ...".format(o))
-        df, df2 = dataset_create(o, 0.2, False)
-        dfs.append(df)
-        dfs2.append(df2)
+        train_df, valid_df = dataset_create(o, 0.2, False)
+        dfs.append(train_df)
+        dfs2.append(valid_df)
         print("done")
 
     train_df = pd.concat(dfs, ignore_index=True)
-    train_df.to_csv(out/'train_raw.csv', index=False)
+    train_df.to_csv(out/'train_raw_profile.csv', index=False)
+    print(f"{out}/train_raw_profile.csv is generated.")
 
-    del dfs, train_df
+    #del dfs, train_df
     
     test_df = pd.concat(dfs2, ignore_index=True)
-    test_df.to_csv(out/'test_raw.csv', index=False)
+    test_df.to_csv(out/'test_raw_profile.csv', index=False)
+    print(f"{out}/test_raw_profile.csv is generated.")
 
     end = time.time()
     print("Prepare data done in {} seconds.".format(end - start))
