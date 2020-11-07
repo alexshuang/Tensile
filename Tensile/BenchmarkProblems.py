@@ -43,6 +43,47 @@ from .SolutionStructs import Solution, ProblemType, ProblemSizes
 from .SolutionWriter import SolutionWriter
 from .TensileCreateLibrary import writeSolutionsAndKernels, writeCMake, buildObjectFileNames
 
+import numpy as np
+import pandas as pd
+from pathlib import Path
+import sys
+import pdb
+import yaml
+import os
+import math
+import random
+import pickle
+import time
+from collections import defaultdict
+from multiprocessing import cpu_count
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from pandas.api.types import is_string_dtype, is_bool_dtype, is_numeric_dtype, is_object_dtype, is_categorical_dtype, is_integer_dtype, is_float_dtype
+#from fastai.tabular.all import *
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.tree import DecisionTreeRegressor
+from IPython.display import Image, display_svg, SVG
+#from dtreeviz.trees import *
+from sklearn.tree import export_graphviz
+from scipy.cluster import hierarchy as hc
+from sklearn.inspection import plot_partial_dependence
+import yaml
+import os
+import math
+import random
+import pickle
+import time
+from tqdm import tqdm
+from collections import defaultdict
+from sklearn import base
+from sklearn.model_selection import KFold
+from pathlib import Path
+import scipy
+
+
 ############################################################################
 # generateForkedSolutions
 ############################################################################
@@ -506,6 +547,117 @@ def getResults(resultsFileName, solutions, enableTileSelection, newResultsFileNa
   return results
 
 
+def load_model(path):
+    model = pickle.load((path/f'ranking_model.pkl').open('rb'))
+    final_cols = pickle.load((path/f'ranking_cols.pkl').open('rb'))
+    return model, final_cols
+
+
+def strify(o):
+    if isinstance(o, list):
+        return '_'.join([str(p) for p in o])
+    elif isinstance(o, dict):
+        return '_'.join(['{}:{}'.format(k, v) for k, v in o.items()])
+    else:
+        return o
+
+
+def parse_feat(solution):
+    feat = {}
+    for k, v in solution.items():
+        if k == 'ProblemType':
+            for _k, _v in v.items():
+                if isinstance(_v, list):
+                    for i, o in enumerate(_v):
+                        feat['PT_' + _k + f'_{i}'] = o
+                else:
+                    feat['PT_' + _k] = strify(_v)
+        elif isinstance(v, list):
+            for i, o in enumerate(v):
+                feat[k + f'_{i}'] = o
+        else:
+            feat[k] = strify(v)
+    return feat
+
+
+def extend_feat(problem_size):
+    ext_feats = {}
+    ext_feats['AspectRatioA'] = problem_size[3] / problem_size[0]
+    ext_feats['AspectRatioB'] = problem_size[1] / problem_size[3]
+    ext_feats['AspectRatioC'] = problem_size[1] / problem_size[0]
+    ext_feats['AreaA'] = problem_size[0] * problem_size[3]
+    ext_feats['AreaB'] = problem_size[1] * problem_size[3]
+    ext_feats['AreaC'] = problem_size[0] * problem_size[1]
+    ext_feats['AoverB'] = ext_feats['AreaA'] / ext_feats['AreaB']
+    ext_feats['BoverC'] = ext_feats['AreaB'] / ext_feats['AreaC']
+    ext_feats['AoverC'] = ext_feats['AreaA'] / ext_feats['AreaC']
+    ext_feats['TotalGFlops'] = problem_size[0] * problem_size[1] * problem_size[2] * problem_size[3] * 2 / 1e9
+    return ext_feats
+
+
+def df_create(features):
+    df = pd.DataFrame()
+    for k, v in features.items():
+        df[k.strip()] = v
+    return df
+
+
+def dataset_create(problem_sizes, kernels, final_cols):
+    features = defaultdict(lambda: [])
+    problem_size_names = ['SizeI', 'SizeJ', 'SizeK', 'SizeL', 'LDD', 'LDC', 'LDA', 'LDB']
+    for problem_size in problem_sizes:
+        for kernel in kernels:
+            for k, v in zip(problem_size_names, problem_size):
+                features[k.strip()].append(v)
+            ext_features = extend_feat(problem_size)
+            kernel_features = parse_feat(kernel)
+            for c in final_cols:
+                if c in kernel_features:
+                    features[c].append(kernel_features[c])
+                elif c in ext_features:
+                    features[c].append(ext_features[c])
+                else:
+                    if c.strip() not in problem_size_names:
+                        features[c].append(np.nan)
+    return df_create(features)
+
+
+def train_cats(df):
+    for n, c in df.items():
+        if is_object_dtype(c):
+            df[n] = c.astype('category').cat.as_ordered()
+
+
+def categorify(df):
+    for n, c in df.items():
+        if is_bool_dtype(c):
+            df[n] = c.astype('int8')
+        elif not is_numeric_dtype(c):
+            df[n] = pd.Categorical(c).codes + 1
+
+
+def rf_bench(problemSizes, kernels):
+    n = len(kernels)
+    pct = 0.01 # top 1%
+    path = Path('data')
+    problem_sizes = np.stack([p.sizes for p in problemSizes.exacts])
+    model, final_cols = load_model(path)
+    xs = dataset_create(problem_sizes, kernels, final_cols)
+    train_cats(xs)
+    categorify(xs)
+    xs.drop('LDD', axis=1, inplace=True)
+    xs.fillna(0, inplace=True)
+#    for n, c in xs.items():
+#        print(f"{n}: {c.isnull().sum()}")
+    preds = model.predict(xs)
+    #pdb.set_trace()
+    preds = preds.reshape(-1, n)
+    rankings = np.argsort(-preds)
+    keep = rankings[:, :int(n * pct)]
+    target_idxs = np.unique(np.concatenate(keep))
+    return target_idxs
+
+
 ################################################################################
 # Write Benchmark Files
 ################################################################################
@@ -539,6 +691,10 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
         kernelHelperOjbs.append(ko)
         kernelHelperNames.add(kname)
 
+  idxs = rf_bench(problemSizes, kernels)
+  print("to_keep: len(idxs) = {}".format(len(idxs)))
+  solutions = [solutions[i] for i in idxs]
+  kernels = [kernels[i] for i in idxs]
 
   solutionSerialNaming = Solution.getSerialNaming(solutions)
   kernelSerialNaming   = Solution.getSerialNaming(kernels)
