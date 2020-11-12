@@ -162,7 +162,7 @@ class ProblemType():
 
     # precision and other
     name += "_"
-    name += datatype_properties[state["DataType"]].toChar()
+    name += datatype_properties[state["DataType"]]['char']
     if state["UseBeta"]: name += "B"
     if state["HighPrecisionAccumulate"] and not state["SilentHighPrecisionAccumulate"]: name += "H"
     if state["UseInitialStridesAB"]: name += "I"
@@ -173,7 +173,44 @@ class ProblemType():
 class Solution():
   @ staticmethod
   def getNameFull(state):
+    import pdb; pdb.set_trace()
     return Solution.getNameMin(state)
+
+  @ staticmethod
+  def getParameterNameAbbreviation( name ):
+    return ''.join([c for c in name if not c.islower()])
+
+  @ staticmethod
+  def getParameterValueAbbreviation( key, value ):
+    if isinstance(value, str):
+      return ''.join([c for c in value if c.isupper()])
+    elif isinstance(value, bool):
+      return "1" if value else "0"
+    elif isinstance(value, int):
+      if value >= 0:
+        return "%u" % value
+      else: # -1 -> n1
+        return "n%01u" % abs(value)
+    elif isinstance(value, ProblemType):
+      return str(value)
+    elif isinstance(value, tuple) or key == 'ISA':
+      abbrev = ""
+      for i in range(0, len(value)):
+        abbrev += str(value[i])
+      return abbrev
+    elif isinstance(value, list):
+      abbrev = ""
+      for i in range(0, len(value)):
+        abbrev += Solution.getParameterValueAbbreviation(key, value[i])
+        if i < len(value)-1:
+          abbrev += "_"
+      return abbrev
+    elif isinstance(value, dict):
+      s =  "_".join(["%d%d"%(pos,k) for pos,k in value.items()])
+      return s
+    else:
+      printExit("Parameter \"%s\" is new object type" % str(value) )
+      return str(value)
 
   @ staticmethod
   def getNameMin(state):
@@ -269,13 +306,9 @@ def dataset_create(basename:Path, test_pct=0.2, save_results=False, sampling_int
     _solutions = yaml.safe_load(basename.with_suffix('.yaml').open())
     problem_sizes, solutions = df[problem_size_names].values, _solutions[2:]
 
-    solution_names = df.columns[sol_start_idx:]
-    num_solutions = len(solution_names)
-    assert len(solution_names) == len(solutions)
-
-    solution_names = [(Solution.getFullName(o), Solution.getFullName(o)) for o in solutions]
-    num_solutions = len(solution_names)
-    assert len(solution_names) == len(solutions)
+    solution_names = [(ProblemType.getName(o['ProblemType']), Solution.getNameFull(o)) for o in solutions]
+    print("solution_names[0]: {}".format(solution_names[0]))
+    num_solutions = len(solutions)
 
     total_col_set = set(get_parameter_names(solutions)) # total feature names
 
