@@ -13,7 +13,10 @@ import time
 from collections import defaultdict
 from multiprocessing import cpu_count
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from pandas.api.types import is_integer_dtype
+from functools import partial
 
+pd.options.display.max_rows = None
 
 datatype_properties = [
     {
@@ -162,7 +165,7 @@ class ProblemType():
 
     # precision and other
     name += "_"
-    name += datatype_properties[state["DataType"]].toChar()
+    name += datatype_properties[state["DataType"]]['char']
     if state["UseBeta"]: name += "B"
     if state["HighPrecisionAccumulate"] and not state["SilentHighPrecisionAccumulate"]: name += "H"
     if state["UseInitialStridesAB"]: name += "I"
@@ -173,7 +176,43 @@ class ProblemType():
 class Solution():
   @ staticmethod
   def getNameFull(state):
-    return Solution.getNameMin(state)
+    return (ProblemType.getName(state['ProblemType']), Solution.getNameMin(state))
+
+  @ staticmethod
+  def getParameterNameAbbreviation( name ):
+    return ''.join([c for c in name if not c.islower()])
+
+  @ staticmethod
+  def getParameterValueAbbreviation( key, value ):
+    if isinstance(value, str):
+      return ''.join([c for c in value if c.isupper()])
+    elif isinstance(value, bool):
+      return "1" if value else "0"
+    elif isinstance(value, int):
+      if value >= 0:
+        return "%u" % value
+      else: # -1 -> n1
+        return "n%01u" % abs(value)
+    elif isinstance(value, ProblemType):
+      return str(value)
+    elif isinstance(value, tuple) or key == 'ISA':
+      abbrev = ""
+      for i in range(0, len(value)):
+        abbrev += str(value[i])
+      return abbrev
+    elif isinstance(value, list):
+      abbrev = ""
+      for i in range(0, len(value)):
+        abbrev += Solution.getParameterValueAbbreviation(key, value[i])
+        if i < len(value)-1:
+          abbrev += "_"
+      return abbrev
+    elif isinstance(value, dict):
+      s =  "_".join(["%d%d"%(pos,k) for pos,k in value.items()])
+      return s
+    else:
+      printExit("Parameter \"%s\" is new object type" % str(value) )
+      return str(value)
 
   @ staticmethod
   def getNameMin(state):
@@ -198,7 +237,7 @@ class Solution():
       else:
         name += "SN_"
     for key in sorted(state.keys()):
-      if key[0] != '_':
+      if key != 'ProblemType' and key[0] != '_':
         if not first:
           name += "_"
         else:
@@ -232,6 +271,22 @@ def df_create(features):
     return df
 
 
+def df_merge(dfs):
+    df = pd.concat(dfs, ignore_index=True)
+    df['_UseSgprForGRO'] = df['_UseSgprForGRO'].replace('False', False).replace('1', True).replace('0', False).astype('bool')
+    
+    skip_cols = ['TotalFlops']
+    for n, c in df.items():
+        if is_integer_dtype(c) and n not in skip_cols:
+            if c.max() < 128: df[n] = c.astype('int8')
+            elif c.max() < 32768: df[n] = c.astype('int16')
+            else: df[n] = c.astype('int32')
+
+    for n, c in df.items():
+        print(f"{n}: {c.dtype}: {c.unique() if not is_integer_dtype(c) else c.max()}")
+    return df
+
+
 def get_parameter_names(solutions:dict):
     res = []
     for s in solutions:
@@ -257,67 +312,86 @@ def add_feat(feat, solution):
             feat[k].append(strify(v))
 
 
+def feature_parse(idx, problem_size_names, solution_names, problem_sizes,
+        solutions, rankings, train_idxs, gflops, sampling_interval=1):
+    problem_size, ranking = problem_sizes[idx], rankings[idx]
+    ds_type = 'train' if idx in train_idxs else 'test'
+    features = defaultdict(lambda: [])
+    num_solutions = len(solution_names)
+    total_col_set = set(get_parameter_names(solutions)) # total feature names
+
+    # train set can reduce sampling frequency
+    if ds_type == 'train':
+        n = range(0, num_solutions, sampling_interval)
+    else:
+        n = range(num_solutions)
+
+    for j in n:
+        # problem sizes
+        for k, v in zip(problem_size_names, problem_size):
+            features[k.strip()].append(v)
+        # solution features
+        r = ranking[j]
+        solution, (ptype, sname) = solutions[r], solution_names[r]
+        add_feat(features, solution)
+        miss_cols = list(total_col_set - set(solution.keys()))
+        for o in miss_cols: features[o].append(np.nan)
+        features['ProblemType'].append(ptype)
+        features['SolutionName'].append(sname)
+        features['GFlops'].append(gflops[idx, r])
+        features['Ranking'].append(j / num_solutions)
+    return (ds_type, features)
+
+
 def dataset_create(basename:Path, test_pct=0.2, save_results=False, sampling_interval=1):
-    print(f"handling {basename}.csv ...")
+    print(f"processing {basename}.csv ...")
     df = pd.read_csv(basename.with_suffix('.csv'))
     sol_start_idx = 10
     problem_size_names = df.columns[1:sol_start_idx]
     gflops = df.iloc[:, sol_start_idx:].values
     rankings = np.argsort(-gflops) # reverse
 
-    train_features, test_features = defaultdict(lambda: []), defaultdict(lambda: [])
+    features = { 'train': defaultdict(lambda: []),
+                 'test': defaultdict(lambda: []) }
     _solutions = yaml.safe_load(basename.with_suffix('.yaml').open())
     problem_sizes, solutions = df[problem_size_names].values, _solutions[2:]
 
-    solution_names = df.columns[sol_start_idx:]
-    num_solutions = len(solution_names)
-    assert len(solution_names) == len(solutions)
-
-    solution_names = [(Solution.getFullName(o), Solution.getFullName(o)) for o in solutions]
-    num_solutions = len(solution_names)
-    assert len(solution_names) == len(solutions)
-
-    total_col_set = set(get_parameter_names(solutions)) # total feature names
+    num_solutions = len(solutions)
+    solution_names = []
+    with ThreadPoolExecutor(os.cpu_count()) as e:
+        solution_names += e.map(Solution.getNameFull, solutions)
+    print("num_solutions: {}\nsolution_names[0]: {}".format(num_solutions, solution_names[0]))
 
     train_idxs, test_idxs = split_idxs(len(problem_sizes), test_pct)
     assert(len(train_idxs) + len(test_idxs) == len(df))
 
-    # raw
-    for i, (problem_size, ranking) in enumerate(zip(problem_sizes, rankings)):
-        features = train_features if i in train_idxs else test_features
+    # parse features
+    feats = []
+    with ThreadPoolExecutor(os.cpu_count()) as e:
+        feats += e.map(partial(feature_parse,
+                            problem_size_names=problem_size_names,
+                            solution_names=solution_names,
+                            problem_sizes=problem_sizes,
+                            solutions=solutions,
+                            rankings=rankings,
+                            train_idxs=train_idxs,
+                            gflops=gflops,
+                            sampling_interval=sampling_interval
+                            ),
+                            np.arange(len(problem_sizes)))
 
-        # train set can reduce sampling frequency
-        if i in train_idxs:
-            features = train_features
-            n = list(range(0, num_solutions, sampling_interval))
-        else:
-            features = test_features
-            n = list(range(num_solutions))
+    for n, feat in feats:
+        for k, v in feat.items():
+            features[n][k].extend(v)
 
-        for j in n:
-            # problem sizes
-            for k, v in zip(problem_size_names, problem_size):
-                features[k.strip()].append(v)
-            # solution features
-            idx = ranking[j]
-            solution, sname = solutions[idx], solution_names[idx]
-            add_feat(features, solution)
-            miss_cols = list(total_col_set - set(solution.keys()))
-            for o in miss_cols: features[o].append(np.nan)
-            features['SolutionName'].append(sname)
-            features['GFlops'].append(gflops[i, idx])
-            features['Ranking'].append(j / num_solutions)
-
-    train_df = df_create(train_features)
-    to_keep = [n for n, c in train_df.items() if len(c.unique()) > 1]
-    train_df = train_df[to_keep]
-    test_df = df_create(test_features, to_keep)
+    train_df = df_create(features['train'])
+    test_df = df_create(features['test'])
     
     if save_results:
         train_df.to_csv(str(basename) + '_train_raw.csv', index=False)
         test_df.to_csv(str(basename) + '_test_raw.csv', index=False)
-        with open(str(basename) + '_solution_name.pkl', 'wb') as fp:
-            pickle.dump(solution_names, fp)
+#        with open(str(basename) + '_solution_name.pkl', 'wb') as fp:
+#            pickle.dump(solution_names, fp)
 
     return (train_df, test_df)
 
@@ -335,23 +409,28 @@ if __name__ == '__main__':
             src.append(basename)
 
     dfs, dfs2 = [], []
+    sampling_interval = 1
 #    # create train/test dataframe
 #        with ThreadPoolExecutor(os.cpu_count()) as e:
 #            df, df2 = e.map(dataset_create, src)
 #            dfs.append(df)
 #            dfs2.append(df2)
     for o in src:
-        df, df2 = dataset_create(o, sampling_interval=2)
+        df, df2 = dataset_create(o, sampling_interval=sampling_interval)
         dfs.append(df)
         dfs2.append(df2)
 
-    train_df = pd.concat(dfs, ignore_index=True)
-    train_df.to_csv(out/'train_raw_interval_2.csv', index=False)
+    train_df = df_merge(dfs)
+    test_df = df_merge(dfs2)
 
-    del dfs, train_df
-    
-    test_df = pd.concat(dfs2, ignore_index=True)
-    test_df.to_csv(out/'test_raw_interval_2.csv', index=False)
+    # drop one-value columns
+    to_keep = [n for n, c in train_df.items() if len(c.unique()) > 1]
+    tail = 'raw_full' if sampling_interval == 1 else f'raw_sampling_interval_{sampling_interval}'
+    train_df[to_keep].to_feather(out/f'train_{tail}.feat')
+    print(f'{out}/train_{tail}.feat is generated.')
+
+    test_df[to_keep].to_feather(out/f'test_{tail}.feat')
+    print(f'{out}/test_{tail}.feat is generated.')
 
     end = time.time()
     print("Prepare data done in {} seconds.".format(end - start))

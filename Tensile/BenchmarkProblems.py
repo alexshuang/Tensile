@@ -519,6 +519,7 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
         kernelHelperOjbs.append(ko)
         kernelHelperNames.add(kname)
 
+  #import pdb; pdb.set_trace()
 
   solutionSerialNaming = Solution.getSerialNaming(solutions)
   kernelSerialNaming   = Solution.getSerialNaming(kernels)
