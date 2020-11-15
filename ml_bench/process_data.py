@@ -14,6 +14,7 @@ from collections import defaultdict
 from multiprocessing import cpu_count
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from pandas.api.types import is_integer_dtype
+from functools import partial
 
 pd.options.display.max_rows = None
 
@@ -311,6 +312,37 @@ def add_feat(feat, solution):
             feat[k].append(strify(v))
 
 
+def feature_parse(idx, problem_size_names, solution_names, problem_sizes,
+        solutions, rankings, train_idxs, gflops, sampling_interval=1):
+    problem_size, ranking = problem_sizes[idx], rankings[idx]
+    ds_type = 'train' if idx in train_idxs else 'test'
+    features = defaultdict(lambda: [])
+    num_solutions = len(solution_names)
+    total_col_set = set(get_parameter_names(solutions)) # total feature names
+
+    # train set can reduce sampling frequency
+    if ds_type == 'train':
+        n = range(0, num_solutions, sampling_interval)
+    else:
+        n = range(num_solutions)
+
+    for j in n:
+        # problem sizes
+        for k, v in zip(problem_size_names, problem_size):
+            features[k.strip()].append(v)
+        # solution features
+        r = ranking[j]
+        solution, (ptype, sname) = solutions[r], solution_names[r]
+        add_feat(features, solution)
+        miss_cols = list(total_col_set - set(solution.keys()))
+        for o in miss_cols: features[o].append(np.nan)
+        features['ProblemType'].append(ptype)
+        features['SolutionName'].append(sname)
+        features['GFlops'].append(gflops[idx, r])
+        features['Ranking'].append(j / num_solutions)
+    return (ds_type, features)
+
+
 def dataset_create(basename:Path, test_pct=0.2, save_results=False, sampling_interval=1):
     print(f"processing {basename}.csv ...")
     df = pd.read_csv(basename.with_suffix('.csv'))
@@ -319,53 +351,41 @@ def dataset_create(basename:Path, test_pct=0.2, save_results=False, sampling_int
     gflops = df.iloc[:, sol_start_idx:].values
     rankings = np.argsort(-gflops) # reverse
 
-    train_features, test_features = defaultdict(lambda: []), defaultdict(lambda: [])
+    features = { 'train': defaultdict(lambda: []),
+                 'test': defaultdict(lambda: []) }
     _solutions = yaml.safe_load(basename.with_suffix('.yaml').open())
     problem_sizes, solutions = df[problem_size_names].values, _solutions[2:]
 
+    num_solutions = len(solutions)
     solution_names = []
     with ThreadPoolExecutor(os.cpu_count()) as e:
         solution_names += e.map(Solution.getNameFull, solutions)
-    #solution_names = [Solution.getNameFull(o) for o in solutions]
-    num_solutions = len(solutions)
     print("num_solutions: {}\nsolution_names[0]: {}".format(num_solutions, solution_names[0]))
-
-    total_col_set = set(get_parameter_names(solutions)) # total feature names
 
     train_idxs, test_idxs = split_idxs(len(problem_sizes), test_pct)
     assert(len(train_idxs) + len(test_idxs) == len(df))
 
-    # raw
-#    with ThreadPoolExecutor(os.cpu_count()) as e:
-#        trn_feats, test_feats = parse_features()
-    for i, (problem_size, ranking) in enumerate(zip(problem_sizes, rankings)):
-        features = train_features if i in train_idxs else test_features
+    # parse features
+    feats = []
+    with ThreadPoolExecutor(os.cpu_count()) as e:
+        feats += e.map(partial(feature_parse,
+                            problem_size_names=problem_size_names,
+                            solution_names=solution_names,
+                            problem_sizes=problem_sizes,
+                            solutions=solutions,
+                            rankings=rankings,
+                            train_idxs=train_idxs,
+                            gflops=gflops,
+                            sampling_interval=sampling_interval
+                            ),
+                            np.arange(len(problem_sizes)))
 
-        # train set can reduce sampling frequency
-        if i in train_idxs:
-            features = train_features
-            n = list(range(0, num_solutions, sampling_interval))
-        else:
-            features = test_features
-            n = list(range(num_solutions))
+    for n, feat in feats:
+        for k, v in feat.items():
+            features[n][k].extend(v)
 
-        for j in n:
-            # problem sizes
-            for k, v in zip(problem_size_names, problem_size):
-                features[k.strip()].append(v)
-            # solution features
-            idx = ranking[j]
-            solution, (ptype, sname) = solutions[idx], solution_names[idx]
-            add_feat(features, solution)
-            miss_cols = list(total_col_set - set(solution.keys()))
-            for o in miss_cols: features[o].append(np.nan)
-            features['ProblemType'].append(ptype)
-            features['SolutionName'].append(sname)
-            features['GFlops'].append(gflops[i, idx])
-            features['Ranking'].append(j / num_solutions)
-
-    train_df = df_create(train_features)
-    test_df = df_create(test_features)
+    train_df = df_create(features['train'])
+    test_df = df_create(features['test'])
     
     if save_results:
         train_df.to_csv(str(basename) + '_train_raw.csv', index=False)
