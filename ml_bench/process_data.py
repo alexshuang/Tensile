@@ -13,7 +13,9 @@ import time
 from collections import defaultdict
 from multiprocessing import cpu_count
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from pandas.api.types import is_integer_dtype
 
+pd.options.display.max_rows = None
 
 datatype_properties = [
     {
@@ -173,8 +175,7 @@ class ProblemType():
 class Solution():
   @ staticmethod
   def getNameFull(state):
-    import pdb; pdb.set_trace()
-    return Solution.getNameMin(state)
+    return (ProblemType.getName(state['ProblemType']), Solution.getNameMin(state))
 
   @ staticmethod
   def getParameterNameAbbreviation( name ):
@@ -235,7 +236,7 @@ class Solution():
       else:
         name += "SN_"
     for key in sorted(state.keys()):
-      if key[0] != '_':
+      if key != 'ProblemType' and key[0] != '_':
         if not first:
           name += "_"
         else:
@@ -269,6 +270,22 @@ def df_create(features):
     return df
 
 
+def df_merge(dfs):
+    df = pd.concat(dfs, ignore_index=True)
+    df['_UseSgprForGRO'] = df['_UseSgprForGRO'].replace('False', False).replace('1', True).replace('0', False).astype('bool')
+    
+    skip_cols = ['TotalFlops']
+    for n, c in df.items():
+        if is_integer_dtype(c) and n not in skip_cols:
+            if c.max() < 128: df[n] = c.astype('int8')
+            elif c.max() < 32768: df[n] = c.astype('int16')
+            else: df[n] = c.astype('int32')
+
+    for n, c in df.items():
+        print(f"{n}: {c.dtype}: {c.unique() if not is_integer_dtype(c) else c.max()}")
+    return df
+
+
 def get_parameter_names(solutions:dict):
     res = []
     for s in solutions:
@@ -295,7 +312,7 @@ def add_feat(feat, solution):
 
 
 def dataset_create(basename:Path, test_pct=0.2, save_results=False, sampling_interval=1):
-    print(f"handling {basename}.csv ...")
+    print(f"processing {basename}.csv ...")
     df = pd.read_csv(basename.with_suffix('.csv'))
     sol_start_idx = 10
     problem_size_names = df.columns[1:sol_start_idx]
@@ -306,9 +323,12 @@ def dataset_create(basename:Path, test_pct=0.2, save_results=False, sampling_int
     _solutions = yaml.safe_load(basename.with_suffix('.yaml').open())
     problem_sizes, solutions = df[problem_size_names].values, _solutions[2:]
 
-    solution_names = [(ProblemType.getName(o['ProblemType']), Solution.getNameFull(o)) for o in solutions]
-    print("solution_names[0]: {}".format(solution_names[0]))
+    solution_names = []
+    with ThreadPoolExecutor(os.cpu_count()) as e:
+        solution_names += e.map(Solution.getNameFull, solutions)
+    #solution_names = [Solution.getNameFull(o) for o in solutions]
     num_solutions = len(solutions)
+    print("num_solutions: {}\nsolution_names[0]: {}".format(num_solutions, solution_names[0]))
 
     total_col_set = set(get_parameter_names(solutions)) # total feature names
 
@@ -316,6 +336,8 @@ def dataset_create(basename:Path, test_pct=0.2, save_results=False, sampling_int
     assert(len(train_idxs) + len(test_idxs) == len(df))
 
     # raw
+#    with ThreadPoolExecutor(os.cpu_count()) as e:
+#        trn_feats, test_feats = parse_features()
     for i, (problem_size, ranking) in enumerate(zip(problem_sizes, rankings)):
         features = train_features if i in train_idxs else test_features
 
@@ -333,24 +355,23 @@ def dataset_create(basename:Path, test_pct=0.2, save_results=False, sampling_int
                 features[k.strip()].append(v)
             # solution features
             idx = ranking[j]
-            solution, sname = solutions[idx], solution_names[idx]
+            solution, (ptype, sname) = solutions[idx], solution_names[idx]
             add_feat(features, solution)
             miss_cols = list(total_col_set - set(solution.keys()))
             for o in miss_cols: features[o].append(np.nan)
+            features['ProblemType'].append(ptype)
             features['SolutionName'].append(sname)
             features['GFlops'].append(gflops[i, idx])
             features['Ranking'].append(j / num_solutions)
 
     train_df = df_create(train_features)
-    to_keep = [n for n, c in train_df.items() if len(c.unique()) > 1]
-    train_df = train_df[to_keep]
-    test_df = df_create(test_features, to_keep)
+    test_df = df_create(test_features)
     
     if save_results:
         train_df.to_csv(str(basename) + '_train_raw.csv', index=False)
         test_df.to_csv(str(basename) + '_test_raw.csv', index=False)
-        with open(str(basename) + '_solution_name.pkl', 'wb') as fp:
-            pickle.dump(solution_names, fp)
+#        with open(str(basename) + '_solution_name.pkl', 'wb') as fp:
+#            pickle.dump(solution_names, fp)
 
     return (train_df, test_df)
 
@@ -368,23 +389,28 @@ if __name__ == '__main__':
             src.append(basename)
 
     dfs, dfs2 = [], []
+    sampling_interval = 1
 #    # create train/test dataframe
 #        with ThreadPoolExecutor(os.cpu_count()) as e:
 #            df, df2 = e.map(dataset_create, src)
 #            dfs.append(df)
 #            dfs2.append(df2)
     for o in src:
-        df, df2 = dataset_create(o, sampling_interval=2)
+        df, df2 = dataset_create(o, sampling_interval=sampling_interval)
         dfs.append(df)
         dfs2.append(df2)
 
-    train_df = pd.concat(dfs, ignore_index=True)
-    train_df.to_csv(out/'train_raw_interval_2.csv', index=False)
+    train_df = df_merge(dfs)
+    test_df = df_merge(dfs2)
 
-    del dfs, train_df
-    
-    test_df = pd.concat(dfs2, ignore_index=True)
-    test_df.to_csv(out/'test_raw_interval_2.csv', index=False)
+    # drop one-value columns
+    to_keep = [n for n, c in train_df.items() if len(c.unique()) > 1]
+    tail = 'raw_full' if sampling_interval == 1 else f'raw_sampling_interval_{sampling_interval}'
+    train_df[to_keep].to_feather(out/f'train_{tail}.feat')
+    print(f'{out}/train_{tail}.feat is generated.')
+
+    test_df[to_keep].to_feather(out/f'test_{tail}.feat')
+    print(f'{out}/test_{tail}.feat is generated.')
 
     end = time.time()
     print("Prepare data done in {} seconds.".format(end - start))
