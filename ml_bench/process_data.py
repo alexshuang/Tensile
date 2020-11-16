@@ -282,8 +282,8 @@ def df_merge(dfs):
             elif c.max() < 32768: df[n] = c.astype('int16')
             else: df[n] = c.astype('int32')
 
-    for n, c in df.items():
-        print(f"{n}: {c.dtype}: {c.unique() if not is_integer_dtype(c) else c.max()}")
+    #for n, c in df.items():
+    #    print(f"{n}: {c.dtype}: {c.unique() if not is_integer_dtype(c) else c.max()}")
     return df
 
 
@@ -343,13 +343,14 @@ def feature_parse(idx, problem_size_names, solution_names, problem_sizes,
     return (ds_type, features)
 
 
-def dataset_create(basename:Path, test_pct=0.2, save_results=False, sampling_interval=1):
+def dataset_create(basename:Path, test_pct=0.2, save_results=False, sampling_interval=1, n_jobs=-1):
     print(f"processing {basename}.csv ...")
     df = pd.read_csv(basename.with_suffix('.csv'))
     sol_start_idx = 10
     problem_size_names = df.columns[1:sol_start_idx]
     gflops = df.iloc[:, sol_start_idx:].values
     rankings = np.argsort(-gflops) # reverse
+    if n_jobs == -1: n_jobs = os.cpu_count()
 
     features = { 'train': defaultdict(lambda: []),
                  'test': defaultdict(lambda: []) }
@@ -358,7 +359,7 @@ def dataset_create(basename:Path, test_pct=0.2, save_results=False, sampling_int
 
     num_solutions = len(solutions)
     solution_names = []
-    with ThreadPoolExecutor(os.cpu_count()) as e:
+    with ThreadPoolExecutor(n_jobs) as e:
         solution_names += e.map(Solution.getNameFull, solutions)
     print("num_solutions: {}\nsolution_names[0]: {}".format(num_solutions, solution_names[0]))
 
@@ -367,7 +368,7 @@ def dataset_create(basename:Path, test_pct=0.2, save_results=False, sampling_int
 
     # parse features
     feats = []
-    with ThreadPoolExecutor(os.cpu_count()) as e:
+    with ThreadPoolExecutor(n_jobs) as e:
         feats += e.map(partial(feature_parse,
                             problem_size_names=problem_size_names,
                             solution_names=solution_names,
@@ -416,7 +417,7 @@ if __name__ == '__main__':
 #            dfs.append(df)
 #            dfs2.append(df2)
     for o in src:
-        df, df2 = dataset_create(o, sampling_interval=sampling_interval)
+        df, df2 = dataset_create(o, sampling_interval=sampling_interval, n_jobs=20)
         dfs.append(df)
         dfs2.append(df2)
 
