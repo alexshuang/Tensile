@@ -8,13 +8,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pandas.api.types import is_string_dtype, is_bool_dtype, is_numeric_dtype, is_object_dtype, is_categorical_dtype, is_integer_dtype, is_float_dtype
-from fastai.tabular.all import *
+#from fastai.tabular.all import *
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.tree import DecisionTreeRegressor
-from IPython.display import Image, display_svg, SVG
-from dtreeviz.trees import *
+#from IPython.display import Image, display_svg, SVG
+#from dtreeviz.trees import *
 from sklearn.tree import export_graphviz
-from scipy.cluster import hierarchy as hc
+#from scipy.cluster import hierarchy as hc
 from sklearn.inspection import plot_partial_dependence
 import yaml
 import os
@@ -26,19 +26,66 @@ from tqdm import tqdm
 from collections import defaultdict
 from sklearn import base
 from sklearn.model_selection import KFold
+from pathlib import Path
 
 
 # In[3]:
 
 
-path = Path('data/test/')
+path = Path('data/train/')
 
 
 # In[5]:
 
 
-train_df = pd.read_feather(path/'train_raw_full.feat')
+#xs_final = pickle.load((path/'xs_final.pkl').open('rb'))
+#valid_xs_final = pickle.load((path/'valid_xs_final.pkl').open('rb'))
+#y = pickle.load((path/'y.pkl').open('rb'))
+#valid_y = pickle.load((path/'valid_y.pkl').open('rb'))
+#
+#def rf(xs, y, n_estimators=40, max_features=0.5, min_samples_leaf=25, **kwargs):
+#    return RandomForestClassifier(n_jobs=-1, n_estimators=n_estimators, max_features=max_features,
+#                                  min_samples_leaf=min_samples_leaf,
+#                                  max_samples=200_000, oob_score=True, **kwargs).fit(xs, y)
+#
+#def param_bench(model, params, trn_xs, trn_y, val_xs, val_y):
+#    res = []
+#    for f in params['max_features']:
+#        for s in params['min_samples_leaf']:
+#            m = model(trn_xs, trn_y, max_features=f, min_samples_leaf=s)
+#            res.append((f'max_features={f}, min_samples_leaf={s}',
+#                        m_acc(m, trn_xs, trn_y), m_acc(m, val_xs, val_y)))
+#            del m
+#    res_sorted = sorted(res, key=lambda x: x[2])
+#    return res_sorted
+#
+#params = {
+#    'max_features': [0.5],
+#    'min_samples_leaf': [15, 10],
+#}
+#
+#res = param_bench(rf, params, train_new, y, valid_new, valid_y)
+#print("Benchmarking RF parameters ...")
+#for o in res:
+#    print(f"{o[0]}: train = {o[1]:.4f}, valid = {o[2]:.4f}")
+#
+#exit(0)
+
+train_df = pd.read_feather(path/'train_and_valid_raw_full.feat')
 valid_df = pd.read_feather(path/'test_raw_full.feat')
+
+
+def preproc_df(df):
+    df['PadA'] = df['LDA'] - df['SizeI']
+    df['PadB'] = df['LDB'] - df['SizeL']
+    df['PadC'] = df['LDC'] - df['SizeI']
+    df['AspectRatioA'] = df['SizeL'] / df['SizeI']
+    df['AspectRatioB'] = df['SizeJ'] / df['SizeL']
+    df['AspectRatioC'] = df['SizeJ'] / df['SizeI']
+    df['AreaA'] = (df['SizeI'] * df['SizeL']).astype('int64')
+    df['AreaB'] = (df['SizeJ'] * df['SizeL']).astype('int64')
+    df['AreaC'] = (df['SizeI'] * df['SizeJ']).astype('int64')
+    df['AoverB'] = df['AreaA'] / df['AreaB']
 
 
 # In[12]:
@@ -46,6 +93,8 @@ valid_df = pd.read_feather(path/'test_raw_full.feat')
 
 train_df = train_df[train_df['GFlops'] > 0].reset_index(drop=True)
 valid_df = valid_df[valid_df['GFlops'] > 0].reset_index(drop=True)
+preproc_df(train_df)
+preproc_df(valid_df)
 
 
 # In[ ]:
@@ -64,8 +113,10 @@ dep_var = 'Target'
 train_df[dep_var] = train_df.Ranking < 0.1
 valid_df[dep_var] = valid_df.Ranking < 0.1
 y, valid_y = train_df[dep_var].values, valid_df[dep_var].values
-xs = train_df[final_cols]
-valid_xs = valid_df[final_cols]
+xs_final = train_df[final_cols].copy()
+del train_df
+valid_xs_final = valid_df[final_cols].copy()
+del valid_df
 
 
 # In[9]:
@@ -162,15 +213,20 @@ valid_new = apply_target_mean_enc(valid_xs_final, tme)
 valid_new.drop(['SolutionName'], axis=1, inplace=True)
 
 
+model = rf(train_new, y)
+print("RF", eval_model(model, train_new, y, valid_new, valid_y))
+
+
 # In[26]:
 
 
-(path/'xs_final.pkl').save(train_new)
-(path/'valid_xs_final.pkl').save(valid_new)
-(path/'y.pkl').save(y)
-(path/'valid_y.pkl').save(valid_y)
-(path/'target_mean_enc.pkl').save(tme)
-(path/'columns_final.pkl').save(train_new.columns)
+print("Saving Final Dataset ...")
+pickle.dump(train_new, open(str(path/'xs_final.pkl'), 'wb'))
+pickle.dump(valid_new, open(str(path/'valid_xs_final.pkl'), 'wb'))
+pickle.dump(y, open(str(path/'y.pkl'), 'wb'))
+pickle.dump(valid_y, open(str(path/'valid_y.pkl'), 'wb'))
+pickle.dump(tme, open(str(path/'target_mean_enc.pkl'), 'wb'))
+pickle.dump(train_new.columns, open(str(path/'columns_final.pkl'), 'wb'))
 
 
 # ## Final
@@ -178,20 +234,21 @@ valid_new.drop(['SolutionName'], axis=1, inplace=True)
 # In[4]:
 
 
-xs_final = (path/'xs_final.pkl').load()
-valid_xs_final = (path/'valid_xs_final.pkl').load()
-y = (path/'y.pkl').load()
-valid_y = (path/'valid_y.pkl').load()
+xs_final = pickle.load((path/'xs_final.pkl').open('rb'))
+valid_xs_final = pickle.load((path/'valid_xs_final.pkl').open('rb'))
+y = pickle.load((path/'y.pkl').open('rb'))
+valid_y = pickle.load((path/'valid_y.pkl').open('rb'))
 
 
 # In[ ]:
 
 
 params = {
-    'max_features': [0.5, 'sqrt', 'log2'],
-    'min_samples_leaf': [15, 25, 35],
+    'max_features': [0.5],
+    'min_samples_leaf': [10, 15],
 }
 
+print("Benchmarking RF parameters ...")
 res = param_bench(rf, params, train_new, y, valid_new, valid_y)
 for o in res:
     print(f"{o[0]}: train = {o[1]:.4f}, valid = {o[2]:.4f}")
@@ -200,7 +257,7 @@ for o in res:
 # In[ ]:
 
 
-def final_rf(xs, y, n_estimators=160, max_features=0.5, min_samples_leaf=15, **kwargs):
+def final_rf(xs, y, n_estimators=160, max_features=0.5, min_samples_leaf=10, **kwargs):
     return RandomForestClassifier(n_jobs=-1, n_estimators=n_estimators, max_features=max_features,
                                   min_samples_leaf=min_samples_leaf, oob_score=True, **kwargs).fit(xs, y)
 
@@ -208,14 +265,15 @@ def final_rf(xs, y, n_estimators=160, max_features=0.5, min_samples_leaf=15, **k
 # In[ ]:
 
 
+print("Train final RF model ...")
 model = final_rf(train_new, y)
-eval_model(model, train_new, y, valid_new, valid_y)
+print("Final RF", eval_model(model, train_new, y, valid_new, valid_y))
 
 
 # In[ ]:
 
 
-(path/'rf_model_final.pkl').save(model)
+pickle.dump(train_new, (path/'rf_model_final.pkl').open('wb'))
 
 
 # In[ ]:

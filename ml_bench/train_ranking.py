@@ -8,11 +8,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pandas.api.types import is_string_dtype, is_bool_dtype, is_numeric_dtype, is_object_dtype, is_categorical_dtype, is_integer_dtype, is_float_dtype
-from fastai.tabular.all import *
+#from fastai.tabular.all import *
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.tree import DecisionTreeRegressor
-from IPython.display import Image, display_svg, SVG
-from dtreeviz.trees import *
+#from IPython.display import Image, display_svg, SVG
+#from dtreeviz.trees import *
 from sklearn.tree import export_graphviz
 from scipy.cluster import hierarchy as hc
 from sklearn.inspection import plot_partial_dependence
@@ -26,12 +26,13 @@ from tqdm import tqdm
 from collections import defaultdict
 from sklearn import base
 from sklearn.model_selection import KFold
+from pathlib import Path
 
 
 # In[2]:
 
 
-torch.cuda.is_available()
+#torch.cuda.is_available()
 
 
 # ## Look at Data
@@ -39,13 +40,13 @@ torch.cuda.is_available()
 # In[3]:
 
 
-path = Path('data/test/')
+path = Path('data/train/')
 
 
 # In[4]:
 
 
-path.ls()
+#path.ls()
 
 
 # In[5]:
@@ -55,46 +56,13 @@ train_df = pd.read_feather(path/'train_raw_full.feat')
 valid_df = pd.read_feather(path/'test_raw_full.feat')
 
 
-# In[6]:
-
-
-tdf = train_df[train_df['Ranking'] == 0.0]
-
-
-# In[9]:
-
-
-plt.scatter(np.arange(len(tdf)), tdf.GFlops)
-
-
-# In[14]:
-
-
-tdf[50:100].reset_index().GFlops.plot()
-
-
-# In[13]:
-
-
-tdf[50:100]
-
-
-# In[6]:
-
-
-train_df.shape, valid_df.shape
-
-
-# In[7]:
-
-
 pd.options.display.max_rows = None
 
 
 # In[8]:
 
 
-train_df.describe().T
+print(train_df.describe().T)
 
 
 # In[10]:
@@ -199,13 +167,13 @@ def preproc_df(df):
 # In[8]:
 
 
-get_ipython().run_line_magic('time', 'preproc_df(train_df)')
+preproc_df(train_df)
 
 
 # In[9]:
 
 
-get_ipython().run_line_magic('time', 'preproc_df(valid_df)')
+preproc_df(valid_df)
 
 
 # In[19]:
@@ -290,7 +258,7 @@ def m_acc(m, xs, y):
     return acc(m.predict(xs), y)
 
 def eval_model(m, trn_xs=xs, trn_y=y, val_xs=valid_xs, val_y=valid_y):
-    return m_acc(m, trn_xs, trn_y), m_acc(m, val_xs, val_y)
+    return print(m_acc(m, trn_xs, trn_y), m_acc(m, val_xs, val_y))
 
 def draw_tree(t, df, size=10, ratio=0.6, precision=0, **kwargs):
     s=export_graphviz(t, out_file=None, feature_names=df.columns, filled=True, rounded=True,
@@ -309,27 +277,27 @@ def cluster_columns(df, figsize=(10,6), font_size=12):
 # In[27]:
 
 
-get_ipython().run_cell_magic('time', '', 't = DecisionTreeRegressor()\nt.fit(xs, y)\nm_acc(t, xs, y), m_acc(t, valid_xs, valid_y)')
+#get_ipython().run_cell_magic('time', '', 't = DecisionTreeRegressor()\nt.fit(xs, y)\nm_acc(t, xs, y), m_acc(t, valid_xs, valid_y)')
 
 
 # In[26]:
 
 
-t.get_n_leaves(), len(xs)
+#t.get_n_leaves(), len(xs)
 
 
 # In[30]:
 
 
-t = DecisionTreeRegressor(min_samples_leaf=25)
-t.fit(xs, y)
-m_rmse(t, xs, y), m_rmse(t, valid_xs, valid_y)
+#t = DecisionTreeRegressor(min_samples_leaf=25)
+#t.fit(xs, y)
+#m_rmse(t, xs, y), m_rmse(t, valid_xs, valid_y)
 
 
 # In[31]:
 
 
-t.get_n_leaves(), len(xs)
+#t.get_n_leaves(), len(xs)
 
 
 # In[16]:
@@ -344,7 +312,8 @@ def rf(xs, y, n_estimators=40, max_features=0.5, min_samples_leaf=25, **kwargs):
 # In[17]:
 
 
-get_ipython().run_cell_magic('time', '', 'm = rf(xs, y)\neval_model(m)')
+m = rf(xs, y)
+eval_model(m)
 
 
 # In[18]:
@@ -362,13 +331,16 @@ def plot_fi(fi):
 
 
 fi = rf_feat_importance(m, xs)
-plot_fi(fi[:30])
+#plot_fi(fi[:30])
 
 
 # In[20]:
 
 
-get_ipython().run_cell_magic('time', '', 'to_keep = fi[fi.imp > 0.005].cols\nxs_keep, valid_xs_keep = xs[to_keep], valid_xs[to_keep]\ndel m\nm = rf(xs_keep, y)\neval_model(m, xs_keep, y, valid_xs_keep, valid_y)')
+to_keep = fi[fi.imp > 0.005].cols
+xs_keep, valid_xs_keep = xs[to_keep], valid_xs[to_keep]
+m = rf(xs_keep, y)
+eval_model(m, xs_keep, y, valid_xs_keep, valid_y)
 
 
 # In[21]:
@@ -382,6 +354,8 @@ len(xs_keep.columns), xs_keep.columns
 
 cluster_columns(xs_keep, figsize=(12, 12), font_size=9)
 
+
+import pdb; pdb.set_trace()
 
 # In[ ]:
 
