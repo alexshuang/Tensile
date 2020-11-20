@@ -82,6 +82,7 @@ from sklearn import base
 from sklearn.model_selection import KFold
 from pathlib import Path
 import scipy
+from functools import partial
 
 
 ############################################################################
@@ -547,10 +548,15 @@ def getResults(resultsFileName, solutions, enableTileSelection, newResultsFileNa
   return results
 
 
+#####################################################################
+# Fast Benchmark
+#####################################################################
+
 def load_model(path):
-    model = pickle.load((path/f'ranking_model.pkl').open('rb'))
-    final_cols = pickle.load((path/f'ranking_cols.pkl').open('rb'))
-    return model, final_cols
+    model = pickle.load((path/f'rf_model_final.pkl').open('rb'))
+    final_cols = pickle.load((path/f'columns_final.pkl').open('rb'))
+    tme = pickle.load((path/f'target_mean_enc.pkl').open('rb'))
+    return model, final_cols, tme
 
 
 def strify(o):
@@ -602,23 +608,55 @@ def df_create(features):
     return df
 
 
-def dataset_create(problem_sizes, kernels, final_cols):
+def feature_parse(problem_size, problem_size_names, kernels, final_cols):
     features = defaultdict(lambda: [])
+    for kernel in kernels:
+        for k, v in zip(problem_size_names, problem_size):
+            features[k.strip()].append(v)
+        ext_features = extend_feat(problem_size)
+        kernel_features = parse_feat(kernel)
+        # split problem type from kernel name
+        kName = Solution.getNameFull(kernel).split('_')
+        kn_start = 0
+        for i, o in enumerate(kName):
+            if o.startswith('MT'):
+                kn_start = i
+                break
+        ptype = '_'.join(kName[:kn_start])
+        sname = '_'.join(kName[kn_start:])
+        kernel_features['ProblemType'] = ptype
+        kernel_features['SolutionName'] = sname
+        for c in final_cols:
+            if c in kernel_features:
+                features[c].append(kernel_features[c])
+            elif c in ext_features:
+                features[c].append(ext_features[c])
+    return features
+
+
+def dataset_create(problem_sizes, kernels, final_cols):
     problem_size_names = ['SizeI', 'SizeJ', 'SizeK', 'SizeL', 'LDD', 'LDC', 'LDA', 'LDB']
-    for problem_size in problem_sizes:
-        for kernel in kernels:
-            for k, v in zip(problem_size_names, problem_size):
-                features[k.strip()].append(v)
-            ext_features = extend_feat(problem_size)
-            kernel_features = parse_feat(kernel)
-            for c in final_cols:
-                if c in kernel_features:
-                    features[c].append(kernel_features[c])
-                elif c in ext_features:
-                    features[c].append(ext_features[c])
-                else:
-                    if c.strip() not in problem_size_names:
-                        features[c].append(np.nan)
+    n_core = os.cpu_count()# // 2
+    print(f"num problem sizes: {len(problem_sizes)}, num kernels: {len(kernels)}");
+    print(f"create dataset by {n_core} threads ...")
+    start = time.time()
+    feats = []
+    with ThreadPoolExecutor(n_core) as e:
+        feats += e.map(partial(feature_parse,
+                        problem_size_names=problem_size_names,
+                        kernels=kernels,
+                        final_cols=final_cols), problem_sizes)
+#    for ps in problem_sizes:
+#        feats += feature_parse(ps, problem_size_names=problem_size_names,
+#                      kernels=kernels,
+#                      final_cols=final_cols)
+    elapsed = time.time() - start
+    print(f"create dataset done in {elapsed:.2f} s")
+
+    features = feats[0]
+    for o in feats[1:]:
+        for k, v in o.items():
+            features[k].extend(v)
     return df_create(features)
 
 
@@ -636,21 +674,32 @@ def categorify(df):
             df[n] = pd.Categorical(c).codes + 1
 
 
+# apply target mean encoding by train dataframe
+def apply_target_mean_enc(df, tme, drop=True):
+    gby_col = tme.columns[0]
+    df = df.merge(tme, on=gby_col, how='left')
+    for n in tme.columns[1:]:
+        df.fillna(df[n].median(), inplace=True)
+    return df
+
+
 def rf_bench(problemSizes, kernels):
     n = len(kernels)
     pct = 0.01 # top 1%
-    path = Path('data')
+    path = Path('ml_bench/data/train')
     problem_sizes = np.stack([p.sizes for p in problemSizes.exacts])
-    model, final_cols = load_model(path)
+    model, final_cols, tme = load_model(path)
+    print("creating dataset ...")
     xs = dataset_create(problem_sizes, kernels, final_cols)
+    xs.drop('LDD', axis=1, inplace=True)
+    import pdb; pdb.set_trace()
     train_cats(xs)
     categorify(xs)
-    xs.drop('LDD', axis=1, inplace=True)
-    xs.fillna(0, inplace=True)
+    xs = apply_target_mean_enc(xs, tme)
+#    xs.fillna(0, inplace=True)
 #    for n, c in xs.items():
 #        print(f"{n}: {c.isnull().sum()}")
     preds = model.predict(xs)
-    #pdb.set_trace()
     preds = preds.reshape(-1, n)
     rankings = np.argsort(-preds)
     keep = rankings[:, :int(n * pct)]
