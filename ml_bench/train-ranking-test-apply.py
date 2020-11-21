@@ -281,7 +281,7 @@ print("Final RF", eval_model(model, train_new, y, valid_new, valid_y))
 # In[ ]:
 
 
-pickle.dump(train_new, (path/'rf_model_final.pkl').open('wb'))
+pickle.dump(model, (path/'rf_model_final.pkl').open('wb'))
 
 
 # In[ ]:
