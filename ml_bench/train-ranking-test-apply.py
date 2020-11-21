@@ -32,50 +32,37 @@ from pathlib import Path
 # In[3]:
 
 
-path = Path('data/train/')
+path = Path('data/')
 
 
 # In[5]:
 
 
-#xs_final = pickle.load((path/'xs_final.pkl').open('rb'))
-#valid_xs_final = pickle.load((path/'valid_xs_final.pkl').open('rb'))
-#y = pickle.load((path/'y.pkl').open('rb'))
-#valid_y = pickle.load((path/'valid_y.pkl').open('rb'))
-#
-#def rf(xs, y, n_estimators=40, max_features=0.5, min_samples_leaf=25, **kwargs):
-#    return RandomForestClassifier(n_jobs=-1, n_estimators=n_estimators, max_features=max_features,
-#                                  min_samples_leaf=min_samples_leaf,
-#                                  max_samples=200_000, oob_score=True, **kwargs).fit(xs, y)
-#
-#def param_bench(model, params, trn_xs, trn_y, val_xs, val_y):
-#    res = []
-#    for f in params['max_features']:
-#        for s in params['min_samples_leaf']:
-#            m = model(trn_xs, trn_y, max_features=f, min_samples_leaf=s)
-#            res.append((f'max_features={f}, min_samples_leaf={s}',
-#                        m_acc(m, trn_xs, trn_y), m_acc(m, val_xs, val_y)))
-#            del m
-#    res_sorted = sorted(res, key=lambda x: x[2])
-#    return res_sorted
-#
-#params = {
-#    'max_features': [0.5],
-#    'min_samples_leaf': [15, 10],
-#}
-#
-#res = param_bench(rf, params, train_new, y, valid_new, valid_y)
-#print("Benchmarking RF parameters ...")
-#for o in res:
-#    print(f"{o[0]}: train = {o[1]:.4f}, valid = {o[2]:.4f}")
-#
-#exit(0)
+train_df = pd.read_feather(path/'train/train_and_valid_raw_full.feat')
+valid_df = pd.read_feather(path/'test/inc1_raw_full.feat')
 
-train_df = pd.read_feather(path/'train_and_valid_raw_full.feat')
-valid_df = pd.read_feather(path/'test_raw_full.feat')
 
+def train_cats(df):
+    for n, c in df.items():
+        if is_object_dtype(c):
+            df[n] = c.astype('category').cat.as_ordered()
+
+def apply_cats(df, train_df):
+    for n,c in df.items():
+        if (n in train_df.columns) and (train_df[n].dtype.name=='category'):
+            df[n] = c.astype('category').cat.as_ordered()
+            df[n].cat.set_categories(train_df[n].cat.categories, ordered=True, inplace=True)
+
+def categorify(df):
+    for n, c in df.items():
+        if is_bool_dtype(c):
+            df[n] = c.astype('int8')
+        elif is_categorical_dtype(c):
+            df[n] = pd.Categorical(c).codes + 1
 
 def preproc_df(df):
+    #df['PadA'] = df['LDA'] - df['SizeL'] if df['PT_TransposeA'] else df['LDA'] - df['SizeI']
+    #df['PadB'] = df['LDB'] - df['SizeJ'] if df['PT_TransposeB'] else df['LDB'] - df['SizeL']
     df['PadA'] = df['LDA'] - df['SizeI']
     df['PadB'] = df['LDB'] - df['SizeL']
     df['PadC'] = df['LDC'] - df['SizeI']
@@ -100,23 +87,33 @@ preproc_df(valid_df)
 # In[ ]:
 
 
-final_cols = ['AreaC', 'TotalFlops', 'LdsNumElements', 'SolutionName',
-       'NumElementsPerThread', 'NumGlobalWriteVectorsPerThread', 'SizeL',
+problem_size_cols = ['AreaA', 'AreaB', 'AreaC', 'SizeI', 'SizeJ', 'SizeK', 'SizeL',
+                    'LDA', 'LDB', 'LDC', 'LDD', 'TotalFlops', 'AspectRatioA',
+                    'AspectRatioB', 'AspectRatioC', 'AoverB', 'PadA', 'PadB', 'PadC']
+#final_cols = ['AreaC', 'TotalFlops', 'LdsNumElements', 'SolutionName',
+final_cols = ['AreaC', 'TotalFlops', 'LdsNumElements',
+       'NumElementsPerThread', 'SizeL',
        'AreaB', 'AspectRatioB', 'SizeJ', 'StoreRemapVectorWidth', 'AreaA',
        'AspectRatioA', 'LdsOffsetB_Blk', 'LDB', 'LdsNumElementsAlignedB',
        'LoopUnroll', 'AspectRatioC', 'PadB', 'AoverB', 'SizeK',
        'LdsOffsetA_Blk', 'MacroTile1', 'LDC', 'LSCA', 'PadA', 'LSCB', 'SizeI',
        'LDA', 'LoopIters', 'ThreadTile_1', 'GlobalReadVectorWidth',
-       'LdsOffsetB', 'LdsNumElementsAlignedA', 'NumLoadsB',
+       'LdsOffsetB', 'NumLoadsB',
        'NumLoadsPerpendicularA']
 dep_var = 'Target'
-train_df[dep_var] = train_df.Ranking < 0.1
-valid_df[dep_var] = valid_df.Ranking < 0.1
-y, valid_y = train_df[dep_var].values, valid_df[dep_var].values
+train_df[dep_var] = train_df.Ranking < 0.02
+valid_df[dep_var] = valid_df.Ranking < 0.02
+
+y, valid_y = train_df[dep_var].values.astype('int'), valid_df[dep_var].values.astype('int')
 xs_final = train_df[final_cols].copy()
 del train_df
 valid_xs_final = valid_df[final_cols].copy()
 del valid_df
+
+
+#def add_solution_name(df):
+#    snames = defaultdict(lambda: [])
+#    for n, c in df.items():
 
 
 # In[9]:
@@ -194,25 +191,36 @@ def param_bench(model, params, trn_xs, trn_y, val_xs, val_y):
 # In[ ]:
 
 
-enc_cols = ['SolutionName']
-xs_final['Target'] = y
-agg_op = ['mean']
-dep_var = 'Target'
-recipies = [(c, dep_var, agg_op) for c in enc_cols]
-recipies
+#enc_cols = ['SolutionName']
+#xs_final['Target'] = y
+#agg_op = ['mean']
+#dep_var = 'Target'
+#recipies = [(c, dep_var, agg_op) for c in enc_cols]
+#recipies
 
 
 # In[ ]:
 
 
-train_new, tme = gen_target_mean_enc(xs_final, recipies)
+train_new = xs_final.copy()
+valid_new = valid_xs_final.copy()
+
+#train_new, tme = gen_target_mean_enc(xs_final, recipies)
 # xs_final.drop(['Target', 'SolutionName'], axis=1, inplace=True)
-train_new.drop(['Target', 'SolutionName'], axis=1, inplace=True)
+#train_new.drop(['Target'], axis=1, inplace=True)
+#train_new.drop(['SolutionName'], axis=1, inplace=True)
 
-valid_new = apply_target_mean_enc(valid_xs_final, tme)
-valid_new.drop(['SolutionName'], axis=1, inplace=True)
+#valid_new = apply_target_mean_enc(valid_xs_final, tme)
+#valid_new.drop(['SolutionName'], axis=1, inplace=True)
 
+#import pdb; pdb.set_trace()
+#
+#train_cats(train_new)
+#apply_cats(valid_new, train_new)
+#categorify(train_new)
+#categorify(valid_new)
 
+#import pdb; pdb.set_trace()
 model = rf(train_new, y)
 print("RF", eval_model(model, train_new, y, valid_new, valid_y))
 
@@ -225,7 +233,7 @@ pickle.dump(train_new, open(str(path/'xs_final.pkl'), 'wb'))
 pickle.dump(valid_new, open(str(path/'valid_xs_final.pkl'), 'wb'))
 pickle.dump(y, open(str(path/'y.pkl'), 'wb'))
 pickle.dump(valid_y, open(str(path/'valid_y.pkl'), 'wb'))
-pickle.dump(tme, open(str(path/'target_mean_enc.pkl'), 'wb'))
+#pickle.dump(tme, open(str(path/'target_mean_enc.pkl'), 'wb'))
 pickle.dump(train_new.columns, open(str(path/'columns_final.pkl'), 'wb'))
 
 
@@ -248,10 +256,10 @@ params = {
     'min_samples_leaf': [10, 15],
 }
 
-print("Benchmarking RF parameters ...")
-res = param_bench(rf, params, train_new, y, valid_new, valid_y)
-for o in res:
-    print(f"{o[0]}: train = {o[1]:.4f}, valid = {o[2]:.4f}")
+#print("Benchmarking RF parameters ...")
+#res = param_bench(rf, params, train_new, y, valid_new, valid_y)
+#for o in res:
+#    print(f"{o[0]}: train = {o[1]:.4f}, valid = {o[2]:.4f}")
 
 
 # In[ ]:
@@ -259,7 +267,7 @@ for o in res:
 
 def final_rf(xs, y, n_estimators=160, max_features=0.5, min_samples_leaf=10, **kwargs):
     return RandomForestClassifier(n_jobs=-1, n_estimators=n_estimators, max_features=max_features,
-                                  min_samples_leaf=min_samples_leaf, oob_score=True, **kwargs).fit(xs, y)
+                                  min_samples_leaf=min_samples_leaf, max_samples=1_000_000, **kwargs).fit(xs, y)
 
 
 # In[ ]:
@@ -277,7 +285,6 @@ pickle.dump(train_new, (path/'rf_model_final.pkl').open('wb'))
 
 
 # In[ ]:
-
 
 
 
