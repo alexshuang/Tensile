@@ -8,12 +8,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pandas.api.types import is_string_dtype, is_bool_dtype, is_numeric_dtype, is_object_dtype, is_categorical_dtype, is_integer_dtype, is_float_dtype
-from fastai.tabular.all import *
+#from fastai.tabular.all import *
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.tree import DecisionTreeRegressor
 from IPython.display import Image, display_svg, SVG
-from dtreeviz.trees import *
+#from dtreeviz.trees import *
 from sklearn.tree import export_graphviz
+import scipy
 from scipy.cluster import hierarchy as hc
 from sklearn.inspection import plot_partial_dependence
 import yaml
@@ -26,22 +27,20 @@ from tqdm import tqdm
 from collections import defaultdict
 from sklearn import base
 from sklearn.model_selection import KFold
-
-
-# In[2]:
-
-
-torch.cuda.is_available()
+from pathlib import Path
 
 
 # ## Look at Data
 
 # In[3]:
 
+print("start ...")
 
-path = Path('data/small/')
-img_path = path/'imgs'
-model_path = path/'models'
+path = Path('data')
+train_path = path/'train/tiny'
+test_path = path/'test/inc1/nt'
+img_path = path/'train/tiny/imgs'
+model_path = path/'train/tiny/models'
 img_path.mkdir(exist_ok=True)
 model_path.mkdir(exist_ok=True)
 
@@ -49,28 +48,19 @@ model_path.mkdir(exist_ok=True)
 # In[6]:
 
 
-train_df = pd.read_feather(path/'train.feat')
-valid_df = pd.read_feather(path/'valid.feat')
-
-
-# In[7]:
-
-
-print(f"train_df: {train_df.shape}, valid_df: {valid_df.shape}")
+train_df = pd.read_feather(train_path/'train_raw_full.feat')
+valid_df = pd.read_feather(train_path/'valid_raw_full.feat')
+test_df = pd.read_feather(test_path/'test_raw_full.feat')
+print(f"train_df: {train_df.shape}, valid_df: {valid_df.shape}, test_df: {test_df.shape}")
 
 
 # In[8]:
 
 
-((train_df.GFlops <= 0).sum() / len(train_df) * 100), ((valid_df.GFlops <= 0).sum() / len(valid_df) * 100)
-
-
-# In[9]:
-
-
 train_df = train_df[train_df['GFlops'] > 0].reset_index(drop=True)
 valid_df = valid_df[valid_df['GFlops'] > 0].reset_index(drop=True)
-len(train_df), len(valid_df)
+#test_df = test_df[test_df['GFlops'] > 0].reset_index(drop=True)
+print(f"train_df: {len(train_df)}, valid_df: {len(valid_df)}, test_df: {len(test_df)}")
 
 
 # In[10]:
@@ -147,14 +137,23 @@ def categorify(df):
             df[n] = pd.Categorical(c).codes + 1
 
 def preproc_df(df):
-    nn_idxs = np.where(df['ProblemType'].apply(lambda x: 'Ailk_Bljk' in x))
-    tn_idxs = np.where(df['ProblemType'].apply(lambda x: 'Alik_Bljk' in x))
-    nt_idxs = np.where(df['ProblemType'].apply(lambda x: 'Ailk_Bjlk' in x))
-    df.loc[nn_idxs]['PadA'] = df['LDA'] - df['SizeI']
-    df.loc[nn_idxs]['PadB'] = df['LDB'] - df['SizeL']
-    df.loc[nn_idxs]['PadC'] = df['LDC'] - df['SizeI']
-    df.loc[tn_idxs]['PadA'] = df['LDA'] - df['SizeL']
-    df.loc[nt_idxs]['PadB'] = df['LDB'] - df['SizeJ']
+#    tn_idxs = np.where(df['ProblemType'].apply(lambda x: 'Alik_Bljk' in x))
+#    nt_idxs = np.where(df['ProblemType'].apply(lambda x: 'Ailk_Bjlk' in x))
+#    pad_a0 = (df['LDA'] - df['SizeI']).values
+#    pad_a1 = (df['LDA'] - df['SizeL']).values
+#    pad_a = []
+#    for i, (a, b) in enumerate(zip(pad_a0, pad_a1)):
+#        pad_a.append(b if i in tn_idxs[0] else a)
+#    df['PadA'] = pad_a
+#    pad_b0 = (df['LDB'] - df['SizeL']).values
+#    pad_b1 = (df['LDB'] - df['SizeJ']).values
+#    pad_b = []
+#    for i, (a, b) in enumerate(zip(pad_b0, pad_b1)):
+#        pad_b.append(b if i in nt_idxs[0] else a)
+#    df['PadB'] = pad_b
+#    df['PadA'] = df.apply(lambda x: x.LDA - x.SizeL if x.PT_TransposeA else x.LDA - x.SizeI)
+#    df['PadB'] = df.apply(lambda x: x.LDB - x.SizeJ if x.PT_TransposeB else x.LDB - x.SizeL)
+    df['PadC'] = df['LDC'] - df['SizeI']
     df['AspectRatioA'] = (df['SizeL'] / df['SizeI']).astype('float32')
     df['AspectRatioB'] = (df['SizeJ'] / df['SizeL']).astype('float32')
     df['AspectRatioC'] = (df['SizeJ'] / df['SizeI']).astype('float32')
@@ -171,7 +170,15 @@ def preproc_df(df):
 # In[11]:
 
 
-get_ipython().run_cell_magic('time', '', 'preproc_df(train_df)\npreproc_df(valid_df)\ntrain_cats(train_df)\napply_cats(valid_df, train_df)\ncategorify(train_df)\ncategorify(valid_df)')
+preproc_df(train_df)
+preproc_df(valid_df)
+preproc_df(test_df)
+train_cats(train_df)
+apply_cats(valid_df, train_df)
+apply_cats(test_df, train_df)
+categorify(train_df)
+categorify(valid_df)
+categorify(test_df)
 
 
 # ## Ranking
@@ -181,13 +188,23 @@ get_ipython().run_cell_magic('time', '', 'preproc_df(train_df)\npreproc_df(valid
 
 train_df.drop(['GFlops'], axis=1, inplace=True)
 valid_df.drop(['GFlops'], axis=1, inplace=True)
+test_df.drop(['GFlops'], axis=1, inplace=True)
 dep_var = 'Ranking'
-y, valid_y = np.log1p(train_df[dep_var].values), np.log1p(valid_df[dep_var].values)
+#y, valid_y = np.log1p(train_df[dep_var].values), np.log1p(valid_df[dep_var].values)
+y, valid_y = train_df[dep_var].values, valid_df[dep_var].values
 xs = train_df.drop(dep_var, axis=1)
 valid_xs = valid_df.drop(dep_var, axis=1)
+test_xs = test_df.drop(dep_var, axis=1)
 
-
-# In[13]:
+src = []
+for f in list(test_path.glob("**/*.csv")):
+    basename = f.parent/f.stem
+    if os.path.exists(str(basename) + '.yaml'):
+        src.append(basename)
+assert len(src) == 1
+test_data_df = pd.read_csv(str(src[0]) + '.csv', low_memory=False)
+solution_cols = test_data_df.columns[10:]
+test_y = test_data_df[solution_cols].values
 
 
 def rmse(pred,y):
@@ -196,8 +213,36 @@ def rmse(pred,y):
 def m_rmse(m, xs, y):
     return rmse(m.predict(xs), y)
 
-def eval_model(m, trn_xs, trn_y, val_xs, val_y):
-    return m_rmse(m, trn_xs, trn_y), m_rmse(m, val_xs, val_y)
+def m_inference(m, xs, y, top_pct=0.1):
+    preds = m.predict(xs)
+    n, m = y.shape[0], y.shape[1]
+    preds = preds.reshape(n, -1)
+    top = int(m * top_pct)
+    pred_rankings = preds.argsort()[:, :top]
+
+    pred_gflops = []
+    for o, p in zip(y, pred_rankings):
+        max_gflops = 0
+        for i in p:
+            if o[i] > max_gflops: max_gflops = o[i]
+        pred_gflops.append(max_gflops)
+
+    ranking_sorted = np.argsort(y, axis=1)
+    target_rankings = ranking_sorted[:, -1]
+    gflops_sorted = np.sort(y, axis=1)
+    target_gflops = gflops_sorted[:, -1]
+
+    # hit rate
+    hit = [True if t in p else False for p, t in zip(pred_rankings, target_rankings)]
+    hit_rate = np.mean(hit)
+    # rmse
+    err = np.sqrt(np.mean((target_gflops.reshape(-1) - np.array(pred_gflops)) ** 2))
+    return hit_rate, err
+
+def eval_model(m, trn_xs, trn_y, val_xs, val_y, test_xs=None, test_y=None):
+    res = [m_rmse(m, trn_xs, trn_y), m_rmse(m, val_xs, val_y)]
+    if test_xs is not None and test_y is not None: res += [m_inference(m, test_xs, test_y)]
+    return res
 
 def draw_tree(t, df, size=10, ratio=0.6, precision=0, **kwargs):
     s=export_graphviz(t, out_file=None, feature_names=df.columns, filled=True, rounded=True,
@@ -211,7 +256,7 @@ def cluster_columns(df, figsize=(10,6), font_size=12, fig_path=img_path/'cc.png'
     fig = plt.figure(figsize=figsize)
     hc.dendrogram(z, labels=df.columns.tolist(), orientation='left', leaf_font_size=font_size)
     plt.show()
-    plt.savefig(fig_path)
+    plt.gcf().savefig(fig_path, dpi=300, bbox_inches='tight')
     
 def rf(xs, y, n_estimators=40, max_features=0.5, min_samples_leaf=25, **kwargs):
     return RandomForestRegressor(n_jobs=-1, n_estimators=n_estimators, max_features=max_features,
@@ -229,8 +274,32 @@ def plot_fi(fi, fig=img_path/'fi.png'):
 
 # In[14]:
 
+m = rf(xs, y)
+print("RF", eval_model(m, xs, y, valid_xs, valid_y))
 
-get_ipython().run_cell_magic('time', '', 'm = rf(xs, y)\neval_model(m, xs, y, valid_xs, valid_y)')
+#cluster_columns(xs, figsize=(12, 14), font_size=9);
+
+# total_cols = ['SizeI', 'SizeJ', 'SizeK', 'SizeL', 'LDC', 'LDA', 'LDB', 'TotalFlops', '1LDSBuffer', 'AssertFree0ElementMultiple', 'DepthU', 'GlobalLoadVectorWidthA', 'GlobalLoadVectorWidthB', 'GlobalReadVectorWidth', 'GuaranteeNoPartialA', 'GuaranteeNoPartialB', 'LSCA', 'LSCB', 'LSPA', 'LSPB', 'LVCA', 'LVCB', 'LVPA', 'LVPB', 'LdsBlockSizePerPad', 'LdsBlockSizePerPadA', 'LdsBlockSizePerPadB', 'LdsNumElements', 'LdsNumElementsAlignedA', 'LdsNumElementsAlignedB', 'LdsOffsetA_Blk', 'LdsOffsetB', 'LdsOffsetB_Blk', 'LdsPadA', 'LdsPadB', 'LocalReadVectorWidth', 'LoopIters', 'LoopUnroll', 'MIBlock_0', 'MIBlock_1', 'MIBlock_2', 'MIBlock_3', 'MIBlock_4', 'MIWaveGroup_0', 'MIWaveGroup_1', 'MIWaveTile_0', 'MIWaveTile_1', 'MacroTile0', 'MacroTile1', 'MatrixInstB', 'MatrixInstK', 'MatrixInstM', 'MatrixInstruction_0', 'MatrixInstruction_1', 'MatrixInstruction_2', 'MatrixInstruction_3', 'NumElementsPerThread', 'NumGlobalWriteVectorsPerThread', 'NumLoadsA', 'NumLoadsB', 'NumLoadsCoalescedA', 'NumLoadsCoalescedB', 'NumLoadsPerpendicularA', 'NumLoadsPerpendicularB', 'PrefetchLocalRead', 'PT_IndexAssignmentsA_0', 'PT_IndexAssignmentsA_1', 'PT_IndexAssignmentsB_0', 'PT_IndexAssignmentsB_1', 'PT_IndexUnrollA', 'PT_IndexUnrollB', 'PT_TLUA', 'PT_TLUB', 'PT_TransposeA', 'PT_TransposeB', 'StaggerU', 'StaggerUStride', 'StoreRemapVectorWidth', 'SubGroup0', 'SubGroup1', 'ThreadTile_0', 'ThreadTile_1', 'ThreadTile0', 'ThreadTile1', 'TransposeLDS', 'UnrollMajorLDSA', 'UnrollMajorLDSB', 'WorkGroup_0', 'WorkGroup_1', 'WorkGroupMapping', '_UseSgprForGRO', '_staggerStrideShift', 'ProblemType', 'SolutionName', 'AspectRatioA', 'AspectRatioB', 'AspectRatioC', 'AreaA', 'AreaB', 'AreaC', 'AoverB']
+drop_cols = ['MIBlock_2', 'MatrixInstruction_2',
+              'LdsBlockSizePerPadB',
+              'NumGlobalWriteVectorsPerThread',
+              'PT_IndexAssignmentsB_0', 'TransposeLDS', 'UnrollMajorLDSB',
+              'PT_TransposeA', 'LdsPadA', 'PT_IndexAssignmentsA_0', 'UnrollMajorLDSA',
+              'LdsNumElementsAlignedA',
+              'DepthU',
+              'PT_IndexAssignmentsB_1', 'PT_IndexUnrollB', 'PT_TransposeB',
+              'PT_IndexUnrollA', 'PT_IndexAssignmentsA_1',
+              'NumGlobalWriteVectorsPerThread',
+              'MIWaveTile_0',
+              'MIWaveTile_1',
+              'MatrixInstruction_3', 'MIBlock_3', 'MIBlock_4',
+              'MatrixInstruction_0', 'MatrixInstruction_1', 'MIBlock_0', 'MIBlock_1',
+              'SizeI']
+xs.drop(drop_cols, axis=1, inplace=True)
+valid_xs.drop(drop_cols, axis=1, inplace=True)
+
+m = rf(xs, y)
+print("RF", "drop dup-columns", eval_model(m, xs, y, valid_xs, valid_y))
 
 
 # In[16]:
@@ -243,91 +312,24 @@ plot_fi(fi[:30])
 # In[17]:
 
 
-get_ipython().run_cell_magic('time', '', 'to_keep = fi[fi.imp > 0.001].cols\nxs_keep, valid_xs_keep = xs[to_keep], valid_xs[to_keep]\ndel m\nm = rf(xs_keep, y)\neval_model(m, xs_keep, y, valid_xs_keep, valid_y)')
+to_keep = fi[fi.imp > 0.0005].cols
+xs_keep, valid_xs_keep = xs[to_keep], valid_xs[to_keep]
+del m
+m = rf(xs_keep, y)
+print("RF keep", eval_model(m, xs_keep, y, valid_xs_keep, valid_y))
 
 
 # In[18]:
 
 
-len(xs_keep.columns), len(xs.columns), xs_keep.columns
+print(len(xs_keep.columns), len(xs.columns), xs_keep.columns)
 
 
 # In[19]:
 
 
-del m
-cluster_columns(xs_keep, figsize=(12, 14), font_size=9);
-
-
-# In[37]:
-
-
-dup_cols = ['MIBlock_0', 'MIBlock_1', 'MatrixInstruction_1',
-             'NumGlobalWriteVectorsPerThread', 'NumElementsPerThread',
-             'MIWaveTile_0', 'ThreadTile_0',
-             'MIWaveTile_1', 'ThreadTile_1',
-             'LdsOffsetB', 'LdsNumElementsAlignedA',
-             'DepthU', 'LoopUnroll',
-             'MatrixInstruction_2', 'MatrixInstK',
-             'SizeI', 'LDC']
-#              'LdsBlockSizePerPadB',
-#              'PT_IndexAssignmentsB_0',
-#              'MatrixInstruction_2', 'MIBlock_2']
-#              'PT_IndexAssignmentsB_1', 'PT_IndexUnrollB', 'PT_TLUB', 
-
-def get_oob(x, y):
-    m = RandomForestRegressor(n_jobs=-1, n_estimators=40, max_features=0.5,
-                                  min_samples_leaf=25,
-                                  max_samples=100_000, oob_score=True).fit(xs, y)
-    return m.oob_score_
-
-print(f"original: {get_oob(xs_keep, y)}")
-res = {c:get_oob(xs_keep.drop(c, axis=1), y) for c in dup_cols if c in xs_keep}
-for k, v in res.items():
-    print(f"{k}: {v}")
-
-# for c in dup_cols:
-#     m = oobs = {c:get_oob(xs.drop(c, axis=1), y) for c in cols}(xs_keep.drop(c, axis=1), y)
-#     print(c, eval_model(m, xs_keep.drop(c, axis=1), y, valid_xs_keep.drop(c, axis=1), valid_y))
-#     del m
-
-
-# In[20]:
-
-
-get_ipython().run_cell_magic('time', '', "# drop_cols = ['MIBlock_0', 'MatrixInstruction_1',\n#              'NumGlobalWriteVectorsPerThread',\n#              'MIWaveTile_0',\n#              'MIWaveTile_1',\n#              'PT_IndexAssignmentsB_1', 'PT_IndexUnrollB', 'PT_TLUB', \n#              'LdsNumElementsAlignedA',\n#              'DepthU',\n#              'LdsBlockSizePerPadB',\n#              'PT_IndexAssignmentsB_0',\n#              'MatrixInstruction_2', 'MIBlock_2']\ndrop_cols = ['MIBlock_0', 'MIBlock_1',\n             'NumElementsPerThread',\n             'MIWaveTile_0',\n             'MIWaveTile_1',\n             'LdsOffsetB',\n             'LoopUnroll',\n             'MatrixInstK',\n             'SizeI'\n             ]\nxs_keep2, valid_xs_keep2 = xs_keep.copy(), valid_xs_keep.copy()\nfor c in drop_cols:\n    if c in xs_keep2 and c in valid_xs_keep2:\n        xs_keep2.drop(c, axis=1, inplace=True)\n        valid_xs_keep2.drop(c, axis=1, inplace=True)\n\nm = rf(xs_keep2, y)\neval_model(m, xs_keep2, y, valid_xs_keep2, valid_y)")
-
-
-# In[39]:
-
-
-fi = rf_feat_importance(m, xs_keep2)
-plot_fi(fi[:30])
-
-
-# In[28]:
-
-
-get_ipython().run_cell_magic('time', '', 'to_keep = fi[fi.imp > 0.001].cols\nxs_keep3, valid_xs_keep3 = xs_keep2[to_keep], valid_xs_keep2[to_keep]\ndel m\nm = rf(xs_keep3, y)\neval_model(m, xs_keep3, y, valid_xs_keep3, valid_y)')
-
-
-# In[31]:
-
-
-del xs_keep, valid_xs_keep, xs_keep3, valid_xs_keep3
-
-
-# In[40]:
-
-
-xs_final, valid_xs_final = xs_keep2.copy(), valid_xs_keep2.copy()
-del xs_keep2, valid_xs_keep2
-
-
-# In[42]:
-
-
-len(xs_final.columns), xs_final.columns
+xs_final, valid_xs_final = xs_keep.copy(), valid_xs_keep.copy()
+del xs_keep, valid_xs_keep
 
 
 # ## is_valid
@@ -335,85 +337,126 @@ len(xs_final.columns), xs_final.columns
 # In[43]:
 
 
-df = pd.concat([xs_final, valid_xs_final])
-is_valid = np.array([0] * len(xs_final) + [1] * len(valid_xs_final))
+test_xs_final = test_xs[xs_final.columns].copy()
+df = pd.concat([xs_final, test_xs_final])
+is_valid = np.array([0] * len(xs_final) + [1] * len(test_xs_final))
 m = rf(df, is_valid)
 fi = rf_feat_importance(m, df)
-fi[:20]
-
-
-# In[44]:
-
+print("Is valid:")
+print(fi[:20])
 
 m = rf(xs_final, y)
-print('original', eval_model(m, xs_final, y, valid_xs_final, valid_y))
+trn_res, orig_res = eval_model(m, xs_final, y, valid_xs_final, valid_y)
+drop_cols = []
+print('original', orig_res)
 for c in fi[fi.imp > 0.01].cols.values:
     if c in xs_final:
         m = rf(xs_final.drop(c, axis=1), y)
-        print(c, eval_model(m, xs_final.drop(c, axis=1), y, valid_xs_final.drop(c, axis=1), valid_y))
+        trn_res, val_res = eval_model(m, xs_final.drop(c, axis=1), y, valid_xs_final.drop(c, axis=1), valid_y)
+        print(c, val_res)
+        if val_res < orig_res: drop_cols.append(c)
 
-
-# In[45]:
-
-
-# drop_cols = ['TotalFlops', 'AspectRatioB', 'AreaB', 'AoverB',
-#        'AspectRatioC', 'AreaA', 'AspectRatioA', 'SizeJ',
-#        'ProblemType', 'LDA', 'LdsPadB']
-drop_cols = ['SolutionName']
-
-
-# In[49]:
-
-
-m = rf(xs_final.drop(drop_cols, axis=1), y)
-print(eval_model(m, xs_final.drop(drop_cols, axis=1), y, valid_xs_final.drop(drop_cols, axis=1), valid_y))
-
-
-# In[46]:
-
-
+print("drop cols: {}".format(drop_cols))
 xs_final.drop(drop_cols, axis=1, inplace=True)
 valid_xs_final.drop(drop_cols, axis=1, inplace=True)
-
-
-# In[47]:
-
+test_xs_final.drop(drop_cols, axis=1, inplace=True)
 
 m = rf(xs_final, y)
-eval_model(m, xs_final, y, valid_xs_final, valid_y)
+print("RF", "drop cols", eval_model(m, xs_final, y, valid_xs_final, valid_y, test_xs, test_xs_final))
 
 
-# In[48]:
+def final_rf(xs, y, n_estimators=120, max_features=0.5, min_samples_leaf=10, **kwargs):
+    return RandomForestRegressor(n_jobs=-1, n_estimators=n_estimators, max_features=max_features,
+                                  min_samples_leaf=min_samples_leaf, **kwargs).fit(xs, y)
 
 
-fi = rf_feat_importance(m, xs_final)
-plot_fi(fi[:30])
+model = final_rf(xs_final, y)
+print("RF", "final", eval_model(m, xs_final, y, valid_xs_final, valid_y, test_xs, test_xs_final))
 
 
-# In[49]:
+# In[24]:
 
 
-fi
+(model_path/'xs_final.pkl').save(xs_final)
+(model_path/'valid_xs_final.pkl').save(valid_xs_final)
+(model_path/'test_xs_final.pkl').save(test_xs_final)
+(model_ppath/'y.pkl').save(y)
+(model_ppath/'valid_y.pkl').save(valid_y)
+(model_ppath/'test_y.pkl').save(test_y)
+(model_path/'rf_model_final.pkl').save(model)
 
 
-# In[50]:
+# ## Testing
+
+# In[56]:
 
 
-(path/'xs_final.pkl').save(xs_final)
-(path/'valid_xs_final.pkl').save(valid_xs_final)
-(path/'y.pkl').save(y)
-(path/'valid_y.pkl').save(valid_y)
+test_df = pd.read_feather(test_path/'test_raw_full.feat')
 
+final_cols = xs_final.columns
+
+preproc_df(test_df)
+train_cats(test_df)
+categorify(test_df)
+test_xs = test_df[final_cols]
+
+preds = model.predict(test_xs)
+target = pd.read_csv(test_path/'Cijk_Ailk_Bjlk_HBH_00.csv', low_memory=False)
+cols = target.columns[10:]
+num_solutions = len(cols)
+
+preds = preds.reshape(-1, num_solutions)
+top = int(num_solutions * 0.1)
+top_preds = preds.argsort()[:, :top]
+gflops = target[cols].values
+
+gflops_preds = []
+for o, p in zip(gflops, top_preds):
+    max_gflops = 0
+    for i in p:
+        if o[i] > max_gflops: max_gflops = o[i]
+    gflops_preds.append(max_gflops)
+
+
+# In[113]:
+
+
+gflops.sort()
+gflops_target = gflops[:, -1]
+
+
+# In[114]:
+
+
+plt.plot(np.arange(len(gflops_preds)), gflops_preds, label='preds')
+plt.plot(np.arange(len(gflops_target)), gflops_target, label='target')
+plt.legend();
+plt.savefig(img_path/'test')
+
+
+# In[115]:
+
+
+rmse(gflops_preds, gflops_target)
+
+
+# In[116]:
+
+
+print(gflops_target.mean(), gflops_target.std())
+
+
+import pdb; pdb.set_trace()
 
 # ## Partial Dependence
 
 # In[8]:
 
 
-xs_final = (path/'xs_final.pkl').load()
-valid_xs_final = (path/'valid_xs_final.pkl').load()
-y = (path/'y.pkl').load()
-valid_y = (path/'valid_y.pkl').load()
+xs_final = (model_ppath/'xs_final.pkl').load()
+valid_xs_final = (model_ppath/'valid_xs_final.pkl').load()
+y = (model_ppath/'y.pkl').load()
+valid_y = (model_ppath/'valid_y.pkl').load()
 
 
 # In[1]:
@@ -978,23 +1021,6 @@ path.ls()
 
 
 get_ipython().run_cell_magic('time', '', 'for f in list(path.glob("**/*.yaml")):\n    dataset_create(f.with_suffix(\'\'))')
-
-
-# In[2]:
-
-
-def draw_tree(t, df, size=10, ratio=0.6, precision=0, **kwargs):
-    s=export_graphviz(t, out_file=None, feature_names=df.columns, filled=True, rounded=True,
-                      special_characters=True, rotate=False, precision=precision, **kwargs)
-    return graphviz.Source(re.sub('Tree {', f'Tree {{ size={size}; ratio={ratio}', s))
-
-def cluster_columns(df, figsize=(10,6), font_size=12):
-    corr = np.round(scipy.stats.spearmanr(df).correlation, 4)
-    corr_condensed = hc.distance.squareform(1-corr)
-    z = hc.linkage(corr_condensed, method='average')
-    fig = plt.figure(figsize=figsize)
-    hc.dendrogram(z, labels=df.columns, orientation='left', leaf_font_size=font_size)
-    plt.show()
 
 
 # ## Prepare Data
