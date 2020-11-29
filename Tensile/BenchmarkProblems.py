@@ -504,7 +504,7 @@ import time
 from collections import defaultdict
 from multiprocessing import cpu_count
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-from pandas.api.types import is_integer_dtype
+from pandas.api.types import is_integer_dtype, is_object_dtype, is_bool_dtype, is_numeric_dtype
 from functools import partial
 import argparse
 
@@ -556,10 +556,20 @@ def extend_feat(problem_size):
     ext_feats['TotalFlops'] = problem_size[0] * problem_size[1] * problem_size[2] * problem_size[3] * 2
     return ext_feats
 
+def df_compress(df):
+    df['_UseSgprForGRO'] = df['_UseSgprForGRO'].replace('False', False).replace('1', True).replace('0', False).astype('bool')
+    skip_cols = ['TotalFlops']
+    for n, c in df.items():
+        if is_integer_dtype(c) and n not in skip_cols:
+            if c.max() < 128: df[n] = c.astype('int8')
+            elif c.max() < 32768: df[n] = c.astype('int16')
+            else: df[n] = c.astype('int32')
+
 def df_create(features):
     df = pd.DataFrame()
     for k, v in features.items():
         df[k.strip()] = v
+    df_compress(df)
     return df
 
 def train_cats(df):
@@ -574,10 +584,8 @@ def categorify(df):
         elif not is_numeric_dtype(c):
             df[n] = pd.Categorical(c).codes + 1
 
-def feature_parse(problem_size, problem_size_names, kernels, final_cols):
+def feature_parse(problem_size, problem_size_names, kernels, final_cols, min_param):
     features = defaultdict(lambda: [])
-    solution_names = Solution.getMinNaming(kernels)
-    import pdb; pdb.set_trace()
     for kernel in kernels:
         for k, v in zip(problem_size_names, problem_size):
             features[k.strip()].append(v)
@@ -593,7 +601,7 @@ def feature_parse(problem_size, problem_size_names, kernels, final_cols):
 #        ptype = '_'.join(kName[:kn_start])
 #        sname = '_'.join(kName[kn_start:])
 #        kernel_features['ProblemType'] = ptype
-#        kernel_features['SolutionName'] = sname
+        kernel_features['SolutionName'] = Solution.getNameMin(kernel, min_param)
         for c in final_cols:
             if c in kernel_features:
                 features[c].append(kernel_features[c])
@@ -608,11 +616,13 @@ def dataset_create(problem_sizes, kernels, final_cols):
     print(f"create dataset by {n_core} threads ...")
     start = time.time()
     feats = []
+    min_param = Solution.getMinNaming(kernels)
     with ThreadPoolExecutor(n_core) as e:
         feats += e.map(partial(feature_parse,
                         problem_size_names=problem_size_names,
                         kernels=kernels,
-                        final_cols=final_cols), problem_sizes)
+                        final_cols=final_cols,
+                        min_param=min_param), problem_sizes)
 
     features = feats[0]
     for o in feats[1:]:
@@ -623,25 +633,26 @@ def dataset_create(problem_sizes, kernels, final_cols):
     print(f"create dataset done in {elapsed:.2f} s")
     return df_create(features)
 
-def rf_bench(problemSizes, kernels, n_pct=0.15):
+def fast_bench(problemSizes, kernels, n_pct=0.15):
     n = len(kernels)
     path = Path('ml_bench/data/inc1/models')
     problem_sizes = np.stack([p.sizes for p in problemSizes.exacts])
     model, final_cols, _ = load_model(path)
-    #import pdb; pdb.set_trace()
     print("creating dataset ...")
     xs = dataset_create(problem_sizes, kernels, final_cols)
-    xs.drop('LDD', axis=1, inplace=True)
-    #train_cats(xs)
-    #categorify(xs)
+    drop_cols = list(set(xs.columns) - set(final_cols))
+    if len(drop_cols) > 0:
+        print(f"drop_cols: {drop_cols}")
+        xs.drop(drop_cols, axis=1, inplace=True)
+    train_cats(xs)
+    categorify(xs)
     #xs = apply_target_mean_enc(xs, tme)
 #    xs.fillna(0, inplace=True)
 #    for n, c in xs.items():
 #        print(f"{n}: {c.isnull().sum()}")
     preds = model.predict(xs)
-    import pdb; pdb.set_trace()
     preds = preds.reshape(-1, n)
-    rankings = np.argsort(-preds)
+    rankings = np.argsort(preds)
     keep = rankings[:, :int(n * n_pct)]
     target_idxs = np.unique(np.concatenate(keep))
     return target_idxs
@@ -681,8 +692,7 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
         kernelHelperOjbs.append(ko)
         kernelHelperNames.add(kname)
 
-  #import pdb; pdb.set_trace()
-  idxs = rf_bench(problemSizes, kernels)
+  idxs = fast_bench(problemSizes, kernels, n_pct=0.05)
   print("to_keep: len(idxs) = {}".format(len(idxs)))
   solutions = [solutions[i] for i in idxs]
   kernels = [kernels[i] for i in idxs]
