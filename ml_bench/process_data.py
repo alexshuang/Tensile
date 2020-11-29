@@ -355,7 +355,7 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1)
     problem_size_names = df.columns[1:sol_start_idx]
     gflops = df.iloc[:, sol_start_idx:].values
     rankings = np.argsort(-gflops) # reverse
-    if n_jobs == -1: n_jobs = os.cpu_count() // 2
+    if n_jobs == -1: n_jobs = os.cpu_count()
     workdir = basename.parent
     configs = (workdir/'config.yaml').open().readlines()
 
