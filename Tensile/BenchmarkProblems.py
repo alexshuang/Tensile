@@ -487,16 +487,27 @@ def getResults(resultsFileName, solutions, enableTileSelection, newResultsFileNa
 
 
 ################################################################################
-# Write Benchmark Files
-################################################################################
-def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToCopy, solutionSummationSizes):
-  if not globalParameters["MergeFiles"]:
-    ensurePath(os.path.join(globalParameters["WorkingPath"], "Solutions"))
-    ensurePath(os.path.join(globalParameters["WorkingPath"], "Kernels"))
-
-################################################################################
 # Fast Benchmark
 ################################################################################
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from pathlib import Path
+import sys
+import pdb
+import yaml
+import os
+import math
+import random
+import pickle
+import time
+from collections import defaultdict
+from multiprocessing import cpu_count
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from pandas.api.types import is_integer_dtype
+from functools import partial
+import argparse
+
 def load_model(path):
     model = pickle.load((path/f'final_rf_model.pkl').open('rb'))
     final_cols = pickle.load((path/f'final_columns.pkl').open('rb'))
@@ -634,6 +645,16 @@ def rf_bench(problemSizes, kernels, n_pct=0.15):
     keep = rankings[:, :int(n * n_pct)]
     target_idxs = np.unique(np.concatenate(keep))
     return target_idxs
+
+
+################################################################################
+# Write Benchmark Files
+################################################################################
+def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToCopy, solutionSummationSizes):
+  if not globalParameters["MergeFiles"]:
+    ensurePath(os.path.join(globalParameters["WorkingPath"], "Solutions"))
+    ensurePath(os.path.join(globalParameters["WorkingPath"], "Kernels"))
+
 
   ##############################################################################
   # Min Naming
