@@ -272,10 +272,8 @@ def df_create(features):
     return df
 
 
-def df_merge(dfs):
-    df = pd.concat(dfs, ignore_index=True)
+def df_compress(df):
     df['_UseSgprForGRO'] = df['_UseSgprForGRO'].replace('False', False).replace('1', True).replace('0', False).astype('bool')
-    
     skip_cols = ['TotalFlops']
     for n, c in df.items():
         if is_integer_dtype(c) and n not in skip_cols:
@@ -283,6 +281,11 @@ def df_merge(dfs):
             elif c.max() < 32768: df[n] = c.astype('int16')
             else: df[n] = c.astype('int32')
 
+
+def df_merge(dfs):
+    df = pd.concat(dfs, ignore_index=True)
+    df_compress(df)
+    
     #for n, c in df.items():
     #    print(f"{n}: {c.dtype}: {c.unique() if not is_integer_dtype(c) else c.max()}")
     return df
@@ -333,25 +336,28 @@ def feature_parse(idx, problem_size_names, solution_names, problem_sizes,
             features[k.strip()].append(v)
         # solution features
         r = ranking[j]
-        solution, (ptype, sname) = solutions[r], solution_names[r]
+        #solution, (ptype, sname) = solutions[r], solution_names[r]
+        solution, sname = solutions[r], solution_names[r]
         add_feat(features, solution)
         miss_cols = list(total_col_set - set(solution.keys()))
         for o in miss_cols: features[o].append(np.nan)
-        features['ProblemType'].append(ptype)
+        #features['ProblemType'].append(ptype)
         features['SolutionName'].append(sname)
         features['GFlops'].append(gflops[idx, r])
         features['Ranking'].append(j / num_solutions)
     return (ds_type, features)
 
 
-def dataset_create(basename:Path, valid_pct=0.2, save_results=False, sampling_interval=1, n_jobs=-1, is_test=False):
-    print(f"processing {basename}.csv ...")
+def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1):
+    print(f"processing {basename} ...")
     df = pd.read_csv(basename.with_suffix('.csv'))
     sol_start_idx = 10
     problem_size_names = df.columns[1:sol_start_idx]
     gflops = df.iloc[:, sol_start_idx:].values
     rankings = np.argsort(-gflops) # reverse
-    if n_jobs == -1: n_jobs = os.cpu_count()
+    if n_jobs == -1: n_jobs = os.cpu_count() // 2
+    workdir = basename.parent
+    configs = (workdir/'config.yaml').open().readlines()
 
     features = { 'train': defaultdict(lambda: []),
                  'valid': defaultdict(lambda: []) }
@@ -359,10 +365,12 @@ def dataset_create(basename:Path, valid_pct=0.2, save_results=False, sampling_in
     problem_sizes, solutions = df[problem_size_names].values, _solutions[2:]
 
     num_solutions = len(solutions)
-    solution_names = []
-    with ThreadPoolExecutor(n_jobs) as e:
-        solution_names += e.map(Solution.getNameFull, solutions)
-    print("num_solutions: {}\nsolution_names[0]: {}".format(num_solutions, solution_names[0]))
+    solution_names = df.columns[sol_start_idx:].values # min name
+    # get full name 
+    #solution_names = []
+    #with ThreadPoolExecutor(n_jobs) as e:
+    #    solution_names += e.map(Solution.getNameFull, solutions)
+    #print("num_solutions: {}\nsolution_names[0]: {}".format(num_solutions, solution_names[0]))
 
     train_idxs, valid_idxs = split_idxs(len(problem_sizes), valid_pct)
     assert(len(train_idxs) + len(valid_idxs) == len(df))
@@ -389,11 +397,9 @@ def dataset_create(basename:Path, valid_pct=0.2, save_results=False, sampling_in
     train_df = df_create(features['train'])
     valid_df = df_create(features['valid'])
     
-#    if save_results:
-#        train_df.to_csv(str(basename) + '_train.csv', index=False)
-#        valid_df.to_csv(str(basename) + '_valid.csv', index=False)
-#        with open(str(basename) + '_solution_name.pkl', 'wb') as fp:
-#            pickle.dump(solution_names, fp)
+    valid_df.to_csv(workdir/f'valid_N{num_solutions}.csv', index=False)
+    with (workdir/'valid_config.yaml').open('w') as fp:
+        for i in valid_idxs: fp.write(configs[i])
 
     return (train_df, valid_df)
 
@@ -430,18 +436,21 @@ if __name__ == '__main__':
     valid_df = df_merge(dfs2)
 
     # drop one-value columns
-    tail = 'raw_full' if args.sampling_interval == 1 else f'raw_sampling_interval_{args.sampling_interval}'
-    if not args.is_test:
-        to_keep = [n for n, c in train_df.items() if len(c.unique()) > 1]
-        train_df[to_keep].to_feather(out/f'train_{tail}.feat')
-        print(f'{out}/train_{tail}.feat is generated.')
-
-        valid_df[to_keep].to_feather(out/f'valid_{tail}.feat')
-        print(f'{out}/valid_{tail}.feat is generated.')
-    else:
+    tail = '' if args.sampling_interval == 1 else f'_sampling_interval_{args.sampling_interval}'
+    if args.is_test:
         df = pd.concat([train_df, valid_df], ignore_index=True)
-        df.to_feather(out/f'test_{tail}.feat')
-        print(f'{out}/test_{tail}.feat is generated.')
+        df.to_feather(out/f'test{tail}.feat')
+        print(f'{out}/test{tail}.feat is generated.')
+    else:
+        to_keep = [n for n, c in train_df.items() if len(c.unique()) > 1]
+        train_df[to_keep].to_feather(out/f'train{tail}.feat')
+        print(f'{out}/train{tail}.feat is generated.')
+        valid_df[to_keep].to_feather(out/f'valid{tail}.feat')
+        print(f'{out}/valid{tail}.feat is generated.')
+        df = pd.concat([train_df[to_keep], valid_df[to_keep]], ignore_index=True)
+        df.to_feather(out/f'train_and_valid{tail}.feat')
+        print(f'{out}/train_and_valid{tail}.feat is generated.')
 
     end = time.time()
     print("Prepare data done in {} seconds.".format(end - start))
+
