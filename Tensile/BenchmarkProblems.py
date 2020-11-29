@@ -494,6 +494,147 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
     ensurePath(os.path.join(globalParameters["WorkingPath"], "Solutions"))
     ensurePath(os.path.join(globalParameters["WorkingPath"], "Kernels"))
 
+################################################################################
+# Fast Benchmark
+################################################################################
+def load_model(path):
+    model = pickle.load((path/f'final_rf_model.pkl').open('rb'))
+    final_cols = pickle.load((path/f'final_columns.pkl').open('rb'))
+    tme = None #pickle.load((path/f'target_mean_enc.pkl').open('rb'))
+    return model, final_cols, tme
+
+def strify(o):
+    if isinstance(o, list):
+        return '_'.join([str(p) for p in o])
+    elif isinstance(o, dict):
+        return '_'.join(['{}:{}'.format(k, v) for k, v in o.items()])
+    else:
+        return o
+
+def parse_feat(solution):
+    feat = {}
+    for k, v in solution.items():
+        if k == 'ProblemType':
+            for _k, _v in v.items():
+                if isinstance(_v, list):
+                    for i, o in enumerate(_v):
+                        feat['PT_' + _k + f'_{i}'] = o
+                else:
+                    feat['PT_' + _k] = strify(_v)
+        elif isinstance(v, list):
+            for i, o in enumerate(v):
+                feat[k + f'_{i}'] = o
+        else:
+            feat[k] = strify(v)
+    return feat
+
+def extend_feat(problem_size):
+    ext_feats = {}
+    #ext_feats['PadA'] = problem_size[-2] - problem_size[0]
+    #ext_feats['PadB'] = problem_size[-1] - problem_size[3]
+    ext_feats['PadC'] = problem_size[-3] - problem_size[0]
+    ext_feats['AspectRatioA'] = problem_size[3] / problem_size[0]
+    ext_feats['AspectRatioB'] = problem_size[1] / problem_size[3]
+    ext_feats['AspectRatioC'] = problem_size[1] / problem_size[0]
+    ext_feats['AreaA'] = problem_size[0] * problem_size[3]
+    ext_feats['AreaB'] = problem_size[1] * problem_size[3]
+    ext_feats['AreaC'] = problem_size[0] * problem_size[1]
+    ext_feats['AoverB'] = ext_feats['AreaA'] / ext_feats['AreaB']
+    #ext_feats['BoverC'] = ext_feats['AreaB'] / ext_feats['AreaC']
+    #ext_feats['AoverC'] = ext_feats['AreaA'] / ext_feats['AreaC']
+    ext_feats['TotalFlops'] = problem_size[0] * problem_size[1] * problem_size[2] * problem_size[3] * 2
+    return ext_feats
+
+def df_create(features):
+    df = pd.DataFrame()
+    for k, v in features.items():
+        df[k.strip()] = v
+    return df
+
+def train_cats(df):
+    for n, c in df.items():
+        if is_object_dtype(c):
+            df[n] = c.astype('category').cat.as_ordered()
+
+def categorify(df):
+    for n, c in df.items():
+        if is_bool_dtype(c):
+            df[n] = c.astype('int8')
+        elif not is_numeric_dtype(c):
+            df[n] = pd.Categorical(c).codes + 1
+
+def feature_parse(problem_size, problem_size_names, kernels, final_cols):
+    features = defaultdict(lambda: [])
+    solution_names = Solution.getMinNaming(kernels)
+    import pdb; pdb.set_trace()
+    for kernel in kernels:
+        for k, v in zip(problem_size_names, problem_size):
+            features[k.strip()].append(v)
+        ext_features = extend_feat(problem_size)
+        kernel_features = parse_feat(kernel)
+#        # split problem type from kernel name
+#        kName = Solution.getNameFull(kernel).split('_')
+#        kn_start = 0
+#        for i, o in enumerate(kName):
+#            if o.startswith('MT'):
+#                kn_start = i
+#                break
+#        ptype = '_'.join(kName[:kn_start])
+#        sname = '_'.join(kName[kn_start:])
+#        kernel_features['ProblemType'] = ptype
+#        kernel_features['SolutionName'] = sname
+        for c in final_cols:
+            if c in kernel_features:
+                features[c].append(kernel_features[c])
+            elif c in ext_features:
+                features[c].append(ext_features[c])
+    return features
+
+def dataset_create(problem_sizes, kernels, final_cols):
+    problem_size_names = ['SizeI', 'SizeJ', 'SizeK', 'SizeL', 'LDD', 'LDC', 'LDA', 'LDB']
+    n_core = os.cpu_count()# // 2
+    print(f"num problem sizes: {len(problem_sizes)}, num kernels: {len(kernels)}")
+    print(f"create dataset by {n_core} threads ...")
+    start = time.time()
+    feats = []
+    with ThreadPoolExecutor(n_core) as e:
+        feats += e.map(partial(feature_parse,
+                        problem_size_names=problem_size_names,
+                        kernels=kernels,
+                        final_cols=final_cols), problem_sizes)
+
+    features = feats[0]
+    for o in feats[1:]:
+        for k, v in o.items():
+            features[k].extend(v)
+
+    elapsed = time.time() - start
+    print(f"create dataset done in {elapsed:.2f} s")
+    return df_create(features)
+
+def rf_bench(problemSizes, kernels, n_pct=0.15):
+    n = len(kernels)
+    path = Path('ml_bench/data/inc1/models')
+    problem_sizes = np.stack([p.sizes for p in problemSizes.exacts])
+    model, final_cols, _ = load_model(path)
+    #import pdb; pdb.set_trace()
+    print("creating dataset ...")
+    xs = dataset_create(problem_sizes, kernels, final_cols)
+    xs.drop('LDD', axis=1, inplace=True)
+    #train_cats(xs)
+    #categorify(xs)
+    #xs = apply_target_mean_enc(xs, tme)
+#    xs.fillna(0, inplace=True)
+#    for n, c in xs.items():
+#        print(f"{n}: {c.isnull().sum()}")
+    preds = model.predict(xs)
+    import pdb; pdb.set_trace()
+    preds = preds.reshape(-1, n)
+    rankings = np.argsort(-preds)
+    keep = rankings[:, :int(n * n_pct)]
+    target_idxs = np.unique(np.concatenate(keep))
+    return target_idxs
+
   ##############################################################################
   # Min Naming
   ##############################################################################
@@ -520,6 +661,10 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
         kernelHelperNames.add(kname)
 
   #import pdb; pdb.set_trace()
+  idxs = rf_bench(problemSizes, kernels)
+  print("to_keep: len(idxs) = {}".format(len(idxs)))
+  solutions = [solutions[i] for i in idxs]
+  kernels = [kernels[i] for i in idxs]
 
   solutionSerialNaming = Solution.getSerialNaming(solutions)
   kernelSerialNaming   = Solution.getSerialNaming(kernels)
