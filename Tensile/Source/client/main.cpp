@@ -203,6 +203,8 @@ namespace Tensile
                 ("solution-start-idx",       po::value<int>()->default_value(-1),  "First solution to run")
                 ("num-solutions",            po::value<int>()->default_value(-1), "Number of solutions to run")
                 ("best-solution",            po::value<bool>()->default_value(false), "Best solution benchmark mode")
+                ("fast-benchmark",           po::value<bool>()->default_value(false), "Fast benchmark mode")
+                ("fast-solution-indices",       vector_default_empty<std::string>(), "Solution indices for fast benchmark mode")
 
                 ("results-file",             po::value<std::string>()->default_value("results.csv"), "File name to write results.")
                 ("log-file",                 po::value<std::string>(),                               "File name for output log.")
@@ -353,6 +355,7 @@ namespace Tensile
             parse_arg_ints(args, "d-strides");
             parse_arg_ints(args, "a-zero-pads");
             parse_arg_ints(args, "b-zero-pads");
+            parse_arg_ints(args, "fast-solution-indices");
 
             return args;
         }

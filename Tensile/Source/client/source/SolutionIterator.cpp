@@ -38,10 +38,20 @@ namespace Tensile
             po::variables_map const&                                   args)
         {
             bool bestSolution = args["best-solution"].as<bool>();
+            bool fastBenchmark = args["fast-benchmark"].as<bool>();
 
             if(bestSolution)
             {
                 return std::make_shared<BestSolutionIterator>(library, hardware);
+            }
+            else if(fastBenchmark)
+            {
+                int firstSolutionIdx = args["solution-start-idx"].as<int>();
+                int numSolutions     = args["num-solutions"].as<int>();
+                std::vector<std::vector<size_t>>> fastSolutionIndices = args["fast-solution-indices"].as<std::vector<std::vector<size_t>>>();
+
+                return std::make_shared<FastSolutionsIterator>(
+                    library, hardware, firstSolutionIdx, numSolutions, fastSolutionIndices);
             }
             else
             {
@@ -155,6 +165,84 @@ namespace Tensile
         }
 
         std::shared_ptr<ContractionSolution> AllSolutionsIterator::getSolution()
+        {
+            auto iter = m_library->solutions.find(m_currentSolutionIdx);
+            if(iter == m_library->solutions.end())
+                return std::shared_ptr<ContractionSolution>();
+
+            return iter->second;
+        }
+
+        FastSolutionsIterator::FastSolutionsIterator(
+            std::shared_ptr<MasterSolutionLibrary<ContractionProblem>> library,
+            std::shared_ptr<Hardware>                                  hardware,
+            int                                                        firstSolutionIdx,
+            int                                                        numSolutions,
+            std::shared_ptr<std::vector<std::vector<size_t>>>          fastSolutionIndices)
+            : SolutionIterator(library, hardware)
+        {
+            m_firstSolutionIdx = firstSolutionIdx;
+
+            if(m_firstSolutionIdx < 0)
+                m_firstSolutionIdx = library->solutions.begin()->first;
+
+            if(numSolutions < 0)
+            {
+                auto iter         = library->solutions.rbegin();
+                m_lastSolutionIdx = iter->first;
+            }
+            else
+            {
+                m_lastSolutionIdx = m_firstSolutionIdx + numSolutions - 1;
+            }
+
+            m_currentSolutionIdx = m_firstSolutionIdx;
+            m_fastSolutionIndices = fastSolutionIndices;
+            m_currentProblemSizeIdx = 0
+        }
+
+        void FastSolutionsIterator::preProblem(ContractionProblem const& problem)
+        {
+            SolutionIterator::preProblem(problem);
+
+            m_currentSolutionIdx = m_firstSolutionIdx;
+            m_currentFastSolutionIndices = m_fastSolutionIndices[m_currentProblemSizeIdx];
+            m_currentFastSolutionIdx = 0;
+        }
+
+        void FastSolutionsIterator::postProblem()
+        {
+            m_currentProblemSizeIdx++;
+        }
+
+        void FastSolutionsIterator::preSolution(ContractionSolution const& solution)
+        {
+            int idx = m_currentFastSolutionIndices[m_currentFastSolutionIdx];
+            while (m_currentSolutionIdx < idx) m_currentSolutionIdx++;
+
+            m_reporter->report(ResultKey::SolutionIndex, m_currentSolutionIdx);
+            m_reporter->report(ResultKey::SolutionProgress,
+                               concatenate(m_currentSolutionIdx, "/", m_lastSolutionIdx));
+        }
+
+        void FastSolutionsIterator::postSolution()
+        {
+            m_currentFastSolutionIdx++;
+        }
+
+        bool FastSolutionsIterator::moreSolutionsInProblem() const
+        {
+            return m_currentSolutionIdx <= m_lastSolutionIdx && \
+                     m_currentFastSolutionIdx < m_currentFastSolutionIndices.size();
+        }
+
+        bool SolutionIterator::runCurrentSolution()
+        {
+            auto solution = getSolution();
+            return checkSolution(*solution);
+        }
+
+        std::shared_ptr<ContractionSolution> FastSolutionsIterator::getSolution()
         {
             auto iter = m_library->solutions.find(m_currentSolutionIdx);
             if(iter == m_library->solutions.end())
