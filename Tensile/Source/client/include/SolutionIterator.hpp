@@ -154,7 +154,7 @@ namespace Tensile
                                  std::shared_ptr<Hardware> hardware,
                                  int                       firstSolutionIdx,
                                  int                       numSolutions,
-                                 std::shared_ptr<std::vector<std::vector<size_t>>> fastSolutionIndices);
+                                 std::vector<std::vector<size_t>> fastSolutionIndices);
 
             virtual void preProblem(ContractionProblem const& problem) override;
             virtual void postProblem() override;

@@ -48,10 +48,9 @@ namespace Tensile
             {
                 int firstSolutionIdx = args["solution-start-idx"].as<int>();
                 int numSolutions     = args["num-solutions"].as<int>();
-                std::vector<std::vector<size_t>>> fastSolutionIndices = args["fast-solution-indices"].as<std::vector<std::vector<size_t>>>();
 
                 return std::make_shared<FastSolutionsIterator>(
-                    library, hardware, firstSolutionIdx, numSolutions, fastSolutionIndices);
+                    library, hardware, firstSolutionIdx, numSolutions, args["fast-solution-indices"].as<std::vector<std::vector<size_t>>>());
             }
             else
             {
@@ -178,8 +177,10 @@ namespace Tensile
             std::shared_ptr<Hardware>                                  hardware,
             int                                                        firstSolutionIdx,
             int                                                        numSolutions,
-            std::shared_ptr<std::vector<std::vector<size_t>>>          fastSolutionIndices)
+            std::vector<std::vector<size_t>>          fastSolutionIndices)
             : SolutionIterator(library, hardware)
+            , m_fastSolutionIndices(fastSolutionIndices)
+            , m_currentProblemSizeIdx(0)
         {
             m_firstSolutionIdx = firstSolutionIdx;
 
@@ -197,8 +198,6 @@ namespace Tensile
             }
 
             m_currentSolutionIdx = m_firstSolutionIdx;
-            m_fastSolutionIndices = fastSolutionIndices;
-            m_currentProblemSizeIdx = 0
         }
 
         void FastSolutionsIterator::preProblem(ContractionProblem const& problem)
@@ -234,12 +233,6 @@ namespace Tensile
         {
             return m_currentSolutionIdx <= m_lastSolutionIdx && \
                      m_currentFastSolutionIdx < m_currentFastSolutionIndices.size();
-        }
-
-        bool SolutionIterator::runCurrentSolution()
-        {
-            auto solution = getSolution();
-            return checkSolution(*solution);
         }
 
         std::shared_ptr<ContractionSolution> FastSolutionsIterator::getSolution()
