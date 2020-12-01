@@ -692,7 +692,7 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
         kernelHelperOjbs.append(ko)
         kernelHelperNames.add(kname)
 
-  if globalParameters["FastBenchmark"]:
+  if "FastBenchmark" in globalParameters and globalParameters["FastBenchmark"]:
       idxs = fast_bench(problemSizes, kernels, n_pct=0.05)
       print("to_keep: len(idxs) = {}".format(len(idxs)))
       solutions = [solutions[i] for i in idxs]
