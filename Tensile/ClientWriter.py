@@ -557,7 +557,7 @@ def dataInitParams(problemType):
             ('init-beta',  DataInitName(initBeta).name)]
 
 
-def writeClientConfig(forBenchmark, solutions, problemSizes, stepName, stepBaseDir, newLibrary, codeObjectFiles, tileAwareSelection = False):
+def writeClientConfig(forBenchmark, solutions, problemSizes, stepName, stepBaseDir, newLibrary, codeObjectFiles, tileAwareSelection = False, fastBenchmark=False, fastSolutionIndices=None):
 
     if tileAwareSelection:
       filename = os.path.join(globalParameters["WorkingPath"], "ClientParameters_Granularity.ini")
@@ -602,10 +602,14 @@ def writeClientConfig(forBenchmark, solutions, problemSizes, stepName, stepBaseD
 
         param('high-precision-accumulate',  newSolution.problemType.highPrecisionAccumulate)
 
-        for problem in problemSizes.problems:
+        if fastBenchmark:
+            param('fast-benchmark', True)
+        for i, problem in enumerate(problemSizes.problems):
             for key,value in problemSizeParams(newSolution, problem):
                 param(key,value)
             #param('problem-size', ','.join(map(str,problemSize)))
+            if fastBenchmark and i < len(fastSolutionIndices):
+                param('fast-solution-indices', ','.join(fastSolutionIndices[i]))
 
         param("device-idx",               globalParameters["Device"])
 

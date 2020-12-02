@@ -653,9 +653,8 @@ def fast_bench(problemSizes, kernels, n_pct=0.15):
     preds = model.predict(xs)
     preds = preds.reshape(-1, n)
     rankings = np.argsort(preds)
-    keep = rankings[:, :int(n * n_pct)]
-    target_idxs = np.unique(np.concatenate(keep))
-    return target_idxs
+    keep_indices = rankings[:, :int(n * n_pct)]
+    return keep_indices
 
 
 ################################################################################
@@ -692,11 +691,14 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
         kernelHelperOjbs.append(ko)
         kernelHelperNames.add(kname)
 
+  fastBenchmark, fastSolutionIndices = False, None
   if "FastBenchmark" in globalParameters and globalParameters["FastBenchmark"]:
-      idxs = fast_bench(problemSizes, kernels, n_pct=0.05)
-      print("to_keep: len(idxs) = {}".format(len(idxs)))
-      solutions = [solutions[i] for i in idxs]
-      kernels = [kernels[i] for i in idxs]
+      fastSolutionIndices = fast_bench(problemSizes, kernels, n_pct=0.15)
+      union_indices = np.unique(np.concatenate(fastSolutionIndices))
+      print("num union indices: {}".format(len(union_indices)))
+      solutions = [solutions[i] for i in union_indices]
+      kernels = [kernels[i] for i in union_indices]
+      fastBenchmark = True
 
   solutionSerialNaming = Solution.getSerialNaming(solutions)
   kernelSerialNaming   = Solution.getSerialNaming(kernels)
@@ -721,7 +723,7 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
 
   codeObjectFiles = [os.path.relpath(f, globalParameters["WorkingPath"]) for f in codeObjectFiles]
 
-  writeClientConfig(True, solutions, problemSizes, stepName, stepBaseDir, newLibrary, codeObjectFiles, False)
+  writeClientConfig(True, solutions, problemSizes, stepName, stepBaseDir, newLibrary, codeObjectFiles, False, fastBenchmark, fastSolutionIndices)
 
   if "TileAwareSelection" in problemType and problemType["TileAwareSelection"]:
     maxMacroTile0 = 0
