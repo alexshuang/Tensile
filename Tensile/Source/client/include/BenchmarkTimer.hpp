@@ -115,6 +115,13 @@ namespace Tensile
 
             double_millis m_timeInSolution;
             double_millis m_totalGPUTime;
+
+            const bool m_fastBenchmark;
+            int m_currentSolutionIdx;
+            int m_currentFastSolutionIdx;
+            int m_currentProblemSizeIdx;
+            std::vector<std::vector<size_t>> m_fastSolutionIndices;
+            std::vector<size_t> m_currentFastSolutionIndices;
         };
     } // namespace Client
 } // namespace Tensile

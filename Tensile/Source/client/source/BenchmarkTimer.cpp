@@ -52,6 +52,9 @@ namespace Tensile
             , m_sleepPercent(args["sleep-percent"].as<int>())
             , m_timeInSolution(0)
             , m_totalGPUTime(0)
+            , m_fastBenchmark(args["fast-benchmark"].as<bool>())
+            , m_fastSolutionIndices(args["fast-solution-indices"].as<std::vector<std::vector<size_t>>>())
+            , m_currentProblemSizeIdx(0)
         {
         }
 
@@ -70,12 +73,25 @@ namespace Tensile
         void BenchmarkTimer::preProblem(ContractionProblem const& problem)
         {
             m_problem = problem;
+            if(m_fastBenchmark)
+            {
+                m_currentSolutionIdx = -1;
+                m_currentFastSolutionIndices = m_fastSolutionIndices[m_currentProblemSizeIdx];
+                m_currentFastSolutionIdx = 0;
+            }
         }
 
-        void BenchmarkTimer::postProblem() {}
+        void BenchmarkTimer::postProblem()
+        {
+            if(m_fastBenchmark)
+                m_currentProblemSizeIdx++;
+        }
 
         void BenchmarkTimer::preSolution(ContractionSolution const& solution)
         {
+            if(m_fastBenchmark && ++m_currentSolutionIdx != m_currentFastSolutionIndices[m_currentFastSolutionIdx])
+                return;
+
             m_numEnqueuesInSolution = 0;
             m_timeInSolution        = double_millis::zero();
 
@@ -97,6 +113,15 @@ namespace Tensile
 
         void BenchmarkTimer::postSolution()
         {
+            if(m_fastBenchmark) 
+            {
+                if(m_currentSolutionIdx == m_currentFastSolutionIndices[m_currentFastSolutionIdx] && \
+                    m_currentFastSolutionIdx < m_currentFastSolutionIndices.size() - 1)
+                    m_currentFastSolutionIdx++;
+                else
+                    return;
+            }
+
             double timePerEnqueue_us
                 = double_micros(m_timeInSolution).count() / m_numEnqueuesInSolution;
 

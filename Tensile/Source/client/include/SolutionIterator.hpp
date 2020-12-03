@@ -164,12 +164,16 @@ namespace Tensile
 
             virtual bool                                 moreSolutionsInProblem() const override;
             virtual std::shared_ptr<ContractionSolution> getSolution() override;
+            virtual bool                                 runCurrentSolution() override;
+            virtual bool checkSolution(ContractionSolution const& solution) override;
+
 
         private:
             int m_firstSolutionIdx;
             int m_lastSolutionIdx;
 
             int m_currentSolutionIdx;
+
             int m_currentFastSolutionIdx;
             int m_currentProblemSizeIdx;
             std::vector<std::vector<size_t>> m_fastSolutionIndices;

@@ -205,7 +205,8 @@ namespace Tensile
             SolutionIterator::preProblem(problem);
 
             m_currentSolutionIdx = m_firstSolutionIdx;
-            m_currentFastSolutionIndices = m_fastSolutionIndices[m_currentProblemSizeIdx];
+            if(m_currentProblemSizeIdx < m_fastSolutionIndices.size())
+                m_currentFastSolutionIndices = m_fastSolutionIndices[m_currentProblemSizeIdx];
             m_currentFastSolutionIdx = 0;
         }
 
@@ -216,8 +217,13 @@ namespace Tensile
 
         void FastSolutionsIterator::preSolution(ContractionSolution const& solution)
         {
+/*
             int idx = m_currentFastSolutionIndices[m_currentFastSolutionIdx];
-            while (m_currentSolutionIdx < idx) m_currentSolutionIdx++;
+            while (m_currentSolutionIdx < idx) {
+                m_currentSolutionIdx++;
+                //m_reporter->report(ResultKey::SpeedGFlops, -2);
+            }
+*/
 
             m_reporter->report(ResultKey::SolutionIndex, m_currentSolutionIdx);
             m_reporter->report(ResultKey::SolutionProgress,
@@ -226,13 +232,18 @@ namespace Tensile
 
         void FastSolutionsIterator::postSolution()
         {
-            m_currentFastSolutionIdx++;
+            m_currentSolutionIdx++;
         }
 
         bool FastSolutionsIterator::moreSolutionsInProblem() const
         {
-            return m_currentSolutionIdx <= m_lastSolutionIdx && \
-                     m_currentFastSolutionIdx < m_currentFastSolutionIndices.size();
+            return m_currentSolutionIdx <= m_lastSolutionIdx;
+        }
+
+        bool FastSolutionsIterator::runCurrentSolution()
+        {
+            auto solution = getSolution();
+            return checkSolution(*solution);
         }
 
         std::shared_ptr<ContractionSolution> FastSolutionsIterator::getSolution()
@@ -242,6 +253,49 @@ namespace Tensile
                 return std::shared_ptr<ContractionSolution>();
 
             return iter->second;
+        }
+
+        bool FastSolutionsIterator::checkSolution(ContractionSolution const& solution)
+        {
+            if(!(*solution.hardwarePredicate)(*m_hardware))
+            {
+                m_reporter->report(ResultKey::Validation, "WRONG_HARDWARE");
+                if(m_reporter->logAtLevel(LogLevel::Verbose))
+                {
+                    std::ostringstream msg;
+                    solution.hardwarePredicate->debugEval(*m_hardware, msg);
+                    m_reporter->log(LogLevel::Verbose, msg.str());
+                }
+
+                return false;
+            }
+
+            if(!(*solution.problemPredicate)(m_problem))
+            {
+                m_reporter->report(ResultKey::Validation, "DID_NOT_SATISFY_ASSERTS");
+                if(m_reporter->logAtLevel(LogLevel::Verbose))
+                {
+                    std::ostringstream msg;
+                    solution.problemPredicate->debugEval(m_problem, msg);
+                    m_reporter->log(LogLevel::Verbose, msg.str());
+                }
+
+                return false;
+            }
+
+            if(m_currentSolutionIdx == m_currentFastSolutionIndices[m_currentFastSolutionIdx])
+            {
+                if(m_currentFastSolutionIdx < m_currentFastSolutionIndices.size() - 1)
+                    m_currentFastSolutionIdx++;
+            }
+            else
+            {
+                m_reporter->report(ResultKey::SpeedGFlops, -2);
+                m_reporter->report(ResultKey::TimeUS, 0);
+                return false;
+            }
+
+            return true;
         }
 
         BestSolutionIterator::BestSolutionIterator(

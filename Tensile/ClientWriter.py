@@ -602,14 +602,15 @@ def writeClientConfig(forBenchmark, solutions, problemSizes, stepName, stepBaseD
 
         param('high-precision-accumulate',  newSolution.problemType.highPrecisionAccumulate)
 
-        if fastBenchmark:
-            param('fast-benchmark', True)
-        for i, problem in enumerate(problemSizes.problems):
+        for problem in problemSizes.problems:
             for key,value in problemSizeParams(newSolution, problem):
                 param(key,value)
             #param('problem-size', ','.join(map(str,problemSize)))
-            if fastBenchmark and i < len(fastSolutionIndices):
-                param('fast-solution-indices', ','.join(fastSolutionIndices[i]))
+
+        if fastBenchmark:
+            param('fast-benchmark', True)
+            for indices in fastSolutionIndices:
+                    param('fast-solution-indices', ','.join(indices[i]))
 
         param("device-idx",               globalParameters["Device"])
 
