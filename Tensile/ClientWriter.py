@@ -31,6 +31,7 @@ from shutil import rmtree
 from enum import Enum
 
 from .Contractions import FreeIndex
+import numpy as np
 
 class DataInitName(Enum):
   Zero = 0
@@ -610,7 +611,7 @@ def writeClientConfig(forBenchmark, solutions, problemSizes, stepName, stepBaseD
         if fastBenchmark:
             param('fast-benchmark', True)
             for indices in fastSolutionIndices:
-                    param('fast-solution-indices', ','.join(indices[i]))
+                    param('fast-solution-indices', ','.join([str(o) for o in np.sort(indices)]))
 
         param("device-idx",               globalParameters["Device"])
 

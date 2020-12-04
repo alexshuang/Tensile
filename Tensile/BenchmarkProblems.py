@@ -693,11 +693,12 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
 
   fastBenchmark, fastSolutionIndices = False, None
   if "FastBenchmark" in globalParameters and globalParameters["FastBenchmark"]:
-      fastSolutionIndices = fast_bench(problemSizes, kernels, n_pct=0.15)
+      n_pct = globalParameters["FastSolutionKeep"] if "FastSolutionKeep" in globalParameters else 0.1
+      fastSolutionIndices = fast_bench(problemSizes, kernels, n_pct=n_pct)
       union_indices = np.unique(np.concatenate(fastSolutionIndices))
-      print("num union indices: {}".format(len(union_indices)))
-      solutions = [solutions[i] for i in union_indices]
-      kernels = [kernels[i] for i in union_indices]
+      print("number of union indices: {}".format(len(union_indices)))
+      #solutions = [solutions[i] for i in union_indices]
+      #kernels = [kernels[i] for i in union_indices]
       fastBenchmark = True
 
   solutionSerialNaming = Solution.getSerialNaming(solutions)
