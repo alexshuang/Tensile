@@ -290,8 +290,8 @@ namespace Tensile
             }
             else
             {
-                m_reporter->report(ResultKey::SpeedGFlops, -2);
-                m_reporter->report(ResultKey::TimeUS, 0);
+                m_reporter->report(ResultKey::SpeedGFlops, (uint64_t)0);
+                m_reporter->report(ResultKey::TimeUS, (double)0.0);
                 return false;
             }
 

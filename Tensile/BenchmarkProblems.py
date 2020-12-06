@@ -471,7 +471,11 @@ def getResults(resultsFileName, solutions, enableTileSelection, newResultsFileNa
       idx = startIdx
       for i,solutionsForHardcoded in enumerate(solutions):
         for j,solution in enumerate(solutionsForHardcoded):
-          gflops = float(row[idx])
+          #import pdb; pdb.set_trace()
+          try:
+              gflops = float(row[idx])
+          except:
+              gflops = float(0.0)
 
           results[i][j].append(gflops)
           idx += 1
@@ -634,6 +638,7 @@ def dataset_create(problem_sizes, kernels, final_cols):
     return df_create(features)
 
 def fast_bench(problemSizes, kernels, n_pct=0.15):
+    #import pdb; pdb.set_trace()
     n = len(kernels)
     path = Path('ml_bench/data/inc1/models')
     problem_sizes = np.stack([p.sizes for p in problemSizes.exacts])
@@ -651,9 +656,9 @@ def fast_bench(problemSizes, kernels, n_pct=0.15):
 #    for n, c in xs.items():
 #        print(f"{n}: {c.isnull().sum()}")
     preds = model.predict(xs)
+    preds = np.expm1(preds)
     preds = preds.reshape(-1, n)
-    rankings = np.argsort(preds)
-    keep_indices = rankings[:, :int(n * n_pct)]
+    keep_indices = np.argsort(preds)[:, :int(n * n_pct)]
     return keep_indices
 
 
