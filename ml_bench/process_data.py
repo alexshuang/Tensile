@@ -357,7 +357,7 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1)
     rankings = np.argsort(-gflops) # reverse
     if n_jobs == -1: n_jobs = os.cpu_count()
     workdir = basename.parent
-    configs = (workdir/'config.yaml').open().readlines()
+    configs = (workdir/'problem_sizes.yaml').open().readlines()
 
     features = { 'train': defaultdict(lambda: []),
                  'valid': defaultdict(lambda: []) }
