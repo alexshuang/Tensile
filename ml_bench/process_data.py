@@ -398,7 +398,7 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1)
     valid_df = df_create(features['valid'])
     
     valid_df.to_csv(workdir/f'valid_N{num_solutions}.csv', index=False)
-    with (workdir/'valid_config.yaml').open('w') as fp:
+    with (workdir/'valid_problem_sizes.yaml').open('w') as fp:
         for i in valid_idxs: fp.write(configs[i])
 
     return (train_df, valid_df)
