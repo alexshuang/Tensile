@@ -11,7 +11,7 @@ from pandas.api.types import is_string_dtype, is_bool_dtype, is_numeric_dtype, i
 # from fastai.tabular.all import *
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.tree import DecisionTreeRegressor
-from IPython.display import Image, display_svg, SVG
+#from IPython.display import Image, display_svg, SVG
 # from dtreeviz.trees import *
 from sklearn.tree import export_graphviz
 import scipy
@@ -38,7 +38,7 @@ from pathlib import Path
 
 path = Path('data')
 train_path = path/'inc1'
-test_path = path/'inc1/test'
+test_path = train_path
 img_path = train_path/'imgs'
 model_path = train_path/'models'
 img_path.mkdir(exist_ok=True)
@@ -201,6 +201,7 @@ def final_rf(xs, y, n_estimators=120, max_features=0.5, min_samples_leaf=5, **kw
 
 
 if not (model_path/'final_rf_model.pkl').is_file():
+    print("Training model ...")
             #'SolutionName', 'MacroTile1', 'WorkGroup_1', 'WorkGroup_0',
             #'MacroTile1', 'WorkGroup_1', 'WorkGroup_0',
     final_cols = ['AreaC', 'NumElementsPerThread',
@@ -252,6 +253,7 @@ if not (model_path/'final_rf_model.pkl').is_file():
     del xs_final, y, valid_xs_final, valid_y
     pickle.dump(model, (model_path/'final_rf_model.pkl').open('wb'))
 else:
+    print("Loading model ...")
     model = pickle.load((model_path/'final_rf_model.pkl').open('rb'))
     final_cols = pickle.load((model_path/'final_columns.pkl').open('rb'))
 
@@ -264,7 +266,7 @@ else:
 def mae(p, t): return np.mean(abs(p - t))
 
 
-def testing(test_csv, n_pct=0.1, topN=3):
+def testing(test_csv, n_pct=0.1, topN=5):
     for f in test_csv:
         num_solution = re.findall(ns_pat, f.stem)[0]
         assert num_solution.isdecimal()
@@ -307,8 +309,8 @@ def testing(test_csv, n_pct=0.1, topN=3):
             gflops_target.append(gflops[i, t])
         gflops_preds, gflops_target = np.array(gflops_preds), np.array(gflops_target)
 
-        print(f"{f.stem}: {n_pct*100}%/{num_preds} solutions, top1 accuracy: {np.sum(top1_acc)/n*100:.2f}%, top{topN} accuracy: {np.sum(acc)/n*100:.2f}%")
-        print(f"\t\ttotal errors: {abs(gflops_preds - gflops_target).sum():.2f} GFlops, mean-absolute-errors: {mae(gflops_preds, gflops_target):.2f} GFlops")
+        print(f"{f.parent.stem}: {n} problems, {n_pct*100}%/{num_preds} solutions, top1 accuracy: {np.sum(top1_acc)/n*100:.2f}%, top{topN} accuracy: {np.sum(acc)/n*100:.2f}%")
+        print(f"\t\ttotal errors: {abs(gflops_preds - gflops_target).sum():.2f} GFlops, mean errors: {mae(gflops_preds, gflops_target):.2f} GFlops")
         
         fig, axes = plt.subplots(3, 3, figsize=(10, 8))
         x_axis = np.arange(n)
@@ -319,14 +321,17 @@ def testing(test_csv, n_pct=0.1, topN=3):
         plt.subplots_adjust(right=1.5)
         plt.legend()
         plt.show()
-        plt.gcf().savefig(img_path/f'{f.stem}_pct{n_pct}_top{topN}.png', dpi=600, bbox_inches='tight')
+        plt.gcf().savefig(img_path/f'{f.parent.stem}_problem{n}_pct{n_pct}_top{topN}.png', dpi=600, bbox_inches='tight')
 
 
 # In[65]:
 
 
-test_csv = list(test_path.glob('valid_*.csv'))
-ns_pat = re.compile(r'_.._N(.*)')
+test_csv = list(test_path.glob('**/valid_*.csv'))
+ns_pat = re.compile(r'_N(.*)')
+
+
+print("Testing model ...")
 
 
 # In[66]:

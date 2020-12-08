@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding: utf-8
 
 # In[1]:
@@ -11,7 +11,7 @@ from pandas.api.types import is_string_dtype, is_bool_dtype, is_numeric_dtype, i
 # from fastai.tabular.all import *
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.tree import DecisionTreeRegressor
-from IPython.display import Image, display_svg, SVG
+#from IPython.display import Image, display_svg, SVG
 # from dtreeviz.trees import *
 from sklearn.tree import export_graphviz
 import scipy
@@ -38,7 +38,7 @@ from pathlib import Path
 
 path = Path('data')
 train_path = path/'inc1'
-test_path = path/'inc1/test'
+test_path = train_path
 img_path = train_path/'imgs'
 model_path = train_path/'models'
 img_path.mkdir(exist_ok=True)
@@ -329,7 +329,7 @@ for c in fi[fi.imp > 0.01].cols.values:
 #              'LDA', 'LDB', 'LDC', 'PrefetchLocalRead', 'LdsPadB'] #'SizeI', 'SizeJ', 'SizeL', 
 drop_cols = ['AspectRatioB', 'LdsPadB', 'AoverB']
 drop_cols = [n for n in drop_cols if n in xs_keep]
-del m
+#del m
 m = rf(xs_keep.drop(drop_cols, axis=1), y, max_samples=500_000)
 eval_model(m, xs_keep.drop(drop_cols, axis=1), y, valid_xs_keep.drop(drop_cols, axis=1), valid_y)
 
@@ -489,7 +489,7 @@ del xs_final, y, valid_xs_final, valid_y
 def mae(p, t): return np.mean(abs(p - t))
 
 
-def testing(test_csv, n_pct=0.1, topN=3):
+def testing(test_csv, n_pct=0.1, topN=5):
     for f in test_csv:
         num_solution = re.findall(ns_pat, f.stem)[0]
         assert num_solution.isdecimal()
@@ -549,7 +549,7 @@ def testing(test_csv, n_pct=0.1, topN=3):
 # In[65]:
 
 
-test_csv = list(test_path.glob('valid_*.csv'))
+test_csv = list(test_path.glob('**/valid_*.csv'))
 ns_pat = re.compile(r'_.._N(.*)')
 
 
