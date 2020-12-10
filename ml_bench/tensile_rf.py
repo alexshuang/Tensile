@@ -11,7 +11,7 @@ from pandas.api.types import is_string_dtype, is_bool_dtype, is_numeric_dtype, i
 # from fastai.tabular.all import *
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.tree import DecisionTreeRegressor
-from IPython.display import Image, display_svg, SVG
+#from IPython.display import Image, display_svg, SVG
 # from dtreeviz.trees import *
 from sklearn.tree import export_graphviz
 import scipy
@@ -36,12 +36,12 @@ from pathlib import Path
 # In[2]:
 
 
-path = Path('data/fast_bench/inc1')
+path = Path('data/inc1/bench')
 nn_path = path/'nn'
-tn_path = path/'tn'
 nt_path = path/'nt'
+tn_path = path/'tn'
+img_path = path/'imgs'
 model_path = Path('data/inc1/models')
-img_path = Path('data/fast_bench/inc1/imgs')
 img_path.mkdir(exist_ok=True)
 model_path.mkdir(exist_ok=True)
 
@@ -201,60 +201,9 @@ def final_rf(xs, y, n_estimators=120, max_features=0.5, min_samples_leaf=5, **kw
 # In[59]:
 
 
-if not (model_path/'final_rf_model.pkl').is_file():
-            #'SolutionName', 'MacroTile1', 'WorkGroup_1', 'WorkGroup_0',
-            #'MacroTile1', 'WorkGroup_1', 'WorkGroup_0',
-    final_cols = ['AreaC', 'NumElementsPerThread',
-            'TotalFlops', 'LdsNumElements', 'StoreRemapVectorWidth', 'SizeL',
-            'SolutionName', 'MacroTile1', 'WorkGroup_1', 'WorkGroup_0',
-            'MacroTile0', 'LDB', 'AspectRatioA', 'LdsOffsetB_Blk', 'LdsOffsetA_Blk',
-            'DepthU', 'LdsNumElementsAlignedB', 'SizeK',
-            'AspectRatioC', 'LSCA', 'LoopIters', 'AssertFree0ElementMultiple',
-            'ThreadTile0', 'LDA', 'LVPA', 'LSCB',
-            'ThreadTile_1', 'LdsOffsetB', 'MatrixInstK',
-            'LVPB', 'MIWaveGroup_0', 'GuaranteeNoPartialA', 'SubGroup0',
-            'MatrixInstruction_1', 'ThreadTile1', 
-            'GlobalLoadVectorWidthB', 'SubGroup1', 'MIWaveGroup_1',
-            '_UseSgprForGRO', 'NumLoadsPerpendicularB', 'NumLoadsB',
-            'GlobalLoadVectorWidthA', 'GlobalReadVectorWidth', 'ThreadTile_0',
-            'LSPB', 'LSPA', 'LVCA', 'LVCB',
-            'WorkGroupMapping']
-
-    train_df = pd.read_feather(train_path/'train.feat')
-    valid_df = pd.read_feather(train_path/'valid.feat')
-    train_df = train_df[train_df['GFlops'] > 0].reset_index(drop=True)
-    valid_df = valid_df[valid_df['GFlops'] > 0].reset_index(drop=True)
-
-    preproc_df(train_df)
-    preproc_df(valid_df)
-    train_cats(train_df)
-    apply_cats(valid_df, train_df)
-    categorify(train_df)
-    categorify(valid_df)
-
-    train_df.drop(['GFlops'], axis=1, inplace=True)
-    valid_df.drop(['GFlops'], axis=1, inplace=True)
-    dep_var = 'Ranking'
-    y, valid_y = np.log1p(train_df[dep_var].values), np.log1p(valid_df[dep_var].values)
-    xs = train_df.drop(dep_var, axis=1)
-    valid_xs = valid_df.drop(dep_var, axis=1)
-    xs_final, valid_xs_final = xs[final_cols].copy(), valid_xs[final_cols].copy()
-    del xs, valid_xs
-
-    cluster_columns(valid_xs_final, figsize=(12, 12), font_size=9);
-
-    model = final_rf(xs_final, y)
-    print("Final", eval_model(model, xs_final, y, valid_xs_final, valid_y))
-
-    fi = rf_feat_importance(model, xs_final)
-    plot_fi(fi[:30])
-
-    pickle.dump(xs_final.columns.values, (model_path/'final_columns.pkl').open('wb'))
-    del xs_final, y, valid_xs_final, valid_y
-    pickle.dump(model, (model_path/'final_rf_model.pkl').open('wb'))
-else:
-    model = pickle.load((model_path/'final_rf_model.pkl').open('rb'))
-    final_cols = pickle.load((model_path/'final_columns.pkl').open('rb'))
+print("Loading model ...")
+model = pickle.load((model_path/'final_rf_model.pkl').open('rb'))
+final_cols = pickle.load((model_path/'final_columns.pkl').open('rb'))
 
 
 # ## Testing
@@ -265,42 +214,87 @@ else:
 def mae(p, t): return np.mean(abs(p - t))
 
 
-def testing(origin_csv, fast_bench_csv, n_pct=0.05, topN=5):
-    df = pd.read_csv(fast_bench_csv, low_memory=False)
-    cols = df.columns.values[10:]
-    for n in cols:
-        data = []
-        for o in df[n].values:
-            try:
-                val = eval(o)
-            except:
-                val = 0
-            data.append(val) 
-        df[n] = np.array(data)
-    preds = df[cols].values
-    n = preds.shape[0]
-    gflops_preds = np.sort(preds)[:, -1].reshape(-1)
+def testing(path, n_pct=0.1, topN=5):
+    fast_bench_csv = list(path.glob('fast_bench/2_BenchmarkData/*.csv'))
+    origin_csv = list(path.glob('origin/2_BenchmarkData/*.csv'))
 
-    origin_df = pd.read_csv(origin_csv, low_memory=False)
-    gflops = origin_df['GFlops'].values.reshape(n, -1)
-    gflops_target = np.sort(gflops)[:, -1].reshape(-1)
+    for f, o in zip(fast_bench_csv, origin_csv):
+        fast_bench_df = pd.read_csv(f, low_memory=False)
+        origin_df = pd.read_csv(o, low_memory=False)
 
-    import pdb; pdb.set_trace()
-    print(f"{origin_csv.parent.parent.stem}: mean errors: {mae(gflops_preds, gflops_target):.2f} GFlops")
-    
-    fig, axes = plt.subplots(3, 3, figsize=(10, 8))
-    x_axis = np.arange(n)
-    j = n // 9
-    for i, ax in enumerate(axes.flatten()):
-        ax.plot(x_axis[i*j:i*j+j], gflops_preds[i*j:i*j+j], label='prediction')
-        ax.plot(x_axis[i*j:i*j+j], gflops_target[i*j:i*j+j], label='target')
-    plt.subplots_adjust(right=1.5)
-    plt.legend()
-    plt.show()
-    plt.gcf().savefig(img_path/f'{origin_csv.parent.parent.stem}_pct{n_pct}_top{topN}.png', dpi=600, bbox_inches='tight')
+        cols = fast_bench_df.columns
+        assert (cols == origin_df.columns).all() and fast_bench_df.shape == origin_df.shape
+
+        fast_bench_df.replace(" " , '0', inplace=True)
+        for n, c in fast_bench_df[cols[10:]].items():
+            if is_object_dtype(c):
+                fast_bench_df[n] = pd.to_numeric(c).astype('float')
+
+#        import pdb; pdb.set_trace()
+#        for n, c in fast_bench_df[cols[10:]].items():
+#            val = []
+#            for o in c.values:
+#                if o == '':
+#                    val.append(0)
+#                else:
+#                    val.append(
+#            fast_bench_df[n] = np.array([eval(o) for o in c.values])
+        gflops_preds = fast_bench_df[cols[10:]].values
+        n, m = gflops_preds.shape
+        num_preds = int(m * n_pct)
+        topN_preds = np.argsort(-gflops_preds)[:, :num_preds]
+
+        gflops = origin_df[cols[10:]].values
+        topN_target = np.argsort(-gflops)[:, :topN]
+
+        #import pdb; pdb.set_trace()
+
+        top1_acc, acc = [], []
+        for p, t in zip(topN_preds, topN_target):
+            if t[0] in p:
+                top1_acc.append(True)
+                acc.append(True)
+            else:
+                for o in t[1:]:
+                    if o in p:
+                        acc.append(True)
+                        break
+
+        gflops_preds, gflops_target = [], []
+        for i, (p, t) in enumerate(zip(topN_preds, topN_target[:, 0].reshape(-1))):
+            max_gflops = 0
+            for j in p:
+                if gflops[i, j] > max_gflops:
+                    max_gflops = gflops[i, j]
+            gflops_preds.append(max_gflops)
+            gflops_target.append(gflops[i, t])
+        gflops_preds, gflops_target = np.array(gflops_preds), np.array(gflops_target)
+
+        print(f"{f.parent.stem}: {n} problems, {n_pct*100}%/{num_preds} solutions, top1 accuracy: {np.sum(top1_acc)/n*100:.2f}%, top{topN} accuracy: {np.sum(acc)/n*100:.2f}%")
+        print(f"\t\ttotal errors: {abs(gflops_preds - gflops_target).sum():.2f} GFlops, mean errors: {mae(gflops_preds, gflops_target):.2f} GFlops")
+        
+        fig, axes = plt.subplots(3, 3, figsize=(10, 8))
+        x_axis = np.arange(n)
+        j = n // 9
+        for i, ax in enumerate(axes.flatten()):
+            ax.plot(x_axis[i*j:i*j+j], gflops_preds[i*j:i*j+j], label='preds')
+            ax.plot(x_axis[i*j:i*j+j], gflops_target[i*j:i*j+j], label='target')
+        plt.subplots_adjust(right=1.5)
+        plt.legend()
+        plt.show()
+        plt.gcf().savefig(img_path/f'{f.parent.stem}_problem{n}_pct{n_pct}_top{topN}.png', dpi=600, bbox_inches='tight')
 
 
-testing(nn_path/'origin/Cijk_Ailk_Bljk_HBH_00.csv', nn_path/'fast_bench/Cijk_Ailk_Bljk_HBH_00.csv', n_pct=0.05)
-#testing(tn_path/'origin/Cijk_Alik_Bljk_HBH_00.csv', tn_path/'fast_bench/00_Final.csv', n_pct=0.1)
-#testing(nt_path/'origin/00_Final.csv', nt_path/'fast_bench/00_Final.csv', n_pct=0.05)
+# In[65]:
+
+
+print("Testing model ...")
+
+
+# In[66]:
+
+
+testing(nn_path, n_pct=0.05)
+testing(nt_path, n_pct=0.05)
+testing(tn_path, n_pct=0.15)
 
