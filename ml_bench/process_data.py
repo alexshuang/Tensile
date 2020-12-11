@@ -348,7 +348,7 @@ def feature_parse(idx, problem_size_names, solution_names, problem_sizes,
     return (ds_type, features)
 
 
-def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1):
+def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1, is_test=False):
     print(f"processing {basename} ...")
     df = pd.read_csv(basename.with_suffix('.csv'))
     sol_start_idx = 10
@@ -357,7 +357,6 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1)
     rankings = np.argsort(-gflops) # reverse
     if n_jobs == -1: n_jobs = os.cpu_count()
     workdir = basename.parent
-    configs = (workdir/'problem_sizes.yaml').open().readlines()
 
     features = { 'train': defaultdict(lambda: []),
                  'valid': defaultdict(lambda: []) }
@@ -397,9 +396,15 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1)
     train_df = df_create(features['train'])
     valid_df = df_create(features['valid'])
     
-    valid_df.to_csv(workdir/f'valid_N{num_solutions}.csv', index=False)
-    with (workdir/'valid_problem_sizes.yaml').open('w') as fp:
-        for i in valid_idxs: fp.write(configs[i])
+    if not is_test:
+        configs = (workdir/'problem_sizes.yaml').open().readlines()
+        valid_df.to_csv(workdir/f'valid_N{num_solutions}.csv', index=False)
+        with (workdir/'valid_problem_sizes.yaml').open('w') as fp:
+            for i in valid_idxs: fp.write(configs[i])
+    else:
+        df = pd.concat([train_df, valid_df], ignore_index=True)
+        df_compress(df)
+        df.to_feater(workdir/f'test_N{num_solutions}.feat', index=False)
 
     return (train_df, valid_df)
 
@@ -428,28 +433,24 @@ if __name__ == '__main__':
 
     dfs, dfs2 = [], []
     for o in src:
-        df, df2 = dataset_create(o, sampling_interval=args.sampling_interval, n_jobs=args.n_jobs)
+        df, df2 = dataset_create(o, sampling_interval=args.sampling_interval, n_jobs=args.n_jobs, is_test=args.is_test)
         dfs.append(df)
         dfs2.append(df2)
 
-    train_df = df_merge(dfs)
-    valid_df = df_merge(dfs2)
+    if not args.is_test:
+        train_df = df_merge(dfs)
+        valid_df = df_merge(dfs2)
 
-    # drop one-value columns
-    tail = '' if args.sampling_interval == 1 else f'_sampling_interval_{args.sampling_interval}'
-    if args.is_test:
-        df = pd.concat([train_df, valid_df], ignore_index=True)
-        df.to_feather(out/f'test{tail}.feat')
-        print(f'{out}/test{tail}.feat is generated.')
-    else:
+        tail = '' if args.sampling_interval == 1 else f'_sampling_interval_{args.sampling_interval}'
+        # drop one-value columns
         to_keep = [n for n, c in train_df.items() if len(c.unique()) > 1]
         train_df[to_keep].to_feather(out/f'train{tail}.feat')
         print(f'{out}/train{tail}.feat is generated.')
         valid_df[to_keep].to_feather(out/f'valid{tail}.feat')
         print(f'{out}/valid{tail}.feat is generated.')
-        df = pd.concat([train_df[to_keep], valid_df[to_keep]], ignore_index=True)
-        df.to_feather(out/f'train_and_valid{tail}.feat')
-        print(f'{out}/train_and_valid{tail}.feat is generated.')
+        #df = pd.concat([train_df[to_keep], valid_df[to_keep]], ignore_index=True)
+        #df.to_feather(out/f'train_and_valid{tail}.feat')
+        #print(f'{out}/train_and_valid{tail}.feat is generated.')
 
     end = time.time()
     print("Prepare data done in {} seconds.".format(end - start))
