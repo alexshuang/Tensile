@@ -345,7 +345,7 @@ def feature_parse(idx, problem_size_names, solution_names, problem_sizes,
         features['SolutionName'].append(sname)
         features['GFlops'].append(gflops[idx, r])
         features['Ranking'].append(j / num_solutions)
-    return (ds_type, features)
+    return (idx if ds_type == 'valid' else None, ds_type, features)
 
 
 def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1, is_test=False):
@@ -375,7 +375,7 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
     assert(len(train_idxs) + len(valid_idxs) == len(df))
 
     # parse features
-    feats = []
+    feats, valid_config_indices = [], []
     with ThreadPoolExecutor(n_jobs) as e:
         feats += e.map(partial(feature_parse,
                             problem_size_names=problem_size_names,
@@ -389,9 +389,11 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
                             ),
                             np.arange(len(problem_sizes)))
 
-    for n, feat in feats:
+    for idx, n, feat in feats:
         for k, v in feat.items():
             features[n][k].extend(v)
+        if idx is not None:
+            valid_config_indices.append(idx)
 
     train_df = df_create(features['train'])
     valid_df = df_create(features['valid'])
@@ -400,7 +402,7 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
         configs = (workdir/'problem_sizes.yaml').open().readlines()
         valid_df.to_csv(workdir/f'valid_N{num_solutions}.csv', index=False)
         with (workdir/'valid_problem_sizes.yaml').open('w') as fp:
-            for i in valid_idxs: fp.write(configs[i])
+            for i in valid_config_indices: fp.write(configs[i])
     else:
         df = pd.concat([train_df, valid_df], ignore_index=True)
         df_compress(df)
