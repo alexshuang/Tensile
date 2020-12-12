@@ -526,22 +526,37 @@ def strify(o):
     else:
         return o
 
-def parse_feat(solution):
-    feat = {}
+#def parse_feat(solution):
+#    feat = {}
+#    for k, v in solution.items():
+#        if k == 'ProblemType':
+#            for _k, _v in v.items():
+#                if isinstance(_v, list):
+#                    for i, o in enumerate(_v):
+#                        feat['PT_' + _k.strip() + f'_{i}'] = o
+#                else:
+#                    feat['PT_' + _k.strip()] = strify(_v)
+#        elif isinstance(v, list):
+#            for i, o in enumerate(v):
+#                feat[k.strip() + f'_{i}'] = o
+#        else:
+#            feat[k.strip()] = strify(v)
+#    return feat
+
+def parse_feat(solution, feat):
     for k, v in solution.items():
         if k == 'ProblemType':
             for _k, _v in v.items():
                 if isinstance(_v, list):
                     for i, o in enumerate(_v):
-                        feat['PT_' + _k + f'_{i}'] = o
+                        feat['PT_' + _k.strip() + f'_{i}'].append(o)
                 else:
-                    feat['PT_' + _k] = strify(_v)
+                    feat['PT_' + _k.strip()].append(strify(_v))
         elif isinstance(v, list):
             for i, o in enumerate(v):
-                feat[k + f'_{i}'] = o
+                feat[k.strip() + f'_{i}'].append(o)
         else:
-            feat[k] = strify(v)
-    return feat
+            feat[k.strip()].append(strify(v))
 
 def extend_feat(problem_size):
     ext_feats = {}
@@ -561,7 +576,6 @@ def extend_feat(problem_size):
     return ext_feats
 
 def df_compress(df):
-    df['_UseSgprForGRO'] = df['_UseSgprForGRO'].replace('False', False).replace('1', True).replace('0', False).astype('bool')
     skip_cols = ['TotalFlops']
     for n, c in df.items():
         if is_integer_dtype(c) and n not in skip_cols:
@@ -569,10 +583,38 @@ def df_compress(df):
             elif c.max() < 32768: df[n] = c.astype('int16')
             else: df[n] = c.astype('int32')
 
-def df_create(features):
-    df = pd.DataFrame()
-    for k, v in features.items():
-        df[k.strip()] = v
+def preproc_df(df, final_cols):
+#     nn_idxs = np.where(df['ProblemType'].apply(lambda x: 'Ailk_Bljk' in x))
+#     tn_idxs = np.where(df['ProblemType'].apply(lambda x: 'Alik_Bljk' in x))
+#     nt_idxs = np.where(df['ProblemType'].apply(lambda x: 'Ailk_Bjlk' in x))
+#     df.loc[nn_idxs]['PadA'] = df['LDA'] - df['SizeI']
+#     df.loc[nn_idxs]['PadB'] = df['LDB'] - df['SizeL']
+    if 'PadC' in final_cols:
+        df['PadC'] = df['LDC'] - df['SizeI']
+#     df.loc[tn_idxs]['PadA'] = df['LDA'] - df['SizeL']
+#     df.loc[nt_idxs]['PadB'] = df['LDB'] - df['SizeJ']
+    if 'AspectRatioA' in final_cols:
+        df['AspectRatioA'] = (df['SizeL'] / df['SizeI']).astype('float32')
+    if 'AspectRatioB' in final_cols:
+        df['AspectRatioB'] = (df['SizeJ'] / df['SizeL']).astype('float32')
+    if 'AspectRatioC' in final_cols:
+        df['AspectRatioC'] = (df['SizeJ'] / df['SizeI']).astype('float32')
+    if 'AreaA' in final_cols:
+        df['AreaA'] = (df['SizeI'] * df['SizeL']).astype('int64')
+    if 'AreaB' in final_cols:
+        df['AreaB'] = (df['SizeJ'] * df['SizeL']).astype('int64')
+    if 'AreaC' in final_cols:
+        df['AreaC'] = (df['SizeI'] * df['SizeJ']).astype('int64')
+    if 'AoverB' in final_cols:
+        df['AoverB'] = (df['AreaA'] / df['AreaB']).astype('float32')
+    if 'TotalFlops' in final_cols:
+        df['TotalFlops'] = df['SizeI'] * df['SizeJ'] * df['SizeK'] * df['SizeL'] * 2
+
+def df_create(features, final_cols):
+    df = pd.DataFrame(features)
+    #import pdb; pdb.set_trace()
+    preproc_df(df, final_cols)
+    df = df[final_cols].copy()
     df_compress(df)
     return df
 
@@ -590,11 +632,16 @@ def categorify(df):
 
 def feature_parse(problem_size, problem_size_names, kernels, final_cols, min_param):
     features = defaultdict(lambda: [])
+    for k, v in zip(problem_size_names, problem_size):
+        features[k.strip()] += [v] * len(kernels)
+#        if k.strip() in final_cols:
+#            features[k.strip()] += [v] * len(kernels)
+
     for kernel in kernels:
-        for k, v in zip(problem_size_names, problem_size):
-            features[k.strip()].append(v)
-        ext_features = extend_feat(problem_size)
-        kernel_features = parse_feat(kernel)
+        parse_feat(kernel, features)
+        features['SolutionName'].append(Solution.getNameMin(kernel, min_param))
+#        ext_features = extend_feat(problem_size)
+#        kernel_features = parse_feat(kernel)
 #        # split problem type from kernel name
 #        kName = Solution.getNameFull(kernel).split('_')
 #        kn_start = 0
@@ -605,37 +652,44 @@ def feature_parse(problem_size, problem_size_names, kernels, final_cols, min_par
 #        ptype = '_'.join(kName[:kn_start])
 #        sname = '_'.join(kName[kn_start:])
 #        kernel_features['ProblemType'] = ptype
-        kernel_features['SolutionName'] = Solution.getNameMin(kernel, min_param)
-        for c in final_cols:
-            if c in kernel_features:
-                features[c].append(kernel_features[c])
-            elif c in ext_features:
-                features[c].append(ext_features[c])
+#        kernel_features['SolutionName'] = Solution.getNameMin(kernel, min_param)
+#        for c in final_cols:
+#            if c in kernel_features:
+#                features[c].append(kernel_features[c])
+#            elif c in ext_features:
+#                features[c].append(ext_features[c])
+#        for k, v in kernel_features.items():
+#            if k in final_cols:
+#                features[k].append(v)
     return features
 
 def dataset_create(problem_sizes, kernels, final_cols):
     problem_size_names = ['SizeI', 'SizeJ', 'SizeK', 'SizeL', 'LDD', 'LDC', 'LDA', 'LDB']
     n_core = os.cpu_count()# // 2
     print(f"num problem sizes: {len(problem_sizes)}, num kernels: {len(kernels)}")
-    print(f"create dataset by {n_core} threads ...")
+    print(f"processing data with {n_core} threads ...")
     start = time.time()
     feats = []
     min_param = Solution.getMinNaming(kernels)
-    with ThreadPoolExecutor(n_core) as e:
-        feats += e.map(partial(feature_parse,
-                        problem_size_names=problem_size_names,
-                        kernels=kernels,
-                        final_cols=final_cols,
-                        min_param=min_param), problem_sizes)
+#    with ThreadPoolExecutor(n_core) as e:
+#        feats += e.map(partial(feature_parse,
+#                        problem_size_names=problem_size_names,
+#                        kernels=kernels,
+#                        final_cols=final_cols,
+#                        min_param=min_param), problem_sizes)
+    for p in problem_sizes:
+        feats.append(feature_parse(p, problem_size_names, kernels, final_cols, min_param))
 
+    #import pdb; pdb.set_trace()
     features = feats[0]
     for o in feats[1:]:
         for k, v in o.items():
             features[k].extend(v)
 
+    df = df_create(features, final_cols)
     elapsed = time.time() - start
     print(f"create dataset done in {elapsed:.2f} s")
-    return df_create(features)
+    return df
 
 def fast_bench(problemSizes, kernels, n_pct=0.15):
     #import pdb; pdb.set_trace()
@@ -643,18 +697,15 @@ def fast_bench(problemSizes, kernels, n_pct=0.15):
     path = Path('ml_bench/data/inc1/models')
     problem_sizes = np.stack([p.sizes for p in problemSizes.exacts])
     model, final_cols, _ = load_model(path)
-    print("creating dataset ...")
     xs = dataset_create(problem_sizes, kernels, final_cols)
-    drop_cols = list(set(xs.columns) - set(final_cols))
-    if len(drop_cols) > 0:
-        print(f"drop_cols: {drop_cols}")
-        xs.drop(drop_cols, axis=1, inplace=True)
     train_cats(xs)
     categorify(xs)
     #xs = apply_target_mean_enc(xs, tme)
 #    xs.fillna(0, inplace=True)
 #    for n, c in xs.items():
 #        print(f"{n}: {c.isnull().sum()}")
+    print("dump test_xs ...")
+    xs.to_feather("ml_bench/nn/tensile_test_xs.feat")
     preds = model.predict(xs)
     preds = np.expm1(preds)
     preds = preds.reshape(-1, n)
@@ -699,6 +750,7 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
   fastBenchmark, fastSolutionIndices = False, None
   if "FastBenchmark" in globalParameters and globalParameters["FastBenchmark"]:
       n_pct = globalParameters["FastSolutionKeep"] if "FastSolutionKeep" in globalParameters else 0.1
+      print("Enable fast benchmark ...")
       fastSolutionIndices = fast_bench(problemSizes, kernels, n_pct=n_pct)
       union_indices = np.unique(np.concatenate(fastSolutionIndices))
       print("number of union indices: {}".format(len(union_indices)))
