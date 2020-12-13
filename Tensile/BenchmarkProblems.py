@@ -814,9 +814,6 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
       #kernels = [kernels[i] for i in union_indices]
       fastBenchmark = True
 
-  print("Done.")
-  exit(0)
-
   solutionSerialNaming = Solution.getSerialNaming(solutions)
   kernelSerialNaming   = Solution.getSerialNaming(kernels)
   solutionMinNaming    = Solution.getMinNaming(solutions)
