@@ -265,9 +265,20 @@ def split_idxs(n, pct):
     return idxs[:n_train].copy(), idxs[n_train:].copy()
 
 
-def df_create(features):
+#def df_create(features):
+#    df = pd.DataFrame()
+#    for k, v in features.items():
+#        df[k.strip()] = v
+#    return df
+
+
+def df_create(problem_features, kernel_features, bench_features, num_problems):
     df = pd.DataFrame()
-    for k, v in features.items():
+    for k, v in problem_features.items():
+        df[k.strip()] = v
+    for k, v in kernel_features.items():
+        df[k.strip()] = v * num_problems
+    for k, v in bench_features.items():
         df[k.strip()] = v
     return df
 
@@ -285,9 +296,6 @@ def df_compress(df):
 def df_merge(dfs):
     df = pd.concat(dfs, ignore_index=True)
     df_compress(df)
-    
-    #for n, c in df.items():
-    #    print(f"{n}: {c.dtype}: {c.unique() if not is_integer_dtype(c) else c.max()}")
     return df
 
 
@@ -314,6 +322,25 @@ def add_feat(feat, solution):
                 feat[k + f'_{i}'].append(o)
         else:
             feat[k].append(strify(v))
+
+
+def parse_kernel_feature(kernels):
+    feat = defaultdict(lambda: [])
+    for kernel in kernels:
+        for k, v in kernel.items():
+            if k == 'ProblemType':
+                for _k, _v in v.items():
+                    if isinstance(_v, list):
+                        for i, o in enumerate(_v):
+                            feat['PT_' + _k.strip() + f'_{i}'].append(o)
+                    else:
+                        feat['PT_' + _k.strip()].append(strify(_v))
+            elif isinstance(v, list):
+                for i, o in enumerate(v):
+                    feat[k.strip() + f'_{i}'].append(o)
+            else:
+                feat[k.strip()].append(strify(v))
+    return feat
 
 
 def feature_parse(idx, problem_size_names, solution_names, problem_sizes,
@@ -358,55 +385,71 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
     if n_jobs == -1: n_jobs = os.cpu_count()
     workdir = basename.parent
 
-    features = { 'train': defaultdict(lambda: []),
-                 'valid': defaultdict(lambda: []) }
-    _solutions = yaml.safe_load(basename.with_suffix('.yaml').open())
-    problem_sizes, solutions = df[problem_size_names].values, _solutions[2:]
-
-    num_solutions = len(solutions)
-    solution_names = df.columns[sol_start_idx:].values # min name
+    _kernels = yaml.safe_load(basename.with_suffix('.yaml').open())
+    problem_sizes, kernels = df[problem_size_names].values, _kernels[2:]
+    num_problems, num_kernels = len(problem_sizes), len(kernels)
+    kernel_names = df.columns[sol_start_idx:].values # min name
+    
     # get full name 
     #solution_names = []
     #with ThreadPoolExecutor(n_jobs) as e:
     #    solution_names += e.map(Solution.getNameFull, solutions)
     #print("num_solutions: {}\nsolution_names[0]: {}".format(num_solutions, solution_names[0]))
 
-    train_idxs, valid_idxs = split_idxs(len(problem_sizes), valid_pct)
-    assert(len(train_idxs) + len(valid_idxs) == len(df))
+    kernel_features = parse_kernel_feature(kernels)
+    kernel_features['KernelName'].extend(kernel_names)
 
-    # parse features
-    feats, valid_config_indices = [], []
-    with ThreadPoolExecutor(n_jobs) as e:
-        feats += e.map(partial(feature_parse,
-                            problem_size_names=problem_size_names,
-                            solution_names=solution_names,
-                            problem_sizes=problem_sizes,
-                            solutions=solutions,
-                            rankings=rankings,
-                            train_idxs=train_idxs,
-                            gflops=gflops,
-                            sampling_interval=sampling_interval
-                            ),
-                            np.arange(len(problem_sizes)))
-
-    for idx, n, feat in feats:
-        for k, v in feat.items():
-            features[n][k].extend(v)
-        if idx is not None:
-            valid_config_indices.append(idx)
-
-    train_df = df_create(features['train'])
-    valid_df = df_create(features['valid'])
-    
     if not is_test:
+        train_idxs, valid_idxs = split_idxs(num_problems, valid_pct)
+        assert(len(train_idxs) + len(valid_idxs) == len(df))
+        train_problems, train_gflops, train_rankings = [], [], []
+        valid_problems, valid_gflops, valid_rankings = [], [], []
+        for i in train_idxs:
+            train_problems.append(problem_sizes[i])
+            train_gflops.append(gflops[i])
+            rankings = np.argsort(-gflops[i]) # reverse
+            train_rankings.append(rankings / num_kernels)
+        for i in valid_idxs:
+            valid_problems.append(problem_sizes[i])
+            valid_gflops.append(gflops[i])
+            rankings = np.argsort(-gflops[i]) # reverse
+            valid_rankings.append(rankings / num_kernels)
+
+        train_problem_features = defaultdict(lambda: [])
+        for n, v in zip(problem_size_names, np.transpose(train_problems)):
+            train_problem_features[n].extend(np.repeat(v, num_kernels))
+        valid_problem_features = defaultdict(lambda: [])
+        for n, v in zip(problem_size_names, np.transpose(valid_problems)):
+            valid_problem_features[n].extend(np.repeat(v, num_kernels))
+
+        train_bench_features = {
+            'GFlops': np.concatenate(train_gflops),
+            'Ranking': np.concatenate(train_rankings),
+        }
+        valid_bench_features = {
+            'GFlops': np.concatenate(valid_gflops),
+            'Ranking': np.concatenate(valid_rankings),
+        }
+
+        train_df = df_create(train_problem_features, kernel_features, train_bench_features, len(train_problems))
+        valid_df = df_create(valid_problem_features, kernel_features, valid_bench_features, len(valid_problems))
+            
         configs = (workdir/'problem_sizes.yaml').open().readlines()
-        valid_df.to_csv(workdir/f'valid_N{num_solutions}.csv', index=False)
-        with (workdir/'valid_problem_sizes.yaml').open('w') as fp:
-            for i in valid_config_indices: fp.write(configs[i])
+        valid_df.to_csv(out/f'valid_N{num_kernels}.csv', index=False)
+        with (out/'valid_problem_sizes.yaml').open('w') as fp:
+            for i in valid_idxs: fp.write(configs[i])
     else:
-        df = pd.concat([train_df, valid_df], ignore_index=True)
+        problem_features = defaultdict(lambda: [])
+        for n, v in zip(problem_size_names, np.transpose(problem_sizes)):
+            problem_features[n].extend(np.repeat(v, num_kernels))
+        rankings = (np.argsort(-gflops[i]) / num_kernels) # reverse
+        bench_features = {
+            'GFlops': np.concatenate(gflops),
+            'Ranking': np.concatenate(rankings),
+        }
+        df = df_create(problem_features, kernel_features, bench_features, num_problems)
         df_compress(df)
-        df.to_feater(workdir/f'test_N{num_solutions}.feat', index=False)
+        df.to_feater(workdir/f'test_N{num_kernels}.feat', index=False)
 
     return (train_df, valid_df)
 
@@ -433,26 +476,24 @@ if __name__ == '__main__':
         if os.path.exists(str(basename) + '.yaml'):
             src.append(basename)
 
-    dfs, dfs2 = [], []
+    train_dfs, valid_dfs = [], []
     for o in src:
         df, df2 = dataset_create(o, sampling_interval=args.sampling_interval, n_jobs=args.n_jobs, is_test=args.is_test)
-        dfs.append(df)
-        dfs2.append(df2)
+        train_dfs.append(df)
+        valid_dfs.append(df2)
 
     if not args.is_test:
-        train_df = df_merge(dfs)
-        valid_df = df_merge(dfs2)
+        train_df = df_merge(train_dfs)
+        valid_df = df_merge(valid_dfs)
 
-        tail = '' if args.sampling_interval == 1 else f'_sampling_interval_{args.sampling_interval}'
         # drop one-value columns
         to_keep = [n for n, c in train_df.items() if len(c.unique()) > 1]
+
+        tail = '' if args.sampling_interval == 1 else f'_sampling_interval_{args.sampling_interval}'
         train_df[to_keep].to_feather(out/f'train{tail}.feat')
         print(f'{out}/train{tail}.feat is generated.')
         valid_df[to_keep].to_feather(out/f'valid{tail}.feat')
         print(f'{out}/valid{tail}.feat is generated.')
-        #df = pd.concat([train_df[to_keep], valid_df[to_keep]], ignore_index=True)
-        #df.to_feather(out/f'train_and_valid{tail}.feat')
-        #print(f'{out}/train_and_valid{tail}.feat is generated.')
 
     end = time.time()
     print("Prepare data done in {} seconds.".format(end - start))
