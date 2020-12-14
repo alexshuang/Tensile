@@ -96,7 +96,7 @@ def testing(test_csv, ns_pat, n_pct=0.1, topN=5, log=False):
         assert num_solution.isdecimal()
         num_solution = eval(num_solution)
 
-        df = pd.read_csv(f, low_memory=False)
+        df = pd.read_feather(f)
         gflops = df['GFlops'].values
         gflops = gflops.reshape(-1, num_solution)
         n = gflops.shape[0]
@@ -165,8 +165,7 @@ final_cols = pickle.load((model_path/'final_columns.pkl').open('rb'))
 end = time.time()
 print("done in {:.2f} seconds.".format(end - start))
 
-test_csv = list(path.glob('**/(valid_*|test_*).csv'))
-print(test_csv)
+test_csv = list(path.glob('**/test_N*.feat'))
 ns_pat = re.compile(r'_N(.*)')
 
 print("Testing model ...")

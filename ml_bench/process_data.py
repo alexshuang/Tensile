@@ -435,21 +435,25 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
         valid_df = df_create(valid_problem_features, kernel_features, valid_bench_features, len(valid_problems))
             
         configs = (workdir/'problem_sizes.yaml').open().readlines()
-        valid_df.to_csv(out/f'valid_N{num_kernels}.csv', index=False)
+        _valid_df = valid_df.copy()
+        df_compress(_valid_df)
+        _valid_df.to_feather(out/f'valid_N{num_kernels}.feat')
+        del _valid_df
         with (out/'valid_problem_sizes.yaml').open('w') as fp:
             for i in valid_idxs: fp.write(configs[i])
     else:
         problem_features = defaultdict(lambda: [])
         for n, v in zip(problem_size_names, np.transpose(problem_sizes)):
             problem_features[n].extend(np.repeat(v, num_kernels))
-        rankings = (np.argsort(-gflops[i]) / num_kernels) # reverse
+        rankings = (np.argsort(-gflops) / num_kernels) # reverse
         bench_features = {
             'GFlops': np.concatenate(gflops),
             'Ranking': np.concatenate(rankings),
         }
         df = df_create(problem_features, kernel_features, bench_features, num_problems)
         df_compress(df)
-        df.to_feater(workdir/f'test_N{num_kernels}.feat', index=False)
+        df.to_feather(out/f'test_N{num_kernels}.feat')
+        return (None, None)
 
     return (train_df, valid_df)
 
