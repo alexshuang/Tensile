@@ -117,6 +117,7 @@ namespace Tensile
             double_millis m_totalGPUTime;
 
             const bool m_fastBenchmark;
+            bool m_doBench;
             int m_currentSolutionIdx;
             int m_currentFastSolutionIdx;
             int m_currentProblemSizeIdx;

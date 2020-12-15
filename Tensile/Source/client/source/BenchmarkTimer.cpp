@@ -89,8 +89,26 @@ namespace Tensile
 
         void BenchmarkTimer::preSolution(ContractionSolution const& solution)
         {
-            if(m_fastBenchmark && ++m_currentSolutionIdx != m_currentFastSolutionIndices[m_currentFastSolutionIdx])
-                return;
+            m_doBench = false;
+            if(m_fastBenchmark)
+            {
+                if(m_currentFastSolutionIdx < m_currentFastSolutionIndices.size())
+                {
+                    if(++m_currentSolutionIdx != m_currentFastSolutionIndices[m_currentFastSolutionIdx])
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        m_currentFastSolutionIdx++;
+                        m_doBench = true;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
 
             m_numEnqueuesInSolution = 0;
             m_timeInSolution        = double_millis::zero();
@@ -113,13 +131,9 @@ namespace Tensile
 
         void BenchmarkTimer::postSolution()
         {
-            if(m_fastBenchmark) 
+            if(m_fastBenchmark && !m_doBench)
             {
-                if(m_currentSolutionIdx == m_currentFastSolutionIndices[m_currentFastSolutionIdx] && \
-                    m_currentFastSolutionIdx < m_currentFastSolutionIndices.size() - 1)
-                    m_currentFastSolutionIdx++;
-                else
-                    return;
+                return;
             }
 
             double timePerEnqueue_us
