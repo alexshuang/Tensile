@@ -524,7 +524,6 @@ int main(int argc, const char* argv[])
 
                 if(solutionIterator->runCurrentSolution())
                 {
-                    std::cout << "###################### run " << problemIdx << " #############" << std::endl;
                     try
                     {
                         while(listeners.needMoreRunsInSolution())

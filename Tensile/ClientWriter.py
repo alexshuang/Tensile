@@ -383,6 +383,8 @@ def writeRunScript(path, libraryLogicPath, forBenchmark, enableTileSelection):
     else:
       runScriptFile.write("ERR1=0\n")
 
+    runScriptFile.write("istart=\$(date +%s)\n")
+
     if globalParameters["NewClient"]:
       newClientExe = ClientExecutable.getClientExecutable()
       configFile = os.path.join(globalParameters['WorkingPath'], '../source/ClientParameters.ini')
@@ -393,6 +395,9 @@ def writeRunScript(path, libraryLogicPath, forBenchmark, enableTileSelection):
       runScriptFile.write("ERR2=$?\n\n")
     else:
       runScriptFile.write("ERR2=0\n")
+
+    runScriptFile.write("iend=\$(date +%s)\n")
+    runScriptFile.write("echo \"tensile client elapsed time: \$(( iend - istart )) sec\"")
 
     runScriptFile.write("""
 ERR=0

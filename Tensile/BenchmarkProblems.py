@@ -804,10 +804,9 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
       print("Enable fast benchmark ...")
       fastSolutionIndices = fast_bench(problemSizes, kernels, n_pct=n_pct)
       print("dump fast solution indices ...")
-      with open('ml_bench/nn_process_out/tensile_fast_solution_indices.csv', 'w') as fp:
-        for p in fastSolutionIndices:
-            fp.write(f"{','.join([str(o) for o in np.sort(p)])}\n")
-      
+      #with open('ml_bench/nn_process_out/tensile_fast_solution_indices.csv', 'w') as fp:
+      #  for p in fastSolutionIndices:
+      #      fp.write(f"{','.join([str(o) for o in np.sort(p)])}\n")
       union_indices = np.unique(np.concatenate(fastSolutionIndices))
       print("number of union indices: {}".format(len(union_indices)))
       #solutions = [solutions[i] for i in union_indices]
