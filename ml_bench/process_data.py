@@ -375,7 +375,7 @@ def feature_parse(idx, problem_size_names, solution_names, problem_sizes,
     return (idx if ds_type == 'valid' else None, ds_type, features)
 
 
-def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1, is_test=False):
+def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1, test=False):
     print(f"processing {basename} ...")
     df = pd.read_csv(basename.with_suffix('.csv'))
     sol_start_idx = 10
@@ -399,7 +399,7 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
     kernel_features = parse_kernel_feature(kernels)
     kernel_features['KernelName'].extend(kernel_names)
 
-    if not is_test:
+    if not test:
         train_idxs, valid_idxs = split_idxs(num_problems, valid_pct)
         assert(len(train_idxs) + len(valid_idxs) == len(df))
         train_problems, train_gflops, train_rankings = [], [], []
@@ -464,7 +464,8 @@ if __name__ == '__main__':
     parser.description = "process tensile benchmark data"
     parser.add_argument("--data_dir", type=str)
     parser.add_argument("--output_dir", type=str, default=None)
-    parser.add_argument("--is_test", action="store_true", default=None)
+    parser.add_argument("--test", action="store_true", default=None)
+    parser.add_argument("--train_and_valid", action="store_true", default=None)
     parser.add_argument("--sampling_interval", type=int, default=1)
     parser.add_argument("--n_jobs", type=int, default=-1)
     args = parser.parse_args()
@@ -482,22 +483,26 @@ if __name__ == '__main__':
 
     train_dfs, valid_dfs = [], []
     for o in src:
-        df, df2 = dataset_create(o, sampling_interval=args.sampling_interval, n_jobs=args.n_jobs, is_test=args.is_test)
+        df, df2 = dataset_create(o, sampling_interval=args.sampling_interval, n_jobs=args.n_jobs, test=args.test)
         train_dfs.append(df)
         valid_dfs.append(df2)
 
-    if not args.is_test:
+    if not args.test:
         train_df = df_merge(train_dfs)
         valid_df = df_merge(valid_dfs)
 
         # drop one-value columns
         to_keep = [n for n, c in train_df.items() if len(c.unique()) > 1]
-
         tail = '' if args.sampling_interval == 1 else f'_sampling_interval_{args.sampling_interval}'
-        train_df[to_keep].to_feather(out/f'train{tail}.feat')
-        print(f'{out}/train{tail}.feat is generated.')
-        valid_df[to_keep].to_feather(out/f'valid{tail}.feat')
-        print(f'{out}/valid{tail}.feat is generated.')
+        if args.train_and_valid:
+            df = pd.concat([train_df[to_keep], valid_df[to_keep]], ignore_index=True)
+            df.to_feather(out/f'train_and_valid{tail}.feat')
+            print(f'{out}/train_and_valid{tail}.feat is generated.')
+        else:
+            train_df[to_keep].to_feather(out/f'train{tail}.feat')
+            print(f'{out}/train{tail}.feat is generated.')
+            valid_df[to_keep].to_feather(out/f'valid{tail}.feat')
+            print(f'{out}/valid{tail}.feat is generated.')
 
     end = time.time()
     print("Prepare data done in {} seconds.".format(end - start))
