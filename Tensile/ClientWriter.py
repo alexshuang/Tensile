@@ -383,7 +383,7 @@ def writeRunScript(path, libraryLogicPath, forBenchmark, enableTileSelection):
     else:
       runScriptFile.write("ERR1=0\n")
 
-    runScriptFile.write("istart=\$(date +%s)\n")
+    runScriptFile.write("istart=$(date +%s)\n")
 
     if globalParameters["NewClient"]:
       newClientExe = ClientExecutable.getClientExecutable()
@@ -396,8 +396,8 @@ def writeRunScript(path, libraryLogicPath, forBenchmark, enableTileSelection):
     else:
       runScriptFile.write("ERR2=0\n")
 
-    runScriptFile.write("iend=\$(date +%s)\n")
-    runScriptFile.write("echo \"tensile client elapsed time: \$(( iend - istart )) sec\"")
+    runScriptFile.write("iend=$(date +%s)\n")
+    runScriptFile.write("echo \"tensile client elapsed time: $(( iend - istart )) sec\"")
 
     runScriptFile.write("""
 ERR=0
