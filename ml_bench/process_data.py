@@ -494,15 +494,14 @@ if __name__ == '__main__':
         # drop one-value columns
         to_keep = [n for n, c in train_df.items() if len(c.unique()) > 1]
         tail = '' if args.sampling_interval == 1 else f'_sampling_interval_{args.sampling_interval}'
+        train_df[to_keep].to_feather(out/f'train{tail}.feat')
+        print(f'{out}/train{tail}.feat is generated.')
+        valid_df[to_keep].to_feather(out/f'valid{tail}.feat')
+        print(f'{out}/valid{tail}.feat is generated.')
         if args.train_and_valid:
             df = pd.concat([train_df[to_keep], valid_df[to_keep]], ignore_index=True)
             df.to_feather(out/f'train_and_valid{tail}.feat')
             print(f'{out}/train_and_valid{tail}.feat is generated.')
-        else:
-            train_df[to_keep].to_feather(out/f'train{tail}.feat')
-            print(f'{out}/train{tail}.feat is generated.')
-            valid_df[to_keep].to_feather(out/f'valid{tail}.feat')
-            print(f'{out}/valid{tail}.feat is generated.')
 
     end = time.time()
     print("Prepare data done in {} seconds.".format(end - start))
