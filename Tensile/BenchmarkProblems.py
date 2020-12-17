@@ -755,12 +755,16 @@ def fast_bench(problemSizes, kernels, n_pct=0.15):
 #    xs.fillna(0, inplace=True)
 #    for n, c in xs.items():
 #        print(f"{n}: {c.isnull().sum()}")
-    print("dump test_xs ...")
-    xs.to_feather("tensile_test_xs.feat")
+    #print("dump test_xs ...")
+    #xs.to_feather("tensile_test_xs.feat")
+    print("predict solution indices ...")
+    start = time.time()
     preds = model.predict(xs)
     preds = np.expm1(preds)
     preds = preds.reshape(-1, n)
     keep_indices = np.argsort(preds)[:, :int(n * n_pct)]
+    elapsed = time.time() - start
+    print(f"done in {elapsed:.2f} s")
     return keep_indices
 
 
@@ -800,7 +804,7 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
 
   fastBenchmark, fastSolutionIndices = False, None
   if "FastBenchmark" in globalParameters and globalParameters["FastBenchmark"]:
-      n_pct = globalParameters["FastSolutionKeep"] if "FastSolutionKeep" in globalParameters else 0.1
+      n_pct = globalParameters["FastSolutionKeep"] if "FastSolutionKeep" in globalParameters else 0.15
       print("Enable fast benchmark ...")
       fastSolutionIndices = fast_bench(problemSizes, kernels, n_pct=n_pct)
       print("dump fast solution indices ...")
