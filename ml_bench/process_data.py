@@ -293,37 +293,6 @@ def df_compress(df):
             else: df[n] = c.astype('int32')
 
 
-def df_merge(dfs):
-    df = pd.concat(dfs, ignore_index=True)
-    df_compress(df)
-    return df
-
-
-def get_parameter_names(solutions:dict):
-    res = []
-    for s in solutions:
-        p = s.keys()
-        if len(res) < len(p):
-            res = p
-    return list(res)
-
-
-def add_feat(feat, solution):
-    for k, v in solution.items():
-        if k == 'ProblemType':
-            for _k, _v in v.items():
-                if isinstance(_v, list):
-                    for i, o in enumerate(_v):
-                        feat['PT_' + _k + f'_{i}'].append(o)
-                else:
-                    feat['PT_' + _k].append(strify(_v))
-        elif isinstance(v, list):
-            for i, o in enumerate(v):
-                feat[k + f'_{i}'].append(o)
-        else:
-            feat[k].append(strify(v))
-
-
 def parse_kernel_feature(kernels):
     feat = defaultdict(lambda: [])
     for kernel in kernels:
@@ -341,38 +310,6 @@ def parse_kernel_feature(kernels):
             else:
                 feat[k.strip()].append(strify(v))
     return feat
-
-
-def feature_parse(idx, problem_size_names, solution_names, problem_sizes,
-        solutions, rankings, train_idxs, gflops, sampling_interval=1):
-    problem_size, ranking = problem_sizes[idx], rankings[idx]
-    ds_type = 'train' if idx in train_idxs else 'valid'
-    features = defaultdict(lambda: [])
-    num_solutions = len(solution_names)
-    total_col_set = set(get_parameter_names(solutions)) # total feature names
-
-    # train set can reduce sampling frequency
-    if ds_type == 'train':
-        n = range(0, num_solutions, sampling_interval)
-    else:
-        n = range(num_solutions)
-
-    for j in n:
-        # problem sizes
-        for k, v in zip(problem_size_names, problem_size):
-            features[k.strip()].append(v)
-        # solution features
-        r = ranking[j]
-        #solution, (ptype, sname) = solutions[r], solution_names[r]
-        solution, sname = solutions[r], solution_names[r]
-        add_feat(features, solution)
-        miss_cols = list(total_col_set - set(solution.keys()))
-        for o in miss_cols: features[o].append(np.nan)
-        #features['ProblemType'].append(ptype)
-        features['SolutionName'].append(sname)
-        features['GFlops'].append(gflops[idx, r])
-        features['Ranking'].append(j / num_solutions)
-    return (idx if ds_type == 'valid' else None, ds_type, features)
 
 
 def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1, test=False):
@@ -408,7 +345,7 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
             train_problems.append(problem_sizes[i])
             train_gflops.append(gflops[i])
             rankings = np.argsort(-gflops[i]) # reverse
-            train_rankings.append(rankings / num_kernels)
+            train_rankings.append((rankings + 1) / num_kernels)
         for i in valid_idxs:
             valid_problems.append(problem_sizes[i])
             valid_gflops.append(gflops[i])

@@ -106,8 +106,8 @@ def testing(test_csv, ns_pat, n_pct=0.1, topN=5, log=False):
         train_cats(df)
         categorify(df)
         test_xs = df[final_cols]
-        print("dump test_xs ...")
-        test_xs.to_feather(out_path/"test_xs.feat")
+        #print("dump test_xs ...")
+        #test_xs.to_feather(out_path/"test_xs.feat")
         if log: start = time.time()
         preds = model.predict(test_xs)
         if log: print("model inference done in {:.2f} seconds.".format(time.time() - start))
