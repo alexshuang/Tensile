@@ -19,6 +19,7 @@ import argparse
 
 pd.options.display.max_rows = None
 
+
 datatype_properties = [
     {
         'char': 'S',
@@ -265,13 +266,6 @@ def split_idxs(n, pct):
     return idxs[:n_train].copy(), idxs[n_train:].copy()
 
 
-#def df_create(features):
-#    df = pd.DataFrame()
-#    for k, v in features.items():
-#        df[k.strip()] = v
-#    return df
-
-
 def df_create(problem_features, kernel_features, bench_features, num_problems):
     df = pd.DataFrame()
     for k, v in problem_features.items():
@@ -291,6 +285,12 @@ def df_compress(df):
             if c.max() < 128: df[n] = c.astype('int8')
             elif c.max() < 32768: df[n] = c.astype('int16')
             else: df[n] = c.astype('int32')
+
+
+def df_merge(dfs):
+    df = pd.concat(dfs, ignore_index=True)
+    df_compress(df)
+    return df
 
 
 def parse_kernel_feature(kernels):
@@ -374,9 +374,9 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
         configs = (workdir/'problem_sizes.yaml').open().readlines()
         _valid_df = valid_df.copy()
         df_compress(_valid_df)
-        _valid_df.to_feather(out/f'valid_N{num_kernels}.feat')
+        _valid_df.to_feather(workdir/f'valid_N{num_kernels}.feat')
         del _valid_df
-        with (out/'valid_problem_sizes.yaml').open('w') as fp:
+        with (workdir/'valid_problem_sizes.yaml').open('w') as fp:
             for i in valid_idxs: fp.write(configs[i])
     else:
         problem_features = defaultdict(lambda: [])
@@ -442,4 +442,3 @@ if __name__ == '__main__':
 
     end = time.time()
     print("Prepare data done in {} seconds.".format(end - start))
-
