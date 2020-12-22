@@ -212,7 +212,7 @@ categorify(valid_df)
 
 train_df.drop(['GFlops'], axis=1, inplace=True)
 valid_df.drop(['GFlops'], axis=1, inplace=True)
-y, valid_y = np.log1p(train_df[dep_var].values), np.log1p(valid_df[dep_var].values)
+y, valid_y = np.log(train_df[dep_var].values), np.log(valid_df[dep_var].values)
 xs = train_df.drop(dep_var, axis=1)
 valid_xs = valid_df.drop(dep_var, axis=1)
 xs_final, valid_xs_final = xs[final_cols], valid_xs[final_cols]
@@ -266,7 +266,7 @@ valid_df = valid_df[valid_df['GFlops'] > 0].reset_index(drop=True)
 df_nn_final = pd.concat([train_df, valid_df], ignore_index=True)
 preproc_df(df_nn_final)
 df_nn_final = df_nn_final[final_cols + [dep_var]]
-df_nn_final[dep_var] = np.log1p(df_nn_final[dep_var])
+df_nn_final[dep_var] = np.log(df_nn_final[dep_var])
 cont_var = ['AreaC', 'TotalFlops', 'SizeL', 'LDB', 'AspectRatioA', 'SizeK',
           'AspectRatioC', 'LDA']
 cat_var = list(set(final_cols) - set(cont_var))
@@ -353,7 +353,7 @@ def testing(test_csv, n_pct=0.1, topN=5, eff_err=0.015):
         train_cats(rf_df)
         categorify(rf_df)
         rf_preds = rf_m.predict(rf_df)
-        rf_preds = np.expm1(rf_preds)
+        rf_preds = np.exp(rf_preds)
         
         # nn
         nn_df = df[final_cols.tolist() + [dep_var]].copy()
@@ -365,7 +365,7 @@ def testing(test_csv, n_pct=0.1, topN=5, eff_err=0.015):
         learn.load('nn_m');
         dl = learn.dls.test_dl(nn_df)
         nn_preds = learn.get_preds(dl=dl)
-        nn_preds = np.expm1(nn_preds[0])
+        nn_preds = np.exp(nn_preds[0])
         nn_preds = nn_preds.reshape(-1)
         
         # mean
