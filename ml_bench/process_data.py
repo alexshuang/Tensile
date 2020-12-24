@@ -386,7 +386,7 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
         problem_features = defaultdict(lambda: [])
         for n, v in zip(problem_size_names, np.transpose(problem_sizes)):
             problem_features[n].extend(np.repeat(v, num_kernels))
-        rankings = [get_rankings(gflops[i], num_kernels) for i in num_problems]
+        rankings = [get_rankings(gflops[i], num_kernels) for i in range(num_problems)]
         bench_features = {
             'GFlops': np.concatenate(gflops),
             'Ranking': np.concatenate(rankings),
