@@ -8,15 +8,15 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pandas.api.types import is_string_dtype, is_bool_dtype, is_numeric_dtype, is_object_dtype, is_categorical_dtype, is_integer_dtype, is_float_dtype
-from fastai.tabular.all import *
+from fastai.fastai.tabular.all import *
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.tree import DecisionTreeRegressor
-from IPython.display import Image, display_svg, SVG
-from dtreeviz.trees import *
-from sklearn.tree import export_graphviz
-import scipy
-from scipy.cluster import hierarchy as hc
-from sklearn.inspection import plot_partial_dependence
+#from IPython.display import Image, display_svg, SVG
+#from dtreeviz.trees import *
+#from sklearn.tree import export_graphviz
+#import scipy
+#from scipy.cluster import hierarchy as hc
+#from sklearn.inspection import plot_partial_dependence
 import yaml
 import os
 import re
@@ -29,18 +29,22 @@ from collections import defaultdict
 from sklearn import base
 from sklearn.model_selection import KFold
 from pathlib import Path
+import argparse
 
 
-# ## Look at Data
+parser = argparse.ArgumentParser()
+parser.description = "train and testing"
+parser.add_argument("--data_dir", type=str)
+parser.add_argument("--output_dir", type=str, default=None)
+parser.add_argument("--train_dir_name", type=str, default='')
+parser.add_argument("--test_dir_name", type=str, default='')
+args = parser.parse_args()
 
-# In[2]:
-
-
-path = Path('../data')
-train_path = path/'inc1'
-test_path = path/'inc1/test'
-img_path = train_path/'imgs'
-model_path = train_path/'models'
+path = Path(args.data_dir)
+train_path = path
+#test_path = path/args.test_dir_name
+img_path = path/'imgs'
+model_path = path/'models'
 img_path.mkdir(exist_ok=True)
 model_path.mkdir(exist_ok=True)
 
@@ -173,150 +177,92 @@ def plot_fi(fi, fig=img_path/'fi.png'):
     fi.plot('cols', 'imp', 'barh', figsize=(12,7), legend=False)
     plt.savefig(fig)
 
-
-# In[4]:
-
-
-final_cols = ['AreaC', 'NumElementsPerThread',
-        'TotalFlops', 'LdsNumElements', 'StoreRemapVectorWidth', 'SizeL',
-        'SolutionName', 'MacroTile1', 'WorkGroup_1', 'WorkGroup_0',
-        'MacroTile0', 'LDB', 'AspectRatioA', 'LdsOffsetB_Blk', 'LdsOffsetA_Blk',
-        'DepthU', 'LdsNumElementsAlignedB', 'SizeK',
-        'AspectRatioC', 'LSCA', 'LoopIters', 'AssertFree0ElementMultiple',
-        'ThreadTile0', 'LDA', 'LVPA', 'LSCB',
-        'ThreadTile_1', 'LdsOffsetB', 'MatrixInstK',
-        'LVPB', 'MIWaveGroup_0', 'GuaranteeNoPartialA', 'SubGroup0',
-        'MatrixInstruction_1', 'ThreadTile1', 
-        'GlobalLoadVectorWidthB', 'SubGroup1', 'MIWaveGroup_1',
-        '_UseSgprForGRO', 'NumLoadsPerpendicularB', 'NumLoadsB',
-        'GlobalLoadVectorWidthA', 'GlobalReadVectorWidth', 'ThreadTile_0',
-        'LSPB', 'LSPA', 'LVCA', 'LVCB',
-        'WorkGroupMapping']
-dep_var = 'Ranking'
-
-
-# In[5]:
-
-
-train_df = pd.read_feather(train_path/'train.feat')
-valid_df = pd.read_feather(train_path/'valid.feat')
-train_df = train_df[train_df['GFlops'] > 0].reset_index(drop=True)
-valid_df = valid_df[valid_df['GFlops'] > 0].reset_index(drop=True)
-
-preproc_df(train_df)
-preproc_df(valid_df)
-train_cats(train_df)
-apply_cats(valid_df, train_df)
-categorify(train_df)
-categorify(valid_df)
-
-train_df.drop(['GFlops'], axis=1, inplace=True)
-valid_df.drop(['GFlops'], axis=1, inplace=True)
-y, valid_y = np.log(train_df[dep_var].values), np.log(valid_df[dep_var].values)
-xs = train_df.drop(dep_var, axis=1)
-valid_xs = valid_df.drop(dep_var, axis=1)
-xs_final, valid_xs_final = xs[final_cols], valid_xs[final_cols]
-
-
-# In[6]:
-
-
 def final_rf(xs, y, n_estimators=200, max_features=0.5, min_samples_leaf=5, **kwargs):
     return RandomForestRegressor(n_jobs=-1, n_estimators=n_estimators, max_features=max_features,
                                   min_samples_leaf=min_samples_leaf, **kwargs).fit(xs, y)
 
 
-# In[7]:
+if not (model_path/'final_rf_model.pkl').is_file():
+    print("Train RF model ...")
+    final_cols = ['AreaC', 'NumElementsPerThread',
+            'TotalFlops', 'LdsNumElements', 'StoreRemapVectorWidth', 'SizeL',
+            'KernelName', 'MacroTile1', 'WorkGroup_1', 'WorkGroup_0',
+            'MacroTile0', 'LDB', 'AspectRatioA', 'LdsOffsetB_Blk', 'LdsOffsetA_Blk',
+            'DepthU', 'LdsNumElementsAlignedB', 'SizeK',
+            'AspectRatioC', 'LSCA', 'LoopIters', 'AssertFree0ElementMultiple',
+            'ThreadTile0', 'LDA', 'LVPA', 'LSCB',
+            'ThreadTile_1', 'LdsOffsetB', 'MatrixInstK',
+            'LVPB', 'MIWaveGroup_0', 'GuaranteeNoPartialA', 'SubGroup0',
+            'MatrixInstruction_1', 'ThreadTile1', 
+            'GlobalLoadVectorWidthB', 'SubGroup1', 'MIWaveGroup_1',
+            '_UseSgprForGRO', 'NumLoadsPerpendicularB', 'NumLoadsB',
+            'GlobalLoadVectorWidthA', 'GlobalReadVectorWidth', 'ThreadTile_0',
+            'LSPB', 'LSPA', 'LVCA', 'LVCB',
+            'WorkGroupMapping']
+    dep_var = 'Ranking'
 
+    train_df = pd.read_feather(train_path/'train.feat')
+    valid_df = pd.read_feather(train_path/'valid.feat')
+    train_df = train_df[train_df['GFlops'] > 0].reset_index(drop=True)
+    valid_df = valid_df[valid_df['GFlops'] > 0].reset_index(drop=True)
 
-# m = final_rf(xs_final, y)
-rf_m = rf(xs_final, y, max_samples=500_000, n_estimators=100, min_samples_leaf=5)
-print(eval_model(rf_m, xs_final, y, valid_xs_final, valid_y))
+    preproc_df(train_df)
+    preproc_df(valid_df)
+    train_cats(train_df)
+    apply_cats(valid_df, train_df)
+    categorify(train_df)
+    categorify(valid_df)
 
+    train_df.drop(['GFlops'], axis=1, inplace=True)
+    valid_df.drop(['GFlops'], axis=1, inplace=True)
+    y, valid_y = np.log1p(train_df[dep_var].values), np.log1p(valid_df[dep_var].values)
+    xs = train_df.drop(dep_var, axis=1)
+    valid_xs = valid_df.drop(dep_var, axis=1)
+    xs_final, valid_xs_final = xs[final_cols], valid_xs[final_cols]
 
-# In[8]:
+    rf_m = final_rf(xs_final, y)
+    print(eval_model(rf_m, xs_final, y, valid_xs_final, valid_y))
 
-
-pickle.dump(xs_final.columns.values, (model_path/'final_columns.pkl').open('wb'))
-pickle.dump(rf_m, (model_path/'final_rf_model.pkl').open('wb'))
+    pickle.dump(xs_final.columns.values, (model_path/'final_columns.pkl').open('wb'))
+    pickle.dump(rf_m, (model_path/'final_rf_model.pkl').open('wb'))
 
 
 # ## NN
-
-# In[4]:
-
-
-# final_cols = pickle.load((model_path/'final_columns.pkl').open('rb'))
-
-
-# In[9]:
 
 
 def rmse(pred,y):
     return torch.sqrt(((pred-y)**2).mean())
 
-
-# In[10]:
-
-
-train_df = pd.read_feather(train_path/'train.feat')
-valid_df = pd.read_feather(train_path/'valid.feat')
-train_df = train_df[train_df['GFlops'] > 0].reset_index(drop=True)
-valid_df = valid_df[valid_df['GFlops'] > 0].reset_index(drop=True)
-df_nn_final = pd.concat([train_df, valid_df], ignore_index=True)
-preproc_df(df_nn_final)
-df_nn_final = df_nn_final[final_cols + [dep_var]]
-df_nn_final[dep_var] = np.log(df_nn_final[dep_var])
-cont_var = ['AreaC', 'TotalFlops', 'SizeL', 'LDB', 'AspectRatioA', 'SizeK',
-          'AspectRatioC', 'LDA']
-cat_var = list(set(final_cols) - set(cont_var))
-procs_nn = [Categorify, Normalize]
-idxs = np.arange(len(df_nn_final))
-splits = (list(idxs[:len(train_df)]),list(idxs[len(train_df):]))
-to_nn = TabularPandas(df_nn_final, procs_nn, cat_var, cont_var, splits=splits, y_names=dep_var)
+def get_learn(to_nn):
+    dls = to_nn.dataloaders(1024)
+    learn = tabular_learner(dls, y_range=(0, 1), layers=[750, 375], n_out=1, loss_func=F.mse_loss, metrics=[rmse])
+    return learn
 
 
-# In[11]:
+if not ((model_path/'to_nn.pkl').is_file() and ):
+    print("Train NN model ...")
+    train_df = pd.read_feather(train_path/'train.feat')
+    valid_df = pd.read_feather(train_path/'valid.feat')
+    train_df = train_df[train_df['GFlops'] > 0].reset_index(drop=True)
+    valid_df = valid_df[valid_df['GFlops'] > 0].reset_index(drop=True)
+    df_nn_final = pd.concat([train_df, valid_df], ignore_index=True)
+    preproc_df(df_nn_final)
+    df_nn_final = df_nn_final[final_cols + [dep_var]]
+    df_nn_final[dep_var] = np.log1p(df_nn_final[dep_var])
+    cont_var = ['AreaC', 'TotalFlops', 'SizeL', 'LDB', 'AspectRatioA', 'SizeK',
+              'AspectRatioC', 'LDA']
+    cat_var = list(set(final_cols) - set(cont_var))
+    procs_nn = [Categorify, Normalize]
+    idxs = np.arange(len(df_nn_final))
+    splits = (list(idxs[:len(train_df)]),list(idxs[len(train_df):]))
+    to_nn = TabularPandas(df_nn_final, procs_nn, cat_var, cont_var, splits=splits, y_names=dep_var)
+    pickle.dump(to_nn, (model_path/'to_nn.pkl').open('wb'))
 
-
-(path/'to_nn.pkl').save(to_nn)
-
-
-# In[12]:
-
-
-dls = to_nn.dataloaders(1024)
-
-
-# In[13]:
-
-
-y = to_nn.train.y
-y.min(),y.max()
-
-
-# In[16]:
-
-
-learn = tabular_learner(dls, y_range=(0, 1), layers=[750, 375], n_out=1, loss_func=F.mse_loss, metrics=[rmse])
-
-
-# In[17]:
-
-
-learn.lr_find()
-
-
-# In[18]:
-
-
-learn.fit_one_cycle(5, 3e-4)
-
-
-# In[19]:
-
-
-learn.save('nn_m')
+    learn = get_learn(to_nn)
+    learn.lr_find()
+    plt.savefig(img_path/'lr_find.png')
+    learn.fit_one_cycle(3, 3e-3)
+    learn.save('nn_m');
 
 
 # ## Testing
@@ -328,19 +274,25 @@ def mae(p, t): return np.mean(abs(p - t))
 
 def mee(p, t, eff_err): return np.mean(np.abs(p - t) < t * eff_err)
 
-def testing(test_csv, n_pct=0.1, topN=5, eff_err=0.015):
-    # rf
-    rf_m = pickle.load((model_path/'final_rf_model.pkl').open('rb'))
-    final_cols = pickle.load((model_path/'final_columns.pkl').open('rb'))
-    # nn
-    to_nn = (path/'to_nn.pkl').load()
+def testing(test_csv, dep_var='Ranking', n_pct=0.1, topN=5, eff_err=0.015):
+#    # rf
+#    print("Loading RF model ...")
+#    rf_m = pickle.load((model_path/'final_rf_model.pkl').open('rb'))
+#    final_cols = pickle.load((model_path/'final_columns.pkl').open('rb'))
+#    # nn
+#    print("Loading NN model ...")
+#    to_nn = pickle.load((model_path/'to_nn.pkl').open('rb'))
+#    learn = get_learn(to_nn)
+#    learn.load('nn_m');
     
-    for f in test_csv:
-        num_solution = re.findall(ns_pat, f.stem)[0]
+    for tf in test_csv:
+        print(f"{tf} ...")
+        num_solution = re.findall(ns_pat, tf.stem)[0]
         assert num_solution.isdecimal()
         num_solution = eval(num_solution)
 
-        df = pd.read_csv(f, low_memory=False)
+        #df = pd.read_feather(tf)
+        df = pd.read_csv(tf, low_memory=False)
         gflops = df['GFlops'].values
         gflops = gflops.reshape(-1, num_solution)
         n = gflops.shape[0]
@@ -353,19 +305,16 @@ def testing(test_csv, n_pct=0.1, topN=5, eff_err=0.015):
         train_cats(rf_df)
         categorify(rf_df)
         rf_preds = rf_m.predict(rf_df)
-        rf_preds = np.exp(rf_preds)
+        rf_preds = np.expm1(rf_preds)
         
         # nn
         nn_df = df[final_cols.tolist() + [dep_var]].copy()
         cont_var = ['AreaC', 'TotalFlops', 'SizeL', 'LDB', 'AspectRatioA', 'SizeK',
           'AspectRatioC', 'LDA']
         cat_var = list(set(final_cols) - set(cont_var))
-        dls = to_nn.dataloaders(1024)
-        learn = tabular_learner(dls, y_range=(0, 1), layers=[750, 375], n_out=1, loss_func=F.mse_loss, metrics=[rmse])
-        learn.load('nn_m');
         dl = learn.dls.test_dl(nn_df)
         nn_preds = learn.get_preds(dl=dl)
-        nn_preds = np.exp(nn_preds[0])
+        nn_preds = np.expm1(nn_preds[0])
         nn_preds = nn_preds.reshape(-1)
         
         # mean
@@ -397,7 +346,7 @@ def testing(test_csv, n_pct=0.1, topN=5, eff_err=0.015):
             gflops_target.append(gflops[i, t])
         gflops_preds, gflops_target = np.array(gflops_preds), np.array(gflops_target)
 
-        print(f"{f.stem}: {n_pct*100}%/{num_preds} solutions, top1 accuracy: {np.sum(top1_acc)/n*100:.2f}%, top{topN} accuracy: {np.sum(acc)/n*100:.2f}%")
+        print(f"{tf.stem}: {n_pct*100}%/{num_preds} solutions, top1 accuracy: {np.sum(top1_acc)/n*100:.2f}%, top{topN} accuracy: {np.sum(acc)/n*100:.2f}%")
         print(f"\t\tefficiency error < 1.5%: {mee(gflops_preds, gflops_target, eff_err) * 100:.2f}%")
         
         fig, axes = plt.subplots(3, 3, figsize=(10, 8))
@@ -414,8 +363,21 @@ def testing(test_csv, n_pct=0.1, topN=5, eff_err=0.015):
 # In[6]:
 
 
-test_csv = list(test_path.glob('valid_*.csv'))
-ns_pat = re.compile(r'_.._N(.*)')
+print("validating ...")
+#test_csv = list(train_path.glob('**/valid_N*.feat'))
+test_csv = list(train_path.glob('**/valid_N*.csv'))
+ns_pat = re.compile(r'_N(.*)')
+print(f"{test_csv}")
+
+# rf
+print("Loading RF model ...")
+rf_m = pickle.load((model_path/'final_rf_model.pkl').open('rb'))
+final_cols = pickle.load((model_path/'final_columns.pkl').open('rb'))
+# nn
+print("Loading NN model ...")
+to_nn = pickle.load((model_path/'to_nn.pkl').open('rb'))
+learn = get_learn(to_nn)
+learn.load('nn_m');
 
 
 # In[10]:
@@ -440,10 +402,4 @@ testing(test_csv, n_pct=0.15)
 
 
 testing(test_csv, n_pct=0.2)
-
-
-# In[ ]:
-
-
-
 

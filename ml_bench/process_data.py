@@ -312,6 +312,12 @@ def parse_kernel_feature(kernels):
     return feat
 
 
+def get_rankings(gflops, num_kernels):
+    itor = {r:i for i, r in enumerate(np.argsort(-gflops))} # reverse
+    rankings = [itor[j] / num_kernels for j in range(num_kernels)]
+    return rankings
+
+
 def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1, test=False):
     print(f"processing {basename} ...")
     df = pd.read_csv(basename.with_suffix('.csv'))
@@ -344,13 +350,11 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
         for i in train_idxs:
             train_problems.append(problem_sizes[i])
             train_gflops.append(gflops[i])
-            rankings = np.argsort(-gflops[i]) # reverse
-            train_rankings.append((rankings + 1) / num_kernels)
+            train_rankings.append(get_rankings(gflops[i], num_kernels))
         for i in valid_idxs:
             valid_problems.append(problem_sizes[i])
             valid_gflops.append(gflops[i])
-            rankings = np.argsort(-gflops[i]) # reverse
-            valid_rankings.append(rankings / num_kernels)
+            valid_rankings.append(get_rankings(gflops[i], num_kernels))
 
         train_problem_features = defaultdict(lambda: [])
         for n, v in zip(problem_size_names, np.transpose(train_problems)):
@@ -382,7 +386,7 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
         problem_features = defaultdict(lambda: [])
         for n, v in zip(problem_size_names, np.transpose(problem_sizes)):
             problem_features[n].extend(np.repeat(v, num_kernels))
-        rankings = (np.argsort(-gflops) / num_kernels) # reverse
+        rankings = [get_rankings(gflops[i], num_kernels) for i in num_problems]
         bench_features = {
             'GFlops': np.concatenate(gflops),
             'Ranking': np.concatenate(rankings),
@@ -430,13 +434,17 @@ if __name__ == '__main__':
 
         # drop one-value columns
         to_keep = [n for n, c in train_df.items() if len(c.unique()) > 1]
+        train_df, valid_df = train_df[to_keep], valid_df[to_keep]
         tail = '' if args.sampling_interval == 1 else f'_sampling_interval_{args.sampling_interval}'
-        train_df[to_keep].to_feather(out/f'train{tail}.feat')
+        #train_df[to_keep].to_feather(out/f'train{tail}.feat')
+        train_df.to_feather(out/f'train{tail}.feat')
         print(f'{out}/train{tail}.feat is generated.')
-        valid_df[to_keep].to_feather(out/f'valid{tail}.feat')
+        #valid_df[to_keep].to_feather(out/f'valid{tail}.feat')
+        valid_df.to_feather(out/f'valid{tail}.feat')
         print(f'{out}/valid{tail}.feat is generated.')
         if args.train_and_valid:
-            df = pd.concat([train_df[to_keep], valid_df[to_keep]], ignore_index=True)
+            #df = pd.concat([train_df[to_keep], valid_df[to_keep]], ignore_index=True)
+            df = pd.concat([train_df, valid_df], ignore_index=True)
             df.to_feather(out/f'train_and_valid{tail}.feat')
             print(f'{out}/train_and_valid{tail}.feat is generated.')
 

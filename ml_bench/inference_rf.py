@@ -13,10 +13,10 @@ from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.tree import DecisionTreeRegressor
 #from IPython.display import Image, display_svg, SVG
 # from dtreeviz.trees import *
-from sklearn.tree import export_graphviz
-import scipy
-from scipy.cluster import hierarchy as hc
-from sklearn.inspection import plot_partial_dependence
+#from sklearn.tree import export_graphviz
+#import scipy
+#from scipy.cluster import hierarchy as hc
+#from sklearn.inspection import plot_partial_dependence
 import yaml
 import os
 import re
@@ -37,7 +37,7 @@ from pathlib import Path
 
 
 path = Path('data')
-train_path = path/'inc1'
+train_path = path/'train'
 test_path = train_path
 img_path = train_path/'imgs'
 model_path = train_path/'models'
@@ -206,7 +206,7 @@ if not (model_path/'final_rf_model.pkl').is_file():
             #'MacroTile1', 'WorkGroup_1', 'WorkGroup_0',
     final_cols = ['AreaC', 'NumElementsPerThread',
             'TotalFlops', 'LdsNumElements', 'StoreRemapVectorWidth', 'SizeL',
-            'SolutionName', 'MacroTile1', 'WorkGroup_1', 'WorkGroup_0',
+            'KernelName', 'MacroTile1', 'WorkGroup_1', 'WorkGroup_0',
             'MacroTile0', 'LDB', 'AspectRatioA', 'LdsOffsetB_Blk', 'LdsOffsetA_Blk',
             'DepthU', 'LdsNumElementsAlignedB', 'SizeK',
             'AspectRatioC', 'LSCA', 'LoopIters', 'AssertFree0ElementMultiple',
@@ -241,7 +241,7 @@ if not (model_path/'final_rf_model.pkl').is_file():
     xs_final, valid_xs_final = xs[final_cols].copy(), valid_xs[final_cols].copy()
     del xs, valid_xs
 
-    cluster_columns(valid_xs_final, figsize=(12, 12), font_size=9);
+    #cluster_columns(valid_xs_final, figsize=(12, 12), font_size=9);
 
     model = final_rf(xs_final, y)
     print("Final", eval_model(model, xs_final, y, valid_xs_final, valid_y))
@@ -327,17 +327,11 @@ def testing(test_csv, n_pct=0.1, topN=5):
 # In[65]:
 
 
-test_csv = list(test_path.glob('**/valid_*.csv'))
+test_csv = list(test_path.glob('**/valid_N*.feat'))
 ns_pat = re.compile(r'_N(.*)')
 
 
 print("Testing model ...")
-
-
-# In[66]:
-
-
-testing(test_csv, n_pct=0.02)
 
 
 # In[67]:
@@ -361,5 +355,5 @@ testing(test_csv, n_pct=0.15)
 # In[70]:
 
 
-testing(test_csv, n_pct=0.25)
+testing(test_csv, n_pct=0.2)
 
