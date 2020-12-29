@@ -16,6 +16,7 @@ from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from pandas.api.types import is_integer_dtype
 from functools import partial
 import argparse
+import re
 
 pd.options.display.max_rows = None
 
@@ -318,14 +319,30 @@ def get_rankings(gflops, num_kernels):
     return rankings
 
 
-def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1, test=False):
+def parse_config(conf):
+    global_param_start_offset = -1
+    problem_size_start_offset = -1
+    text, problem_size = [], []
+    gp_start_pat = r'^GlobalParameters\s*:'
+    ps_start_pat = r'\s*-\s*ProblemSizes\s*'
+    ps_pat = r'\s*-\s*Exact\s*:\s*[\[\{]'
+    for i, o in enumerate(conf.open().readlines()):
+        if re.match(ps_pat, o):
+            problem_size.append(o)
+        else:
+            if re.match(gp_start_pat, o): global_param_start_offset = i + 1
+            elif re.match(ps_start_pat, o): problem_size_start_offset = i + 1
+            text.append(o)
+    return global_param_start_offset, problem_size_start_offset, text, problem_size
+
+
+def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, test=False):
     print(f"processing {basename} ...")
     df = pd.read_csv(basename.with_suffix('.csv'))
     sol_start_idx = 10
     problem_size_names = df.columns[1:sol_start_idx]
     gflops = df.iloc[:, sol_start_idx:].values
     rankings = np.argsort(-gflops) # reverse
-    if n_jobs == -1: n_jobs = os.cpu_count()
     workdir = basename.parent
 
     _kernels = yaml.safe_load(basename.with_suffix('.yaml').open())
@@ -335,6 +352,7 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
     
     # get full name 
     #solution_names = []
+    #if n_jobs == -1: n_jobs = os.cpu_count()
     #with ThreadPoolExecutor(n_jobs) as e:
     #    solution_names += e.map(Solution.getNameFull, solutions)
     #print("num_solutions: {}\nsolution_names[0]: {}".format(num_solutions, solution_names[0]))
@@ -375,13 +393,27 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
         train_df = df_create(train_problem_features, kernel_features, train_bench_features, len(train_problems))
         valid_df = df_create(valid_problem_features, kernel_features, valid_bench_features, len(valid_problems))
             
-        configs = (workdir/'problem_sizes.yaml').open().readlines()
+        # validate
         _valid_df = valid_df.copy()
         df_compress(_valid_df)
         _valid_df.to_feather(workdir/f'valid_N{num_kernels}.feat')
         del _valid_df
-        with (workdir/'valid_problem_sizes.yaml').open('w') as fp:
-            for i in valid_idxs: fp.write(configs[i])
+
+        # config
+        config = list(workdir.glob('rocblas_*.yaml'))[0]
+        valid_output = workdir/f'valid_{config.stem}.yaml'
+        fast_bench_output = workdir/f'fast_bench_{config.stem}.yaml'
+        global_param_start_offset, problem_size_start_offset, text, problem_size = parse_config(config)
+        valid_problem_size = [problem_size[i] for i in valid_idxs]
+        for o in reversed(valid_problem_size): text.insert(problem_size_start_offset, o)
+        with (valid_output).open('w') as fp:
+            fp.write(''.join(text))
+        print(f"{valid_output} is generated.")
+        text.insert(global_param_start_offset, '  FastSolutionKeep: 0.25\n')
+        text.insert(global_param_start_offset, '  FastBenchmark: True\n')
+        with (fast_bench_output).open('w') as fp:
+            fp.write(''.join(text))
+        print(f"{fast_bench_output} is generated.")
     else:
         problem_features = defaultdict(lambda: [])
         for n, v in zip(problem_size_names, np.transpose(problem_sizes)):
@@ -399,21 +431,12 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, n_jobs=-1,
     return (train_df, valid_df)
 
 
-if __name__ == '__main__':
-    start = time.time()
-    parser = argparse.ArgumentParser()
-    parser.description = "process tensile benchmark data"
-    parser.add_argument("--data_dir", type=str)
-    parser.add_argument("--output_dir", type=str, default=None)
-    parser.add_argument("--test", action="store_true", default=None)
-    parser.add_argument("--train_and_valid", action="store_true", default=None)
-    parser.add_argument("--sampling_interval", type=int, default=1)
-    parser.add_argument("--n_jobs", type=int, default=-1)
-    args = parser.parse_args()
-
+def _process_data(args):
     path = Path(args.data_dir)
     out = Path(args.output_dir) if args.output_dir else path
     out.mkdir(exist_ok=True)
+
+    start = time.time()
 
     # get data
     src = []
@@ -424,7 +447,7 @@ if __name__ == '__main__':
 
     train_dfs, valid_dfs = [], []
     for o in src:
-        df, df2 = dataset_create(o, sampling_interval=args.sampling_interval, n_jobs=args.n_jobs, test=args.test)
+        df, df2 = dataset_create(o, valid_pct=0.5, sampling_interval=args.sampling_interval, test=args.test)
         train_dfs.append(df)
         valid_dfs.append(df2)
 
@@ -450,3 +473,17 @@ if __name__ == '__main__':
 
     end = time.time()
     print("Prepare data done in {} seconds.".format(end - start))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.description = "process tensile benchmark data"
+    parser.add_argument("--data_dir", type=str)
+    parser.add_argument("--output_dir", type=str, default=None)
+    parser.add_argument("--test", action="store_true", default=None)
+    parser.add_argument("--train_and_valid", action="store_true", default=None)
+    parser.add_argument("--sampling_interval", type=int, default=1)
+    parser.add_argument("--n_jobs", type=int, default=-1)
+    args = parser.parse_args()
+
+    _process_data(args)
