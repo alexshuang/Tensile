@@ -336,7 +336,7 @@ def parse_config(conf):
     return global_param_start_offset, problem_size_start_offset, text, problem_size
 
 
-def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, test=False):
+def dataset_create(basename, valid_pct=0.2, test=False):
     print(f"processing {basename} ...")
     df = pd.read_csv(basename.with_suffix('.csv'))
     sol_start_idx = 10
@@ -425,15 +425,26 @@ def dataset_create(basename:Path, valid_pct=0.2, sampling_interval=1, test=False
         }
         df = df_create(problem_features, kernel_features, bench_features, num_problems)
         df_compress(df)
-        df.to_feather(out/f'test_N{num_kernels}.feat')
+        df.to_feather(workdir/f'test_N{num_kernels}.feat')
+        # config
+        config = list(workdir.glob('rocblas_*.yaml'))[0]
+        fast_bench_output = workdir/f'fast_bench_{config.stem}.yaml'
+        with (fast_bench_output).open('w') as fp:
+            gp_start_pat = r'^GlobalParameters\s*:'
+            for o in config.open().readlines():
+                fp.write(o)
+                if re.match(gp_start_pat, o):
+                    fp.write('  FastSolutionKeep: 0.25\n')
+                    fp.write('  FastBenchmark: True\n')
+        print(f"{fast_bench_output} is generated.")
         return (None, None)
 
     return (train_df, valid_df)
 
 
 def _process_data(args):
-    path = Path(args.data_dir)
-    out = Path(args.output_dir) if args.output_dir else path
+    path = Path(args.path)
+    out = path
     out.mkdir(exist_ok=True)
 
     start = time.time()
@@ -447,7 +458,7 @@ def _process_data(args):
 
     train_dfs, valid_dfs = [], []
     for o in src:
-        df, df2 = dataset_create(o, valid_pct=0.5, sampling_interval=args.sampling_interval, test=args.test)
+        df, df2 = dataset_create(o, valid_pct=args.valid_pct, test=args.test)
         train_dfs.append(df)
         valid_dfs.append(df2)
 
@@ -458,18 +469,14 @@ def _process_data(args):
         # drop one-value columns
         to_keep = [n for n, c in train_df.items() if len(c.unique()) > 1]
         train_df, valid_df = train_df[to_keep], valid_df[to_keep]
-        tail = '' if args.sampling_interval == 1 else f'_sampling_interval_{args.sampling_interval}'
-        #train_df[to_keep].to_feather(out/f'train{tail}.feat')
-        train_df.to_feather(out/f'train{tail}.feat')
-        print(f'{out}/train{tail}.feat is generated.')
-        #valid_df[to_keep].to_feather(out/f'valid{tail}.feat')
-        valid_df.to_feather(out/f'valid{tail}.feat')
-        print(f'{out}/valid{tail}.feat is generated.')
+        train_df.to_feather(out/f'train.feat')
+        print(f'{out}/train.feat is generated.')
+        valid_df.to_feather(out/f'valid.feat')
+        print(f'{out}/valid.feat is generated.')
         if args.train_and_valid:
-            #df = pd.concat([train_df[to_keep], valid_df[to_keep]], ignore_index=True)
             df = pd.concat([train_df, valid_df], ignore_index=True)
-            df.to_feather(out/f'train_and_valid{tail}.feat')
-            print(f'{out}/train_and_valid{tail}.feat is generated.')
+            df.to_feather(out/f'train_and_valid.feat')
+            print(f'{out}/train_and_valid.feat is generated.')
 
     end = time.time()
     print("Prepare data done in {} seconds.".format(end - start))
@@ -477,13 +484,11 @@ def _process_data(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.description = "process tensile benchmark data"
-    parser.add_argument("--data_dir", type=str)
-    parser.add_argument("--output_dir", type=str, default=None)
-    parser.add_argument("--test", action="store_true", default=None)
-    parser.add_argument("--train_and_valid", action="store_true", default=None)
-    parser.add_argument("--sampling_interval", type=int, default=1)
-    parser.add_argument("--n_jobs", type=int, default=-1)
+    parser.description = "Convert benchmark data into what the model needs."
+    parser.add_argument("--path", type=str, help="Path of workspace.")
+    parser.add_argument("--valid_pct", type=float, default=0.2, help="The proportion of validation sets in the entire data set.")
+    parser.add_argument("--train_and_valid", action="store_true", default=False, help="Merge train.feat and valid.feat to train_and_valid.feat")
+    parser.add_argument("--test", action="store_true", default=False, help="Process for test set. Compared with train set, test set has no label and does not need to split problem size for validation set.")
     args = parser.parse_args()
 
     _process_data(args)
