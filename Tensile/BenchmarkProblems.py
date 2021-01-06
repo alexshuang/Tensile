@@ -513,10 +513,13 @@ from functools import partial
 import argparse
 
 def load_model(path):
-    model = pickle.load((path/f'final_rf_model.pkl').open('rb'))
-    final_cols = pickle.load((path/f'final_columns.pkl').open('rb'))
+    model = pickle.load((path/'final_rf_model.pkl').open('rb'))
+    final_cols = pickle.load((path/'final_columns.pkl').open('rb'))
     tme = None #pickle.load((path/f'target_mean_enc.pkl').open('rb'))
     return model, final_cols, tme
+
+def check_model(path):
+    return (path/'final_rf_model.pkl').is_file() and (path/'final_columns.pkl').is_file()
 
 def strify(o):
     if isinstance(o, list):
@@ -744,12 +747,10 @@ def dataset_create(problem_sizes, kernels, final_cols):
     print(f"done in {elapsed:.2f} s")
     return df
 
-def fast_bench(problemSizes, kernels, n_pct=0.15):
-    #import pdb; pdb.set_trace()
+def fast_bench(model_path, problemSizes, kernels, n_pct=0.15):
     n = len(kernels)
-    path = Path('ml_bench/data/inc1/models')
     problem_sizes = np.stack([p.sizes for p in problemSizes.exacts])
-    model, final_cols, _ = load_model(path)
+    model, final_cols, _ = load_model(model_path)
     xs = dataset_create(problem_sizes, kernels, final_cols)
     #xs = apply_target_mean_enc(xs, tme)
 #    xs.fillna(0, inplace=True)
@@ -804,13 +805,17 @@ def writeBenchmarkFiles(stepBaseDir, solutions, problemSizes, stepName, filesToC
 
   fastBenchmark, fastSolutionIndices = False, None
   if "FastBenchmark" in globalParameters and globalParameters["FastBenchmark"]:
-      n_pct = globalParameters["FastSolutionKeep"] if "FastSolutionKeep" in globalParameters else 0.15
+    n_pct = globalParameters["FastSolutionPct"] if "FastSolutionPct" in globalParameters else 0.25
+    model_path = globalParameters["FastBenchModelPath"] if "FastBenchModelPath" in globalParameters else '~/.fast_bench_tensile/models'
+    fast_bench_debug = globalParameters["FastBenchDebug"] if "FastBenchDebug" in globalParameters else False
+    if check_model(model_path):
       print("Enable fast benchmark ...")
-      fastSolutionIndices = fast_bench(problemSizes, kernels, n_pct=n_pct)
-      print("dump fast solution indices ...")
-      #with open('ml_bench/nn_process_out/tensile_fast_solution_indices.csv', 'w') as fp:
-      #  for p in fastSolutionIndices:
-      #      fp.write(f"{','.join([str(o) for o in np.sort(p)])}\n")
+      fastSolutionIndices = fast_bench(model_path, problemSizes, kernels, n_pct=n_pct)
+      if fast_bench_debug:
+        print("Dump fast_solution_indices ...")
+        with open('fast_solution_indices.csv', 'w') as fp:
+          for p in fastSolutionIndices:
+            fp.write(f"{','.join([str(o) for o in np.sort(p)])}\n")
       union_indices = np.unique(np.concatenate(fastSolutionIndices))
       print("number of union indices: {}".format(len(union_indices)))
       #solutions = [solutions[i] for i in union_indices]

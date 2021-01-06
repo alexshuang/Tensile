@@ -434,7 +434,8 @@ def dataset_create(basename, valid_pct=0.2, test=False):
             for o in config.open().readlines():
                 fp.write(o)
                 if re.match(gp_start_pat, o):
-                    fp.write('  FastSolutionKeep: 0.25\n')
+                    fp.write('  FastBenchDebug: True\n')
+                    fp.write('  FastSolutionPct: 0.25\n')
                     fp.write('  FastBenchmark: True\n')
         print(f"{fast_bench_output} is generated.")
         return (None, None)
