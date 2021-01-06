@@ -181,17 +181,15 @@ def metric(f):
 
 @metric
 def mae(p, t): return np.mean(abs(p - t))
-
-
 @metric
 def mee(p, t, eff_err): return np.mean(np.abs(p - t) < (t * eff_err))
-
-
 @metric
-def maxee(p, t): return np.max(np.abs(p - t) / t)
+def max_ee(p, t): return np.max(np.abs(p - t) / t)
+@metric
+def mean_ee(p, t): return np.mean(np.abs(p - t) / t)
 
 
-def testing(path, model, final_cols, n_pct=0.25, eff_err=0.015):
+def testing(path, model, final_cols, n_pct=0.25, eff_err=0.015, debug=False):
     src = []
     for t in ('**/valid_N*.feat', '**/test_N*.feat'):
         src.extend(path.glob(t))
@@ -201,7 +199,9 @@ def testing(path, model, final_cols, n_pct=0.25, eff_err=0.015):
 
     for tf in src:
         print(f"Inference {tf} ...")
-        img_path = tf.parent/'imgs'
+        out_path = tf.parent/'train_out'
+        img_path = out_path/'imgs'
+        out_path.mkdir(exist_ok=True)
         img_path.mkdir(exist_ok=True)
 
         num_solution = re.findall(n_pat, tf.stem)[0]
@@ -227,6 +227,12 @@ def testing(path, model, final_cols, n_pct=0.25, eff_err=0.015):
         num_preds = int(preds.shape[1] * n_pct)
         topN_preds = np.argsort(preds)[:, :num_preds]
 
+        if debug:
+            print("Dump fast_solution_indices ...")
+            with (out_path/'fast_solution_indices.csv').open('w') as fp:
+                for p in topN_preds:
+                    fp.write(f"{','.join([str(o) for o in np.sort(p)])}\n")
+
         top1_acc, gflops_preds, gflops_target = [], [], []
         for i, (p, t) in enumerate(zip(topN_preds, topN_target)):
             if gflops[i, t] < 0 or t in p:
@@ -244,9 +250,10 @@ def testing(path, model, final_cols, n_pct=0.25, eff_err=0.015):
 
         top1_acc = np.mean(top1_acc)
         eff_acc = mee(gflops_preds, gflops_target)(eff_err)
-        max_eff_err = maxee(gflops_preds, gflops_target)()
+        max_eff_err = max_ee(gflops_preds, gflops_target)()
+        mean_eff_err = mean_ee(gflops_preds, gflops_target)()
 
-        print(f"{tf.stem}: {n_pct*100}%/{num_preds}/{num_solution} solutions, top1 accuracy: {top1_acc*100:.2f}%, efficiency error < 1.5%: {eff_acc*100:.2f}%, max efficiency error: {max_eff_err*100:.2f}%")
+        print(f"{tf.stem}: {n_pct*100}%/{num_preds}/{num_solution} solutions, top1 accuracy: {top1_acc*100:.2f}%, efficiency error < 1.5%: {eff_acc*100:.2f}%, mean efficiency error: {mean_eff_err*100:.2f}%, max efficiency error: {max_eff_err*100:.2f}%")
         
         fig, axes = plt.subplots(3, 3, figsize=(10, 8))
         x_axis = np.arange(n)
@@ -263,22 +270,23 @@ def testing(path, model, final_cols, n_pct=0.25, eff_err=0.015):
         res['Kernel Count (fast-bench/origin)'].append(f'{num_preds}/{num_solution}')
         res['Top1 Accuracy Rate (%)'].append(top1_acc * 100)
         res[f'Efficiency Error < {eff_err*100}% (%)'].append(eff_acc * 100)
+        res['Mean Efficiency Error (%)'].append(mean_eff_err * 100)
         res['Max Efficiency Error (%)'].append(max_eff_err * 100)
 
     # dump result
-    output = tf.parent/'train_result.csv'
     df = pd.DataFrame(res)
     df.to_csv(output, float_format='%.2f', index=False)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.description = "train and testing"
+    parser.description = "Training with random forest"
     parser.add_argument("--path", type=str, help="Data path.")
     parser.add_argument("--train", type=str, default='train/', help="train set dir")
     parser.add_argument("--test", type=str, default='test/', help="test set dir")
     parser.add_argument("--kernel_pct", type=float, default=0.25, help="The proportion of selected topN kernels in the entire kernel set.")
     parser.add_argument("--eff_err", type=float, default=0.015, help="Accuracy error range of peak GFlops")
+    parser.add_argument("--debug", action="store_true", default=False, help="Dump debug info")
     args = parser.parse_args()
 
     path = Path(args.path)
@@ -340,8 +348,8 @@ if __name__ == '__main__':
     final_cols = pickle.load((model_path/'final_columns.pkl').open('rb'))
 
     print(f"Validation ...")
-    testing(train_path, m, final_cols, n_pct=args.kernel_pct, eff_err=args.eff_err)
+    testing(train_path, m, final_cols, n_pct=args.kernel_pct, eff_err=args.eff_err, debug=args.debug)
 
     if test_path.is_dir():
         print(f"Testing ...")
-        testing(test_path, m, final_cols, n_pct=args.kernel_pct, eff_err=args.eff_err)
+        testing(test_path, m, final_cols, n_pct=args.kernel_pct, eff_err=args.eff_err, debug=args.debug)
